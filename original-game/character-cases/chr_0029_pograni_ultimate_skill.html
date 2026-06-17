@@ -1,0 +1,1256 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>chr_0029 骏卫 (Pograni) 终结技 - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chr_0029-pograni" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              chr_0029 骏卫 (Pograni) 终结技
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        概述
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础数据
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blackboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blackboard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技能结构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        伤害窗口
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="伤害窗口">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rush-frame-76-82" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        突进 (Rush) — 主技能 frame 76-82
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trigger-attack2-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        追击 (Trigger) — attack2 ×4 轮
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finish-finish4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        终结一击 (Finish) — finish4
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        总倍率
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        自卫机制
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#atb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ATB 获取分析
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#damagedecoratemask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        damageDecorateMask 对比
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        与天赋1的互动
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="chr_0029-pograni">chr_0029 骏卫 (Pograni) 终结技<a class="headerlink" href="#chr_0029-pograni" title="Permanent link">&para;</a></h1>
+<h2 id="_1">概述<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>多段式物理终结技，消耗 100 USP。骏卫展开护盾冲向目标并造成大范围牵引+击飞，随后进行 4 次瞬移追击，最后以大范围终结一击收尾。可通过 combo skill 在前一次释放后连段继续攻击。全程霸体+无敌。</p>
+<h2 id="_2">基础数据<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>skillId</td>
+<td><code>chr_0029_pograni_ultimate_skill</code></td>
+</tr>
+<tr>
+<td>castType</td>
+<td>Active</td>
+</tr>
+<tr>
+<td>skillSpecification</td>
+<td>CharacterUltimateSkill</td>
+</tr>
+<tr>
+<td>attackRangeType</td>
+<td>Melee (近战)</td>
+</tr>
+<tr>
+<td>damageType</td>
+<td>Physical (物理)</td>
+</tr>
+<tr>
+<td>durationFrame</td>
+<td><strong>210</strong> (约 3.5s)</td>
+</tr>
+<tr>
+<td>exclusiveFrame</td>
+<td><strong>90</strong> (约 1.5s)</td>
+</tr>
+<tr>
+<td>cooldownTime</td>
+<td><strong>0.0</strong></td>
+</tr>
+<tr>
+<td>cost (UltimateSp)</td>
+<td><strong>100.0</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="blackboard">Blackboard<a class="headerlink" href="#blackboard" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>atk_scale_rush</code></td>
+<td>4.0</td>
+<td>突进攻击系数</td>
+</tr>
+<tr>
+<td><code>atk_scale_trigger</code></td>
+<td>2.0</td>
+<td>追击攻击系数</td>
+</tr>
+<tr>
+<td><code>atk_scale_final</code></td>
+<td>4.0</td>
+<td>终结一击系数</td>
+</tr>
+<tr>
+<td><code>atb_trigger</code></td>
+<td>15.0</td>
+<td>每次追击 ATB 获取</td>
+</tr>
+<tr>
+<td><code>atb_final</code></td>
+<td>50.0</td>
+<td>终结一击 ATB 获取</td>
+</tr>
+<tr>
+<td><code>center_radius</code></td>
+<td>6.0</td>
+<td>牵引范围半径</td>
+</tr>
+<tr>
+<td><code>radius</code></td>
+<td>5.0</td>
+<td>攻击范围半径</td>
+</tr>
+<tr>
+<td><code>height</code></td>
+<td>4.0</td>
+<td>攻击高度</td>
+</tr>
+<tr>
+<td><code>poise_rush</code></td>
+<td>15.0</td>
+<td>突进失衡</td>
+</tr>
+<tr>
+<td><code>poise_final</code></td>
+<td>15.0</td>
+<td>终结一击失衡</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>30.0</td>
+<td>buff 持续时间</td>
+</tr>
+<tr>
+<td><code>angle</code></td>
+<td>120.0</td>
+<td>攻击角度</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">技能结构<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p>终结技由三层 skill 组成:</p>
+<pre class="mermaid"><code>flowchart TD
+    Main["主技能 chr_0029_pograni_ultimate_skill&lt;br/&gt;210f"]
+    Spawn["frame 74&lt;br/&gt;生成 4 个 AbilityEntity"]
+    RushHit["frame 76&lt;br/&gt;突进伤害"]
+    Combo["后续由 combo 触发追击与终结"]
+
+    AE["AbilityEntity skill&lt;br/&gt;300f"]
+    Move["1-7f&lt;br/&gt;SoldierRush 冲向目标"]
+    BuffRace["3-17f&lt;br/&gt;竞争创建主 buff"]
+    Finish["50f&lt;br/&gt;AbilityEntity 自毁"]
+
+    Main --&gt; Spawn --&gt; AE
+    Main --&gt; RushHit --&gt; Combo
+    AE --&gt; Move --&gt; BuffRace --&gt; Finish</code></pre>
+<p>子 skill:</p>
+<ul>
+<li><code>chr_0029_pograni_ultimate_skill_abilityentity_attack2</code> — 追击阶段 (400f, 4 轮)</li>
+<li><code>chr_0029_pograni_ultimate_skill_abilityentity_finish1~4</code> — 终结阶段</li>
+</ul>
+<h2 id="_4">伤害窗口<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h3 id="rush-frame-76-82">突进 (Rush) — 主技能 frame 76-82<a class="headerlink" href="#rush-frame-76-82" title="Permanent link">&para;</a></h3>
+<p>对 <code>centerRange</code> 组（以目标为中心, <code>center_radius=6.0</code> 球形检测的敌方）造成:</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>攻击系数</td>
+<td><code>atkScale = atk_scale_rush</code> = <strong>4.0 (400% ATK)</strong></td>
+</tr>
+<tr>
+<td>伤害类型</td>
+<td>Physical / HP</td>
+</tr>
+<tr>
+<td>damageDecorateMask</td>
+<td><strong>4608</strong></td>
+</tr>
+<tr>
+<td>simpleCalculation</td>
+<td>true</td>
+</tr>
+<tr>
+<td>失衡参数</td>
+<td>值</td>
+</tr>
+<tr>
+<td>------</td>
+<td>-----</td>
+</tr>
+<tr>
+<td>失衡伤害</td>
+<td><code>poise_rush</code> = <strong>15</strong> (DefiniteValueCalculation)</td>
+</tr>
+<tr>
+<td>伤害类型</td>
+<td>Physical / Poise</td>
+</tr>
+</tbody>
+</table>
+<p><strong>附带效果:</strong></p>
+<ul>
+<li><strong>PullAction</strong>: 牵引 <code>centerRange</code> 内敌人到 <code>mainPos</code>（目标反方向 180°），pullSpeed=30，持续 0.167s，受 superArmor 衰减 (20→0.75, 30→0.5, 35→0)</li>
+<li><strong>BlowOffAction</strong>: 击飞高度 1.0</li>
+<li><strong>InterruptAction</strong>: 定身 1.0s</li>
+<li><strong>EnemyHurtAnimAction</strong>: 播放受击动画</li>
+</ul>
+<p><strong>注意:</strong> 突进伤害 <strong>不产生 ATB</strong> (<code>gainCost: false</code>)</p>
+<h3 id="trigger-attack2-4">追击 (Trigger) — attack2 ×4 轮<a class="headerlink" href="#trigger-attack2-4" title="Permanent link">&para;</a></h3>
+<p>每轮在 teleport 到目标附近后:</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>攻击系数</td>
+<td><code>atkScale = atk_scale_trigger</code> = <strong>2.0 (200% ATK)</strong></td>
+</tr>
+<tr>
+<td>damageDecorateMask</td>
+<td><strong>512</strong></td>
+</tr>
+<tr>
+<td>simpleCalculation</td>
+<td>true</td>
+</tr>
+<tr>
+<td>4 轮时间</td>
+<td>frame 9/108/209/307</td>
+</tr>
+<tr>
+<td>ATB 获取</td>
+<td><code>ObtainCost(Atb, Gain, atb_trigger=15.0)</code> per hit</td>
+</tr>
+</tbody>
+</table>
+<h3 id="finish-finish4">终结一击 (Finish) — finish4<a class="headerlink" href="#finish-finish4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>攻击系数</td>
+<td><code>atkScale = atk_scale_final</code> = <strong>4.0 (400% ATK)</strong></td>
+</tr>
+<tr>
+<td>damageDecorateMask</td>
+<td><strong>4608</strong></td>
+</tr>
+<tr>
+<td>失衡伤害</td>
+<td><code>poise_final</code> = <strong>15</strong> (DefiniteValueCalculation)</td>
+</tr>
+<tr>
+<td>ATB 获取</td>
+<td><code>ObtainCost(Atb, Gain, atb_final=50.0)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>附带效果:</strong></p>
+<ul>
+<li><strong>TakeDownAction</strong>: 击倒</li>
+<li><strong>HitStopAction</strong>: 卡帧</li>
+<li><strong>EnemyHurtAnimAction</strong>: 受击动画</li>
+</ul>
+<p>终结一击通过 <code>CheckTimedMarkerCondition</code> 条件触发。条件满足时执行完整终结，不满足只执行 HitStop。</p>
+<h3 id="_5">总倍率<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>段</th>
+<th>倍率</th>
+<th>ATB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>突进 Rush</td>
+<td>400% + 15 poise</td>
+<td>0</td>
+</tr>
+<tr>
+<td>追击 ×4</td>
+<td>200% × 4 = 800%</td>
+<td>15 × 4 = 60</td>
+</tr>
+<tr>
+<td>终结 Final</td>
+<td>400% + 15 poise</td>
+<td>50</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td><strong>1600% ATK</strong> + 30 poise</td>
+<td><strong>110 ATB</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注: finish1-3 的伤害为备选终结路径，系数来自 blackboard <code>atk_scale</code>（需在子 skill blackboard 中确认），ATB 来自 <code>atb</code> key。</p>
+</blockquote>
+<h2 id="_6">自卫机制<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>效果</th>
+<th>时间</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>无敌 (DamageImmune)</strong></td>
+<td>frame 0-90</td>
+<td><code>buff_common_damage_immune_medium</code></td>
+</tr>
+<tr>
+<td><strong>霸体 (SuperArmor)</strong></td>
+<td>frame 0-90</td>
+<td><code>SetSuperArmorAction</code></td>
+</tr>
+<tr>
+<td><strong>时缓</strong></td>
+<td>frame 0-3</td>
+<td>TimeDilation (HitStop 层)</td>
+</tr>
+<tr>
+<td><strong>隐藏 UI</strong></td>
+<td>frame 0-75</td>
+<td><code>HideUIAction</code></td>
+</tr>
+<tr>
+<td><strong>CG 特写</strong></td>
+<td>frame 0-75</td>
+<td><code>UltimateTimeAction</code> + <code>UltimateShowAction</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="atb">ATB 获取分析<a class="headerlink" href="#atb" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>方法</th>
+<th>值</th>
+<th>条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>追击 attack2 ×4</td>
+<td><strong>Gain</strong></td>
+<td>15.0 × 4</td>
+<td>命中</td>
+</tr>
+<tr>
+<td>终结 finish4</td>
+<td><strong>Gain</strong></td>
+<td>50.0</td>
+<td>TimedMarker 条件满足</td>
+</tr>
+<tr>
+<td>突进 rush</td>
+<td>—</td>
+<td>0</td>
+<td>不产生 ATB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键:</strong> 所有 ATB 获取均使用 <code>Gain</code> 方法，与战技的 <code>Return</code> 不同。这意味着:</p>
+<ul>
+<li>终结技的 ATB 获取 <strong>会触发天赋1</strong> <code>OnObtainAtb</code> 事件（因为 <code>CheckObtainAtbType</code> 匹配 <code>method=Gain</code>）</li>
+<li>终结技是骏卫叠天赋层数的主要手段之一</li>
+</ul>
+<h2 id="damagedecoratemask">damageDecorateMask 对比<a class="headerlink" href="#damagedecoratemask" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>技能</th>
+<th>Mask</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>战技 (normal)</td>
+<td>4352</td>
+<td>NormalSkill 标记</td>
+</tr>
+<tr>
+<td>突进/终结 (rush/final)</td>
+<td>4608</td>
+<td>UltimateSkill 标记</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1">与天赋1的互动<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<p>终结技的所有 ATB 获取均使用 <code>Gain</code> 方法，会触发 <code>OnObtainAtb</code> 事件，可叠加天赋1层数。追击每轮 +15 ATB × 4 = 60，终结 +50 ATB = 110，合计单次终结技可获取 110 ATB。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

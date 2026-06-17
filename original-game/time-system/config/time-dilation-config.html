@@ -1,0 +1,1087 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>TimeDilationConfig - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#timedilationconfig" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              TimeDilationConfig
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../combat-core/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../actions/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#timedilationconfig_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TimeDilationConfig
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TimeDilationConfig">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        字段
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        调用入口
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        生命周期
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已确认行为
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timedilationconfig_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TimeDilationConfig
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TimeDilationConfig">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据源
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prioritymap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        priorityMap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slot-tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        slot tags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#curvemap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        curveMap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slotspecialconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        slotSpecialConfig
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="timedilationconfig">TimeDilationConfig<a class="headerlink" href="#timedilationconfig" title="Permanent link">&para;</a></h1>
+<p>本页合并多个源文档以去除同名 TimeDilation/Tick 类页的重复导航，同时保留每个源文件的原始信息。</p>
+<h2 id="timedilationconfig_1">TimeDilationConfig<a class="headerlink" href="#timedilationconfig_1" title="Permanent link">&para;</a></h2>
+<h3 id="_1">字段<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>Offset</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>priorityMap: SerializeFieldDictionary&lt;GameplayTag, int&gt;</code></td>
+<td><code>0x18</code></td>
+<td>TimeDilation priority tag 到整数优先级的映射。<code>TimeDilationManager._AddNew*</code> 用该值做同 slot 竞争。</td>
+</tr>
+<tr>
+<td><code>curveMap: SerializeFieldDictionary&lt;string, AnimationCurve&gt;</code></td>
+<td><code>0x20</code></td>
+<td>action <code>curveKey</code> 到 Unity <code>AnimationCurve</code> 的映射。instance <code>OnTick</code> 每帧按 normalized time 评估曲线。</td>
+</tr>
+<tr>
+<td><code>slotSpecialConfig: List&lt;SlotSpecialConfig&gt;</code></td>
+<td><code>0x28</code></td>
+<td>global slot 与 entity slot 的特殊关系配置；当前数据中 Global/UltiSkill 与 Global/GamePlay 都会影响 Entity/Frozen duration。</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>Offset</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>globalSlot: GameplayTag</code></td>
+<td><code>0x10</code></td>
+<td>Global TimeDilation slot。</td>
+</tr>
+<tr>
+<td><code>entitySlot: GameplayTag</code></td>
+<td><code>0x20</code></td>
+<td>Entity TimeDilation slot。</td>
+</tr>
+<tr>
+<td><code>isInfluenceDuration: bool</code></td>
+<td><code>0x30</code></td>
+<td>当 global slot 生效时，该 entity slot 的 duration 是否按 global time scale 推进。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">方法<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>确认状态</th>
+<th>已确认行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DataManager.get_timeDilationConfig()</code></td>
+<td><code>已确认</code></td>
+<td>返回 DataManager 持有的 <code>TimeDilationConfig</code>。</td>
+</tr>
+<tr>
+<td><code>DataManager.set_timeDilationConfig(TimeDilationConfig)</code></td>
+<td><code>已确认</code></td>
+<td>设置 DataManager 持有的 <code>TimeDilationConfig</code>。</td>
+</tr>
+<tr>
+<td><code>TimeDilationConfig.ctor</code></td>
+<td><code>已确认</code></td>
+<td>ScriptableObject 配置容器构造；无 gameplay 行为。</td>
+</tr>
+<tr>
+<td><code>SlotSpecialConfig.ctor</code></td>
+<td><code>已确认</code></td>
+<td>嵌套配置项构造；无 gameplay 行为。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">调用入口<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>TimeDilationManager._AddNewEntityTimeDilationInst</code> / <code>_AddNewGlobalTimeDilationInst</code> 读取 <code>priorityMap</code> 判定同 slot 竞争。</li>
+<li><code>TimeDilationAction.ExecuteInternal</code> 传入 <code>curveKey</code> 或 direct curve；manager/instance 使用 <code>curveMap</code> 或 action curve 构造实例曲线。<code>HitStopAction</code> 的 keyed curve owner 是 <a href="hit-stop-config.html">HitStopConfig</a>，不是本类。</li>
+<li><code>EntityTimeDilationInst.OnTick</code> 根据 <code>slotSpecialConfig</code> 判断 Entity/Frozen duration 是否受 active global TimeDilation 影响。</li>
+</ul>
+<h3 id="_4">生命周期<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<ol>
+<li>DataManager 加载 <code>TimeDilationConfig</code> asset。</li>
+<li>Battle / action runtime 启动 TimeDilation 时读取 priority、slot special config、curve。</li>
+<li>TimeDilation instance lifetime 内每帧评估曲线。</li>
+<li>配置对象自身不参与 tick。</li>
+</ol>
+<h3 id="_5">已确认行为<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>priorityMap</code> 当前 mined data 中包含：</li>
+<li><code>TimeDilation/Priority/UltiSkill = 100</code></li>
+<li><code>TimeDilation/Priority/Frozen = 50</code></li>
+<li><code>TimeDilation/Priority/ComboSkill = 30</code></li>
+<li><code>TimeDilation/Priority/GlobalSlowMotionPro = 21</code></li>
+<li><code>TimeDilation/Priority/BreakPoise = 20</code></li>
+<li><code>TimeDilation/Priority/Interrupt = 15</code></li>
+<li><code>TimeDilation/Priority/HitStop = 10</code></li>
+<li><code>TimeDilation/Priority/DashSucceed = 10</code></li>
+<li><code>TimeDilation/Priority/GlobalSlowMotion = 10</code></li>
+<li><code>TimeDilation/Priority/VisualAdjust = 50</code></li>
+<li><code>curveMap</code> 当前 mined data 包含 <code>forge_iron_hitstop</code>、<code>RESETto1</code>、<code>ComboSkill</code> 等 key，值为 Unity keyframe array；HitStopAction keyed curve 的正常来源仍是 <code>HitStopConfig</code>。</li>
+<li><code>forge_iron_hitstop</code> 曲线首帧 value 为 <code>0.05</code>，末帧 value 为 <code>1.0</code>。</li>
+<li><code>RESETto1</code> 曲线全程 value 为 <code>1.0</code>。</li>
+<li><code>slotSpecialConfig</code> 当前两项：</li>
+<li><code>Global/UltiSkill</code> -&gt; <code>Entity/Frozen</code>，<code>isInfluenceDuration=true</code></li>
+<li><code>Global/GamePlay</code> -&gt; <code>Entity/Frozen</code>，<code>isInfluenceDuration=true</code></li>
+</ul>
+<h2 id="timedilationconfig_2">TimeDilationConfig<a class="headerlink" href="#timedilationconfig_2" title="Permanent link">&para;</a></h2>
+<h3 id="_6">数据源<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<p><code>TimeDilationConfig</code> 是 TimeDilation 系统的数据配置，至少包含 priority、curve、slot special config 和 predefined tags。</p>
+<h3 id="prioritymap">priorityMap<a class="headerlink" href="#prioritymap" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Priority Tag</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TimeDilation/Priority/UltiSkill</code></td>
+<td>100</td>
+</tr>
+<tr>
+<td><code>TimeDilation/Priority/Frozen</code></td>
+<td>50</td>
+</tr>
+<tr>
+<td><code>TimeDilation/Priority/VisualAdjust</code></td>
+<td>50</td>
+</tr>
+<tr>
+<td><code>TimeDilation/Priority/ComboSkill</code></td>
+<td>30</td>
+</tr>
+<tr>
+<td><code>TimeDilation/Priority/GlobalSlowMotionPro</code></td>
+<td>21</td>
+</tr>
+<tr>
+<td><code>TimeDilation/Priority/BreakPoise</code></td>
+<td>20</td>
+</tr>
+<tr>
+<td><code>TimeDilation/Priority/Interrupt</code></td>
+<td>15</td>
+</tr>
+<tr>
+<td><code>TimeDilation/Priority/HitStop</code></td>
+<td>10</td>
+</tr>
+<tr>
+<td><code>TimeDilation/Priority/DashSucceed</code></td>
+<td>10</td>
+</tr>
+<tr>
+<td><code>TimeDilation/Priority/GlobalSlowMotion</code></td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<h3 id="slot-tags">slot tags<a class="headerlink" href="#slot-tags" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Slot</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TimeDilation/Layer/Global/GamePlay</code></td>
+<td>Global <code>TimeDilationAction</code> 固定 slot</td>
+</tr>
+<tr>
+<td><code>TimeDilation/Layer/Global/UltiSkill</code></td>
+<td>UltimateTime slot</td>
+</tr>
+<tr>
+<td><code>TimeDilation/Layer/Entity/Frozen</code></td>
+<td>Entity 冻结 / slotSpecialConfig 映射目标</td>
+</tr>
+<tr>
+<td><code>TimeDilation/Layer/Entity/VisualAdjust</code></td>
+<td>视觉调节类 Entity scale</td>
+</tr>
+</tbody>
+</table>
+<h3 id="curvemap">curveMap<a class="headerlink" href="#curvemap" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>forge_iron_hitstop
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>indie_dg002_travel_guide
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>interactive_behit_plant
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>interactive_behit_mine
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>RESETto1
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>interrupt_weakness
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>ComboSkill
+</code></pre></div>
+<p>影响：</p>
+<ul>
+<li>空曲线按 Unity <code>AnimationCurve.Evaluate()</code> 行为应为 <code>0.0</code>。</li>
+</ul>
+<h3 id="slotspecialconfig">slotSpecialConfig<a class="headerlink" href="#slotspecialconfig" title="Permanent link">&para;</a></h3>
+<p>当前配置中存在两个映射：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">[</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w"> </span><span class="nt">&quot;globalSlot&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TimeDilation/Layer/Global/UltiSkill&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w"> </span><span class="nt">&quot;entitySlot&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TimeDilation/Layer/Entity/Frozen&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w"> </span><span class="nt">&quot;isInfluenceDuration&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w"> </span><span class="nt">&quot;globalSlot&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TimeDilation/Layer/Global/GamePlay&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w"> </span><span class="nt">&quot;entitySlot&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TimeDilation/Layer/Entity/Frozen&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w"> </span><span class="nt">&quot;isInfluenceDuration&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="p">]</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

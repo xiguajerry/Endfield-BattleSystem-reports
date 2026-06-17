@@ -1,0 +1,2456 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>AttributesCalculator 属性计算分析报告 - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#attributescalculator" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              AttributesCalculator 属性计算分析报告
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-数据结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据结构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="数据结构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#attributesdata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AttributesData (属性数据容器)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enemydata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EnemyData (敌人配置数据)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-getcharacterattributedatafromtable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GetCharacterAttributeDataFromTable
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GetCharacterAttributeDataFromTable">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        流程说明
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键点
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#breakstage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        breakStage 数据来源
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-getenemybasicattributedata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GetEnemyBasicAttributeData
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GetEnemyBasicAttributeData">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        流程说明
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-getfinalenemyattributedata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GetFinalEnemyAttributeData
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GetFinalEnemyAttributeData">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        流程说明
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修饰器数组对应关系
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-数据流总结" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据流总结
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="数据流总结">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        玩家角色属性获取
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        敌人属性获取 (两阶段)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据流图示
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-属性计算公式汇编级精确推导" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        属性计算公式：汇编级精确推导
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="属性计算公式：汇编级精确推导">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-_calculatebaseattribute-7-参数" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _CalculateBaseAttribute (7 参数)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="_CalculateBaseAttribute (7 参数)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        逐指令追踪
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        精确公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-_calculatefinalattribute-11-参数" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _CalculateFinalAttribute (11 参数)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="_CalculateFinalAttribute (11 参数)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        逐指令追踪
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        精确公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-两函数关系" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        两函数关系
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-公式流程图" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        公式流程图
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-语义对照表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        语义对照表
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#66-设计要点" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        设计要点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-_applyattributemodifierfromenemy--汇编级精确推导" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _ApplyAttributeModifierFromEnemy — 汇编级精确推导
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="_ApplyAttributeModifierFromEnemy — 汇编级精确推导">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-函数签名" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        函数签名
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-attributemodifierdata-结构体布局" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AttributeModifierData 结构体布局
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-modifiertype-枚举与行为" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        modifierType 枚举与行为
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="modifierType 枚举与行为">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键设计：加算堆叠 vs 累乘堆叠
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-类型-0-逐指令追踪示例" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类型 0 逐指令追踪 (示例)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-类型-4-mul-逐指令追踪" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类型 4 (MUL) 逐指令追踪
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#76-bitmask-构建" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bitmask 构建
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#77-完整流程" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        完整流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#78-各数组最终值语义" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        各数组最终值语义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#79-与-getfinalenemyattributedata-的连接" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        与 GetFinalEnemyAttributeData 的连接
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attributesattributemodifierloader-modifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attributes.AttributeModifierLoader — 运行时 modifier 聚合
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Attributes.AttributeModifierLoader — 运行时 modifier 聚合">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        初始化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modifiertype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ModifierType 分支
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        武器基础攻击力
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        装备属性结算
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#附录-其他辅助函数" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附录: 其他辅助函数
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="附录: 其他辅助函数">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_lerp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _Lerp
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修改记录
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="attributescalculator">AttributesCalculator 属性计算分析报告<a class="headerlink" href="#attributescalculator" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>分析目标: <code>Beyond::Gameplay::AttributesCalculator</code> 中三个核心函数</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-数据结构">数据结构</a></li>
+<li><a href="#2-getcharacterattributedatafromtable">GetCharacterAttributeDataFromTable</a></li>
+<li><a href="#3-getenemybasicattributedata">GetEnemyBasicAttributeData</a></li>
+<li><a href="#4-getfinalenemyattributedata">GetFinalEnemyAttributeData</a></li>
+<li><a href="#5-数据流总结">数据流总结</a></li>
+<li><a href="#6-属性计算公式汇编级精确推导">属性计算公式：汇编级精确推导</a></li>
+<li>6.1 <a href="#61-_calculatebaseattribute-7-参数">_CalculateBaseAttribute (7参数)</a></li>
+<li>6.2 <a href="#62-_calculatefinalattribute-11-参数">_CalculateFinalAttribute (11参数)</a></li>
+<li>6.3 <a href="#63-两函数关系">两函数关系</a></li>
+<li>6.4 <a href="#64-公式流程图">公式流程图</a></li>
+<li>6.5 <a href="#65-语义对照表">语义对照表</a></li>
+<li>6.6 <a href="#66-设计要点">设计要点</a></li>
+<li><a href="#7-_applyattributemodifierfromenemy--汇编级精确推导">_ApplyAttributeModifierFromEnemy</a></li>
+<li>7.1 <a href="#71-函数签名">函数签名</a></li>
+<li>7.2 <a href="#72-attributemodifierdata-结构体布局">AttributeModifierData 结构体布局</a></li>
+<li>7.3 <a href="#73-modifiertype-枚举与行为">modifierType 枚举与行为</a></li>
+<li>7.4 <a href="#74-类型-0-逐指令追踪示例">类型 0 逐指令追踪</a></li>
+<li>7.5 <a href="#75-类型-4-mul-逐指令追踪">类型 4 (MUL) 逐指令追踪</a></li>
+<li>7.6 <a href="#76-bitmask-构建">bitmask 构建</a></li>
+<li>7.7 <a href="#77-完整流程">完整流程</a></li>
+<li>7.8 <a href="#78-各数组最终值语义">各数组最终值语义</a></li>
+<li>7.9 <a href="#79-与-getfinalenemyattributedata-的连接">与 GetFinalEnemyAttributeData 的连接</a></li>
+<li><a href="#附录-其他辅助函数">附录: 其他辅助函数</a></li>
+</ol>
+<hr />
+<h2 id="1-数据结构">数据结构<a class="headerlink" href="#1-数据结构" title="Permanent link">&para;</a></h2>
+<h3 id="attributesdata">AttributesData (属性数据容器)<a class="headerlink" href="#attributesdata" title="Permanent link">&para;</a></h3>
+<ul>
+<li>使用 <code>get_Item(AttributeType)</code> 按属性类型读写 double 值</li>
+<li>内部维护 <code>fieldMetas[]</code> 记录每个属性的 min/max 约束</li>
+<li>支持 <code>BinaryClone</code> 深拷贝和 <code>CreateFrom</code> 复制构造</li>
+</ul>
+<h3 id="enemydata">EnemyData (敌人配置数据)<a class="headerlink" href="#enemydata" title="Permanent link">&para;</a></h3>
+<ul>
+<li>从 <code>SparkMapTable&lt;String, EnemyData&gt;</code> 按 enemyId 查表获取</li>
+<li>包含 <code>attrModifiers: Nullable&lt;BeanArray&lt;AttributeModifierData&gt;&gt;</code></li>
+<li><code>AttributeModifierData</code> 包含 modifierType 和 formula params</li>
+</ul>
+<hr />
+<h2 id="2-getcharacterattributedatafromtable">GetCharacterAttributeDataFromTable<a class="headerlink" href="#2-getcharacterattributedatafromtable" title="Permanent link">&para;</a></h2>
+<h3 id="_2">流程说明<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>懒初始化 MethodInfo: <code>SafeCount&lt;T&gt;</code>, <code>get_Item</code>, <code>BinaryClone&lt;T&gt;</code> (byte_18D8E8484 门控)</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>SafeCount(keyFrames)</code> → 空列表直接返回 false</td>
+</tr>
+<tr>
+<td>4</td>
+<td>线性遍历，比较每个 keyframe 的 <code>level</code> 和 <code>breakStage</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>匹配成功 → <code>BinaryClone(attributesData)</code> 深拷贝写入 outResult</td>
+</tr>
+<tr>
+<td>6</td>
+<td>写屏障通知 GC (<code>sub_1800054D0</code>)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>返回 true (找到) 或 false (未找到)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">关键点<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>O(n) 线性搜索</strong>，未用二分查找 — 说明角色属性表条目数通常不多</li>
+<li><strong>深拷贝</strong> 通过 BinaryClone，避免调用方修改影响原始数据</li>
+</ul>
+<h3 id="breakstage">breakStage 数据来源<a class="headerlink" href="#breakstage" title="Permanent link">&para;</a></h3>
+<p>本地数据 <code>AKEDataMining/data/TableCfg/CharBreakStageTable.json</code> 记录角色等级到突破阶段的映射：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>语义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>breakStage</code></td>
+<td>突破阶段</td>
+</tr>
+<tr>
+<td><code>minCharLevel</code></td>
+<td>该阶段最小角色等级</td>
+</tr>
+<tr>
+<td><code>maxCharLevel</code></td>
+<td>该阶段最大角色等级</td>
+</tr>
+<tr>
+<td><code>normalAttackSkillLevel</code> / <code>normalSkillLevel</code> / <code>comboSkillLevel</code> / <code>ultimateSkillLevel</code></td>
+<td>该阶段默认技能等级上限/展示等级数据</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-getenemybasicattributedata">GetEnemyBasicAttributeData<a class="headerlink" href="#3-getenemybasicattributedata" title="Permanent link">&para;</a></h2>
+<h3 id="_4">流程说明<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>懒初始化 MethodInfo: <code>get_Count</code>, <code>get_Item</code> (byte_18D909029 门控)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>空列表检查 → 返回 false</td>
+</tr>
+<tr>
+<td>4</td>
+<td>读取首帧等级 <code>firstLevel</code> 和末帧等级 <code>lastLevel</code> (通过 <code>get_Item(AttributeType.Level)</code>)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>边界外推：低于最低→取首帧 / 高于最高→取末帧</td>
+</tr>
+<tr>
+<td>6</td>
+<td>二分查找定位目标等级所在区间</td>
+</tr>
+<tr>
+<td>7</td>
+<td>精确匹配 → <code>CreateFrom</code> 浅拷贝</td>
+</tr>
+<tr>
+<td>8</td>
+<td>区间匹配 → <code>_Lerp</code> 线性插值两侧关键帧</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_5">关键点<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>线性插值</strong> — 当等级落在两个关键帧之间时，使用 <code>_Lerp</code> 按比例混合</li>
+<li><strong>边界钳制</strong> — 超出表范围时钳制到最近端点，不是报错</li>
+<li><strong>CreateFrom vs BinaryClone</strong> — 此处用 <code>CreateFrom</code> (轻量复制)，角色函数用 <code>BinaryClone</code> (完整深拷贝)</li>
+</ul>
+<hr />
+<h2 id="4-getfinalenemyattributedata">GetFinalEnemyAttributeData<a class="headerlink" href="#4-getfinalenemyattributedata" title="Permanent link">&para;</a></h2>
+<h3 id="_6">流程说明<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>已确认-已确认</code></td>
+<td>懒初始化 8 个 TypeInfo/MethodInfo 指针 (byte_18D909028 门控)</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>已确认-已确认</code></td>
+<td>获取 <code>attrModifiers: Nullable&lt;BeanArray&lt;AttributeModifierData&gt;&gt;</code>，检查 HasValue</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>已确认-已确认</code></td>
+<td>分配 8 个 double 数组 (各 94 元素)，初始化加算=0、乘算=1.0</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>已确认-已确认</code></td>
+<td>调用 <code>_ApplyAttributeModifierFromEnemy</code> 填充修正器数组，返回 64 位 bitmask</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>已确认-已确认</code></td>
+<td>遍历 94 个属性，逐属性检查 bitmask</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>已确认-已确认</code></td>
+<td>对每个需修正的属性，读取 rawValue + 8 个修正值 + min/max，调用 <code>_CalculateFinalAttribute</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>已确认-已确认</code></td>
+<td><code>WriteSingleAttribute(attrType, finalValue)</code> 写回计算结果</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">修饰器数组对应关系<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>数组</th>
+<th>寄存器</th>
+<th>含义</th>
+<th>初始值</th>
+<th>是否被 Apply 修改</th>
+<th>对应 modifierType</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>addition</code></td>
+<td>rdi→r12</td>
+<td>主加算</td>
+<td>0.0</td>
+<td><strong>是</strong> (ADD)</td>
+<td>type 0</td>
+</tr>
+<tr>
+<td><code>multiplier</code></td>
+<td>rsi→r15</td>
+<td>主乘算</td>
+<td>1.0</td>
+<td><strong>是</strong> (ADD)</td>
+<td>type 1</td>
+</tr>
+<tr>
+<td><code>finalAddition</code></td>
+<td>r14→r14</td>
+<td>主最终加算</td>
+<td>0.0</td>
+<td><strong>是</strong> (ADD)</td>
+<td>type 3</td>
+</tr>
+<tr>
+<td><code>finalMultiplier</code></td>
+<td>r15→arg_20</td>
+<td>主最终乘算</td>
+<td>1.0</td>
+<td><strong>是</strong> (MUL)</td>
+<td>type 4</td>
+</tr>
+<tr>
+<td><code>baseAddition</code></td>
+<td>r12</td>
+<td>基础加算</td>
+<td>0.0</td>
+<td><strong>否</strong> (恒为 0)</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>baseMultiplier</code></td>
+<td>r13</td>
+<td>基础乘算</td>
+<td>1.0</td>
+<td><strong>否</strong> (恒为 1.0)</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>baseFinalAddition</code></td>
+<td>arg_18</td>
+<td>基础最终加算</td>
+<td>0.0</td>
+<td><strong>否</strong> (恒为 0)</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>baseFinalMultiplier</code></td>
+<td>var_190</td>
+<td>基础最终乘算</td>
+<td>1.0</td>
+<td><strong>否</strong> (恒为 1.0)</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">关键点<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>两阶段计算</strong>：先通过 <code>GetEnemyBasicAttributeData</code> 获取基础值，再通过本函数叠加修改器得到最终值</li>
+<li><strong>敌人只用主修正阶段</strong>：8 个数组中的 4 个基础阶段数组保持恒等值 (0/1.0)，敌人在 base 阶段只做 Clamp(raw, min, max)</li>
+<li><strong>仅有 4 个数组被 <code>_ApplyAttributeModifierFromEnemy</code> 修改</strong>：主加算、主乘算、主最终加算、主最终乘算</li>
+<li><strong>bitmask 优化</strong>：用 64 位 bitmask 标记哪些属性被修改，未修改的属性跳过计算</li>
+<li><strong>94 个属性</strong>：<code>Core.Attributes</code> 枚举共有 94 种属性类型 (loop 上限 0x5E)</li>
+<li><strong>静默生效</strong>：无修改器时直接返回 true，不修改 rawData</li>
+</ul>
+<hr />
+<h2 id="5-数据流总结">数据流总结<a class="headerlink" href="#5-数据流总结" title="Permanent link">&para;</a></h2>
+<h3 id="_9">玩家角色属性获取<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    N0["GetCharacterAttributeDataFromTable(level, breakStage, keyFrames, out result)"]
+    N1["线性搜索 keyFrames 中匹配 (level, breakStage) 的条目"]
+    N2["BinaryClone 深拷贝 → result"]
+    N0 --&gt; N1
+    N0 --&gt; N2</code></pre>
+<h3 id="_10">敌人属性获取 (两阶段)<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    N0["第一阶段: GetEnemyBasicAttributeData(level, sortedKeyframes, out rawData)"]
+    N1["二分查找 level 所在区间"]
+    N2{"命中精确等级？"}
+    N3["CreateFrom(keyframe)"]
+    N4{"落在两个关键帧之间？"}
+    N5["_Lerp(leftKeyFrame, rightKeyFrame, level)"]
+    N6["得到 rawData"]
+    N7["第二阶段: GetFinalEnemyAttributeData(enemyId, rawData)"]
+    N8["查表获取 EnemyData"]
+    N9["提取 attrModifiers"]
+    N10["填充 8 个修正器数组"]
+    N11["_ApplyAttributeModifierFromEnemy(...) → 返回 bitmask"]
+    N12["逐属性: _CalculateFinalAttribute(raw, 8×modifier, min, max) → WriteSingleAttribute"]
+    N0 --&gt; N1 --&gt; N2
+    N2 -- "是" --&gt; N3 --&gt; N6
+    N2 -- "否" --&gt; N4
+    N4 -- "是" --&gt; N5 --&gt; N6
+    N4 -- "否" --&gt; N6
+    N6 --&gt; N7 --&gt; N8 --&gt; N9 --&gt; N10 --&gt; N11 --&gt; N12</code></pre>
+<h3 id="_11">数据流图示<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    Character["玩家角色"]
+    CharacterTable["CharacterAttributeTable"]
+    CharacterKeyframes["keyFrames 列表"]
+    CharacterResult["AttributesData 深拷贝"]
+
+    Enemy["敌人"]
+    EnemyCurve["EnemyAttributeCurve"]
+    EnemyKeyframes["sorted keyframes"]
+    Match{"等级精确命中？"}
+    Clone["CreateFrom"]
+    Interpolate["区间插值"]
+    Raw["rawData"]
+    Config["EnemyConfigTable"]
+    Modifiers["attrModifiers"]
+    Final["叠加修正器后的最终属性"]
+
+    Character --&gt; CharacterTable --&gt; CharacterKeyframes --&gt; CharacterResult
+    Enemy --&gt; EnemyCurve --&gt; EnemyKeyframes --&gt; Match
+    Match -- "是" --&gt; Clone --&gt; Raw
+    Match -- "否" --&gt; Interpolate --&gt; Raw
+    Raw --&gt; Config --&gt; Modifiers --&gt; Final</code></pre>
+<hr />
+<h2 id="6-属性计算公式汇编级精确推导">属性计算公式：汇编级精确推导<a class="headerlink" href="#6-属性计算公式汇编级精确推导" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>辅助函数: <code>Clamp</code> = <code>Beyond::MathUtils::Clamp&lt;double&gt;</code> (<code>sub_182778EC0</code>), <code>Max</code> = <code>Beyond::MathUtils::Max&lt;double&gt;</code> (<code>sub_182A53D10</code>)</p>
+</blockquote>
+<h3 id="61-_calculatebaseattribute-7-参数">_CalculateBaseAttribute (7 参数)<a class="headerlink" href="#61-_calculatebaseattribute-7-参数" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>参数: rawValue, baseAddition, baseMultiplier, baseFinalAddition, baseFinalMultiplier, min, max
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>寄存器: xmm6=rawValue, xmm9=baseAddition, xmm8=baseMultiplier, xmm7=baseFinalAddition
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>栈参: arg_20=baseFinalMultiplier, arg_28=min, arg_30=max
+</code></pre></div>
+<h4 id="_12">逐指令追踪<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>指令 / 操作</th>
+<th>公式 / 说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>已确认</code></td>
+<td><code>addsd xmm6, xmm9</code></td>
+<td><code>T0 = rawValue + baseAddition</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>call Clamp(T0, min, max)</code></td>
+<td><code>T1 = Clamp(T0, min, max)</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>call Max(0, baseMultiplier)</code></td>
+<td><code>M1 = Max(0, baseMultiplier)</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>mulsd xmm0, xmm6</code></td>
+<td><code>T2 = M1 × T1</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>addsd xmm0, xmm7</code></td>
+<td><code>T3 = T2 + baseFinalAddition</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>mulsd xmm0, [arg_20]</code></td>
+<td><code>T4 = T3 × baseFinalMultiplier</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>call Clamp(T4, min, max)</code></td>
+<td><code>result = Clamp(T4, min, max)</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="_13">精确公式<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>_CalculateBaseAttribute(rawValue, baseAddition, baseMultiplier, baseFinalAddition, baseFinalMultiplier, min, max)
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a> = Clamp(
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a> ( Max(0, baseMultiplier) × Clamp(rawValue + baseAddition, min, max) + baseFinalAddition )
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a> × baseFinalMultiplier,
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a> min, max
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a> )
+</code></pre></div>
+<h3 id="62-_calculatefinalattribute-11-参数">_CalculateFinalAttribute (11 参数)<a class="headerlink" href="#62-_calculatefinalattribute-11-参数" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>参数: rawValue, addition, multiplier, finalAddition, finalMultiplier,
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a> baseAddition, baseMultiplier, baseFinalAddition, baseFinalMultiplier, min, max
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>寄存器: xmm6=rawValue, xmm11=addition, xmm10=multiplier, xmm9=finalAddition
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>栈参: arg_20=finalMultiplier, arg_28=baseAddition, arg_30=baseMultiplier,
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a> arg_38=baseFinalAddition, arg_40=baseFinalMultiplier, arg_48=min, arg_50=max
+</code></pre></div>
+<h4 id="_14">逐指令追踪<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h4>
+<p><strong>阶段 A — 基础加算 &amp; 第1次 Clamp:</strong></p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>指令 / 操作</th>
+<th>公式 / 说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>已确认</code></td>
+<td><code>addsd xmm6, [arg_28]</code></td>
+<td><code>T0 = rawValue + baseAddition</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>call Clamp(T0, min, max)</code></td>
+<td><code>T1 = Clamp(T0, min, max)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>阶段 B — 基础乘算 &amp; 第2次 Clamp:</strong></p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>指令 / 操作</th>
+<th>公式 / 说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>已确认</code></td>
+<td><code>call Max(0, baseMultiplier)</code></td>
+<td><code>M1 = Max(0, baseMultiplier)</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>mulsd xmm0, xmm6</code></td>
+<td><code>T2 = M1 × T1</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>addsd xmm0, [arg_38]</code></td>
+<td><code>T3 = T2 + baseFinalAddition</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>mulsd xmm0, [arg_40]</code></td>
+<td><code>T4 = T3 × baseFinalMultiplier</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>call Clamp(T4, min, max)</code></td>
+<td><code>B = Clamp(T4, min, max)</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>至此 <code>B</code> 的结果与 <code>_CalculateBaseAttribute</code> 完全一致。
+<strong>阶段 C — 主修正 &amp; 第3次 Clamp:</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>指令 / 操作</th>
+<th>公式 / 说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>已确认</code></td>
+<td><code>call Max(0, multiplier)</code></td>
+<td><code>M2 = Max(0, multiplier)</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>addsd xmm6, xmm11</code></td>
+<td><code>T5 = B + addition</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>mulsd xmm6, xmm0</code></td>
+<td><code>T6 = T5 × M2</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>addsd xmm6, xmm9</code></td>
+<td><code>T7 = T6 + finalAddition</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>mulsd xmm6, [arg_20]</code></td>
+<td><code>T8 = T7 × finalMultiplier</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>call Clamp(T8, min, max)</code></td>
+<td><code>result = Clamp(T8, min, max)</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="_15">精确公式<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>_CalculateFinalAttribute(rawValue, addition, multiplier, finalAddition, finalMultiplier,
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a> baseAddition, baseMultiplier, baseFinalAddition, baseFinalMultiplier,
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a> min, max)
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a> = Clamp(
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a> ( (
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a> Clamp( // ← 基础阶段 Clamp
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a> Max(0, baseMultiplier)
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a> × Clamp(rawValue + baseAddition, min, max) // ← 第1次 Clamp
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a> + baseFinalAddition
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a> ) × baseFinalMultiplier,
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a> min, max // ← 第2次 Clamp
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a> ) + addition
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a> ) × Max(0, multiplier)
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a> + finalAddition
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a> ) × finalMultiplier,
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a> min, max // ← 第3次 Clamp
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a> )
+</code></pre></div>
+<h3 id="63-两函数关系">两函数关系<a class="headerlink" href="#63-两函数关系" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>_CalculateBaseAttribute = _CalculateFinalAttribute 的 &quot;基础阶段&quot; (阶段 A + B)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>即: _CalculateFinalAttribute 在 _CalculateBaseAttribute 的结果 B 之上，
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a> 再叠加 (addition, multiplier, finalAddition, finalMultiplier) 四个主修正器
+</code></pre></div>
+<p>等价表示：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>B = _CalculateBaseAttribute(rawValue, baseAddition, baseMultiplier, baseFinalAddition, baseFinalMultiplier, min, max)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>_CalculateFinalAttribute = Clamp(
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a> ((B + addition) × Max(0, multiplier) + finalAddition) × finalMultiplier,
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a> min, max
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>)
+</code></pre></div>
+<h3 id="64-公式流程图">公式流程图<a class="headerlink" href="#64-公式流程图" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    N0["rawValue"]
+    N1["+ baseAddition"]
+    N2["Clamp ← 第1次"]
+    N3["min,max"]
+    N4["× Max(0, baseMultiplier)"]
+    N5["+ baseFinalAddition"]
+    N6["× baseFinalMultiplier"]
+    N7["Clamp ← 第2次 (B = _CalculateBaseAttribute 输出)"]
+    N8["min,max"]
+    N9["+ addition"]
+    N10["× Max(0, multiplier)"]
+    N11["+ finalAddition"]
+    N12["× finalMultiplier"]
+    N13["Clamp ← 第3次 (最终结果)"]
+    N14["min,max"]
+    N15["result"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6
+    N6 --&gt; N7
+    N7 --&gt; N8
+    N8 --&gt; N9
+    N9 --&gt; N10
+    N10 --&gt; N11
+    N11 --&gt; N12
+    N12 --&gt; N13
+    N13 --&gt; N14
+    N14 --&gt; N15</code></pre>
+<h3 id="65-语义对照表">语义对照表<a class="headerlink" href="#65-语义对照表" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>修正器</th>
+<th>作用阶段</th>
+<th>语义</th>
+<th>典型来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>baseAddition</code></td>
+<td>基础</td>
+<td>固定数值加成</td>
+<td>角色/敌人自身属性成长</td>
+</tr>
+<tr>
+<td><code>baseMultiplier</code></td>
+<td>基础</td>
+<td>百分比增减</td>
+<td>天赋、潜能加成</td>
+</tr>
+<tr>
+<td><code>baseFinalAddition</code></td>
+<td>基础</td>
+<td>最终固定追加</td>
+<td>装备固定值</td>
+</tr>
+<tr>
+<td><code>baseFinalMultiplier</code></td>
+<td>基础</td>
+<td>最终倍率</td>
+<td>全局属性倍率</td>
+</tr>
+<tr>
+<td><code>addition</code></td>
+<td>主修正</td>
+<td>固定数值 Buff</td>
+<td>Buff "+100 攻击力"</td>
+</tr>
+<tr>
+<td><code>multiplier</code></td>
+<td>主修正</td>
+<td>百分比 Buff</td>
+<td>Buff "攻击力 +30%"</td>
+</tr>
+<tr>
+<td><code>finalAddition</code></td>
+<td>主修正</td>
+<td>最终固定追加</td>
+<td>最终伤害附加</td>
+</tr>
+<tr>
+<td><code>finalMultiplier</code></td>
+<td>主修正</td>
+<td>最终倍率</td>
+<td>伤害倍率、暴击倍率</td>
+</tr>
+</tbody>
+</table>
+<h3 id="66-设计要点">设计要点<a class="headerlink" href="#66-设计要点" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Max(0, ×)</strong> — 所有乘算值取 Max(0, value)，防止负乘数导致属性值反向</li>
+<li><strong>三层 Clamp</strong> — 基础加法后、基础乘算后、最终结果后各钳制一次，确保中间值也不会溢出</li>
+<li><strong>base 组先于 main 组</strong> — 基础属性修正（来自角色/敌人自身）先计算，Buff/Debuff 修正叠加在结果上</li>
+<li><strong>加法先于乘法</strong> — 每个子层内部都是 <code>(value + add) × mul</code> 结构，符合 RPG 战斗公式惯例</li>
+<li><strong>最终层结构</strong> — <code>finalAddition</code> 在乘 <code>finalMultiplier</code> <strong>之前</strong>加，意味着它是一个不受倍率影响的固定偏移</li>
+</ol>
+<hr />
+<h2 id="7-_applyattributemodifierfromenemy--汇编级精确推导">_ApplyAttributeModifierFromEnemy — 汇编级精确推导<a class="headerlink" href="#7-_applyattributemodifierfromenemy--汇编级精确推导" title="Permanent link">&para;</a></h2>
+<h3 id="71-函数签名">函数签名<a class="headerlink" href="#71-函数签名" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>注意: <code>GetFinalEnemyAttributeData</code> 分配了 8 个数组，但只将前 4 个 (主修正阶段) 传入此函数。
+后 4 个 (基础阶段) 保持初始化值不变 (0 和 1.0)，使 base 阶段成为恒等变换。</p>
+</blockquote>
+<h3 id="72-attributemodifierdata-结构体布局">AttributeModifierData 结构体布局<a class="headerlink" href="#72-attributemodifierdata-结构体布局" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>AttributeModifierData:
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a> +0x00: attributeIndex (int32) — 目标属性枚举值
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a> +0x04: (padding)
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a> +0x08: formulaValue (double) — 修正数值
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a> +0x10: modifierType (int32) — 修正类型 (0~4+)
+</code></pre></div>
+<p>该结构体通过 <code>sub_182328590(ptr, offset)</code> 读 int32 字段，通过 <code>sub_182C5AA60(ptr, offset)</code> 读 double 字段。</p>
+<h3 id="73-modifiertype-枚举与行为">modifierType 枚举与行为<a class="headerlink" href="#73-modifiertype-枚举与行为" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>枚举值</th>
+<th>目标数组</th>
+<th>操作</th>
+<th>语义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td><code>additions</code> (r12)</td>
+<td><strong>ADD</strong></td>
+<td>加算累加: <code>arr[i] += formulaValue</code></td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td><code>multipliers</code> (r15)</td>
+<td><strong>ADD</strong></td>
+<td>乘算累加: <code>arr[i] += formulaValue</code> (多个 buff 的百分比相加)</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>—</td>
+<td>仅设 bit</td>
+<td>标记该属性被引用，不修改任何数组值</td>
+</tr>
+<tr>
+<td><code>3</code></td>
+<td><code>finalAdditions</code> (r14)</td>
+<td><strong>ADD</strong></td>
+<td>最终加算累加: <code>arr[i] += formulaValue</code></td>
+</tr>
+<tr>
+<td><code>4</code></td>
+<td><code>finalMultipliers</code> (arg_20)</td>
+<td><strong>MUL</strong></td>
+<td>最终乘算累乘: <code>arr[i] *= formulaValue</code> (多个 buff 的倍率相乘)</td>
+</tr>
+<tr>
+<td>其他</td>
+<td>—</td>
+<td>仅设 bit</td>
+<td>未知类型仅标记，不修改数组</td>
+</tr>
+</tbody>
+</table>
+<h4 id="vs">关键设计：加算堆叠 vs 累乘堆叠<a class="headerlink" href="#vs" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>类型 0, 1, 3 使用 ADD</strong> — 多个同类型修正器的效果相加。例如两个 "+30% 攻击" buff 叠加 = 1.0 + 0.3 + 0.3 = 1.6</li>
+<li><strong>类型 4 使用 MUL</strong> — 最终倍率类修正器使用累乘。例如两个 "×1.5 伤害" = 1.5 × 1.5 = 2.25</li>
+</ul>
+<h3 id="74-类型-0-逐指令追踪示例">类型 0 逐指令追踪 (示例)<a class="headerlink" href="#74-类型-0-逐指令追踪示例" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>指令 / 操作</th>
+<th>公式 / 说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>已确认</code></td>
+<td><code>xor edx, edx</code></td>
+<td>字段偏移 = 0</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>call sub_182328590</code></td>
+<td><code>attrIndex = modifier.field[0]</code> (int32)</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>test r12, r12</code></td>
+<td>检查 additions 数组非空</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>movsxd rdx, eax</code></td>
+<td><code>rdx = attrIndex</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>movsd xmm6, [rax]</code></td>
+<td><code>xmm6 = additions[attrIndex]</code> (当前值)</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>mov edx, 8</code></td>
+<td>字段偏移 = 8</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>call sub_182C5AA60</code></td>
+<td><code>xmm0 = modifier.field[8]</code> (double formulaValue)</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>addsd xmm0, xmm6</code></td>
+<td><code>xmm0 = current + formulaValue</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>movsd [rdi], xmm0</code></td>
+<td><code>additions[attrIndex] = 新值</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="75-类型-4-mul-逐指令追踪">类型 4 (MUL) 逐指令追踪<a class="headerlink" href="#75-类型-4-mul-逐指令追踪" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>指令 / 操作</th>
+<th>公式 / 说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>已确认</code></td>
+<td><code>xor edx, edx</code></td>
+<td>字段偏移 = 0</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>call sub_182328590</code></td>
+<td><code>attrIndex = modifier.field[0]</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>cmp [arg_20], 0</code></td>
+<td>检查 finalMultipliers 数组非空</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>movsxd rdx, eax</code></td>
+<td><code>rdx = attrIndex</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>call sub_180002B90</code></td>
+<td><code>rdi = &amp;finalMultipliers[attrIndex]</code></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>movsd xmm6, [rax]</code></td>
+<td><code>xmm6 = finalMultipliers[attrIndex]</code> (当前值)</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>mov edx, 8</code></td>
+<td>字段偏移 = 8</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>call sub_182C5AA60</code></td>
+<td><code>xmm0 = modifier.field[8]</code> (double formulaValue)</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><strong><code>mulsd</code></strong> <code>xmm0, xmm6</code></td>
+<td><code>xmm0 = current × formulaValue</code> ← <strong>乘法！</strong></td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>movsd [rdi], xmm0</code></td>
+<td><code>finalMultipliers[attrIndex] = 新值</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="76-bitmask-构建">bitmask 构建<a class="headerlink" href="#76-bitmask-构建" title="Permanent link">&para;</a></h3>
+<p>所有枚举分支 (包括未知类型) 最终都执行:</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>指令 / 操作</th>
+<th>公式 / 说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>已确认</code></td>
+<td><code>and eax, 3Fh</code></td>
+<td><code>attrIndex &amp; 0x3F</code> (取低 6 位 = 属性索引 mod 64)</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td><code>bts rbx, rax</code></td>
+<td><code>rbx \|= (1 &lt;&lt; (attrIndex &amp; 0x3F))</code> (设置对应 bit)</td>
+</tr>
+</tbody>
+</table>
+<p>最终 <code>rbx</code> 作为 64 位返回值，每位表示对应属性是否被任何修正器引用过。</p>
+<h3 id="77-完整流程">完整流程<a class="headerlink" href="#77-完整流程" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>_ApplyAttributeModifierFromEnemy(modifiers, adds[], muls[], finalAdds[], finalMuls[]):
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a> rbx = 0 // bitmask 初始化为 0
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a> enumerator = modifiers.GetEnumerator()
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a> while enumerator.MoveNext():
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a> modifier = enumerator.Current
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a> type = modifier.modifierType // offset 0x10
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a> attrIndex = modifier.attributeIndex // offset 0x00
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a> value = modifier.formulaValue // offset 0x08
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a> switch type:
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a> case 0: adds[attrIndex] += value // ADD
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a> case 1: muls[attrIndex] += value // ADD (加算堆叠)
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a> case 2: break // 仅标记
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a> case 3: finalAdds[attrIndex] += value // ADD
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a> case 4: finalMuls[attrIndex] *= value // MUL (累乘堆叠)
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a> default: break // 未知类型仅标记
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a> rbx |= (1 &lt;&lt; (attrIndex &amp; 0x3F)) // 设置 bitmask
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a> return rbx // 64 位标记位掩码
+</code></pre></div>
+<h3 id="78-各数组最终值语义">各数组最终值语义<a class="headerlink" href="#78-各数组最终值语义" title="Permanent link">&para;</a></h3>
+<p>调用此函数后，四个数组从初始值变为：</p>
+<table>
+<thead>
+<tr>
+<th>数组</th>
+<th>初始值</th>
+<th>叠加后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>additions[i]</code></td>
+<td>0.0</td>
+<td><code>Σ modifier_j.formulaValue</code> (所有类型0修正器的值之和)</td>
+</tr>
+<tr>
+<td><code>multipliers[i]</code></td>
+<td>1.0</td>
+<td><code>1.0 + Σ modifier_j.formulaValue</code> (所有类型1修正器的值之和 + 底数)</td>
+</tr>
+<tr>
+<td><code>finalAdditions[i]</code></td>
+<td>0.0</td>
+<td><code>Σ modifier_j.formulaValue</code> (所有类型3修正器的值之和)</td>
+</tr>
+<tr>
+<td><code>finalMultipliers[i]</code></td>
+<td>1.0</td>
+<td><code>Π modifier_j.formulaValue</code> (所有类型4修正器的值之积)</td>
+</tr>
+</tbody>
+</table>
+<p>代入 <code>_CalculateFinalAttribute</code> 公式：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>B = Clamp(rawValue, min, max) // base阶段均为恒等变换 (baseAdd=0, baseMul=1.0, baseFinalAdd=0, baseFinalMul=1.0)
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>final = Clamp(
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a> ((B + Σadds) × Max(0, 1.0 + Σmuls) + ΣfinalAdds) × ΠfinalMuls,
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a> min, max
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>)
+</code></pre></div>
+<h3 id="79-与-getfinalenemyattributedata-的连接">与 <code>GetFinalEnemyAttributeData</code> 的连接<a class="headerlink" href="#79-与-getfinalenemyattributedata-的连接" title="Permanent link">&para;</a></h3>
+<p>在 <code>GetFinalEnemyAttributeData</code> 中：</p>
+<ul>
+<li><strong>数组 1-4</strong> (adds, muls, finalAdds, finalMuls) — 被 <code>_ApplyAttributeModifierFromEnemy</code> 填充</li>
+<li><strong>数组 5-8</strong> (baseAdd, baseMul, baseFinalAdd, baseFinalMul) — 保持初始化值，所以 base 阶段是恒等变换</li>
+</ul>
+<hr />
+<h2 id="attributesattributemodifierloader-modifier">Attributes.AttributeModifierLoader — 运行时 modifier 聚合<a class="headerlink" href="#attributesattributemodifierloader-modifier" title="Permanent link">&para;</a></h2>
+<h3 id="_16">初始化<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<p><code>AttributeModifierLoader</code> 持有 8 个数组：</p>
+<ul>
+<li><code>attributeAdditions</code></li>
+<li><code>attributeMultipliers</code></li>
+<li><code>attributeFinalAdditions</code></li>
+<li><code>attributeFinalScalars</code></li>
+<li><code>attributeBaseAdditions</code></li>
+<li><code>attributeBaseMultipliers</code></li>
+<li><code>attributeBaseFinalAdditions</code></li>
+<li><code>attributeBaseFinalScalars</code></li>
+</ul>
+<p><code>_InitAttributeModifierValue</code> 会将加算数组清零，并将 scalar/multiplier 类数组初始化为恒等值。运行时聚合不是直接改最终属性值，而是先把 modifier 写入这些数组，再由 <code>Attributes._CalculateFinalAttributeValue</code> 读取。</p>
+<h3 id="modifiertype">ModifierType 分支<a class="headerlink" href="#modifiertype" title="Permanent link">&para;</a></h3>
+<p><code>_LoadAttributeModifierInternal</code> 在 <code>已确认</code> 对 <code>modifierType</code> 做 <code>switch 9 cases</code>，jump table <code>jpt_184B09374</code> 映射如下：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>字段</th>
+<th>状态</th>
+<th>路径</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td><code>attributeAdditions</code></td>
+<td><code>已确认</code> / <code>已确认</code></td>
+<td><code>get_attributeAdditions</code> + <code>addsd</code></td>
+<td><code>+= value</code></td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td><code>attributeMultipliers</code></td>
+<td><code>已确认</code> / <code>已确认</code></td>
+<td><code>get_attributeMultipliers</code> + <code>addsd</code></td>
+<td><code>+= value</code></td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>—</td>
+<td><code>已确认</code></td>
+<td>default/no-op value path</td>
+<td>仅标记属性</td>
+</tr>
+<tr>
+<td><code>3</code></td>
+<td><code>attributeFinalAdditions</code></td>
+<td><code>已确认</code> / <code>已确认</code></td>
+<td><code>get_attributeFinalAdditions</code> + <code>addsd</code></td>
+<td><code>+= value</code></td>
+</tr>
+<tr>
+<td><code>4</code></td>
+<td><code>attributeFinalScalars</code></td>
+<td><code>已确认</code> / <code>已确认</code></td>
+<td><code>get_attributeFinalScalars</code> + <code>mulsd</code></td>
+<td><code>*= value</code></td>
+</tr>
+<tr>
+<td><code>5</code></td>
+<td><code>attributeBaseAdditions</code></td>
+<td><code>已确认</code> / <code>已确认</code></td>
+<td><code>get_attributeBaseAdditions</code> + <code>addsd</code></td>
+<td><code>+= value</code></td>
+</tr>
+<tr>
+<td><code>6</code></td>
+<td><code>attributeBaseMultipliers</code></td>
+<td><code>已确认</code> / <code>已确认</code></td>
+<td><code>get_attributeBaseMultipliers</code> + <code>addsd</code></td>
+<td><code>+= value</code></td>
+</tr>
+<tr>
+<td><code>7</code></td>
+<td><code>attributeBaseFinalAdditions</code></td>
+<td><code>已确认</code> / <code>已确认</code></td>
+<td><code>get_attributeBaseFinalAdditions</code> + <code>addsd</code></td>
+<td><code>+= value</code></td>
+</tr>
+<tr>
+<td><code>8</code></td>
+<td><code>attributeBaseFinalScalars</code></td>
+<td><code>已确认</code> / <code>已确认</code></td>
+<td><code>get_attributeBaseFinalScalars</code> + <code>mulsd</code></td>
+<td><code>*= value</code></td>
+</tr>
+</tbody>
+</table>
+<p>因此 <code>BaseFinalMultiplier</code> / <code>BaseFinalScalars</code> 的多来源聚合是 <strong>累乘</strong>，不是加算。它和 <code>FinalMultiplier</code> / <code>FinalScalars</code> 使用同一类语义：scalar 数组以 <code>1.0</code> 为恒等值，每个 modifier 通过 <code>current * value</code> 累积。</p>
+<h3 id="_17">武器基础攻击力<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>原游戏函数</th>
+<th>状态</th>
+<th>已确认行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CharInfo._RefreshWeaponAttribute</code></td>
+<td><code>已确认</code></td>
+<td>获取武器模板 id 和武器等级，调用 <code>WeaponUtil.TryGetWeaponAttrModifierData</code>，构造 <code>WeaponAttributeModifier</code> 并保存到 <code>CharInfo.weaponAttributeModifier</code></td>
+</tr>
+<tr>
+<td><code>WeaponUtil.TryGetWeaponAttrModifierData(string, int, out List&lt;ValueTuple&lt;AttributeType, ModifierType, float&gt;&gt;)</code></td>
+<td><code>已确认</code></td>
+<td>从 <code>WeaponBasicTable.levelTemplateId</code> 找到 <code>WeaponUpgradeTemplateTable</code>，按 <code>weaponLv</code> 获取 <code>baseAtk</code>，写入 tuple <code>(AttributeType.Atk=2, ModifierType.BaseAddition=5, baseAtk)</code></td>
+</tr>
+<tr>
+<td><code>WeaponAttributeModifier.Attach(CharInfo)</code></td>
+<td><code>已确认</code></td>
+<td>调用 <code>Attributes.AddModifier(IAttributesModifier)</code>，把武器属性作为运行时 modifier 接入角色 attributes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_18">装备属性结算<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>原游戏函数</th>
+<th>状态</th>
+<th>已确认行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EquipAttributeModifier..ctor(BeanArray&lt;EquipAttributeModifierData&gt;, Dictionary&lt;int,int&gt;, AttributeType?, AttributeType?)</code></td>
+<td><code>已确认</code></td>
+<td>创建 <code>AttributeModifierLoader</code>，直接调用装备专用 <code>LoadAttributesModifier</code> overload，并保存返回的 <code>AttributeMask</code></td>
+</tr>
+<tr>
+<td><code>Attributes.AttributeModifierLoader.LoadAttributesModifier(BeanArray&lt;EquipAttributeModifierData&gt;, Dictionary&lt;int,int&gt;, AttributeType?, AttributeType?)</code></td>
+<td><code>已确认</code></td>
+<td>遍历 <code>EquipAttributeModifierData</code>，按 <code>attrIndex</code> 从 <code>enhanceLevels</code> 取强化等级，缺省为 <code>0</code>；再用该等级索引 <code>attrValues</code> 取得 double value</td>
+</tr>
+<tr>
+<td>同上调用点</td>
+<td><code>已确认</code> - <code>已确认</code></td>
+<td>将 <code>modifyAttributeType</code>、<code>attributeType</code>、<code>modifierType</code>、<code>value</code> 原样传入 <code>_LoadAttributeModifierInternal</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>已确认</code> 加载 <code>CollectionExtensions.GetValueOrDefault&lt;int,int&gt;</code>。</li>
+<li><code>已确认</code> - <code>已确认</code> 用当前 <code>EquipAttributeModifierData.attrIndex</code> 查询 <code>enhanceLevels</code>；未命中时保持默认 <code>0</code>。</li>
+<li><code>已确认</code> - <code>已确认</code> 读取 <code>attrValues[enhanceLevel]</code> 到 <code>xmm6</code>。</li>
+<li><code>已确认</code> / <code>已确认</code> / <code>已确认</code> 分别把 <code>modifierType</code>、<code>attributeType</code>、<code>modifyAttributeType</code> 传给 <code>_LoadAttributeModifierInternal</code>。</li>
+</ul>
+<p>结论：装备没有独立的百分比合并公式，最终仍走 8.2 的通用 modifier bucket。常见装备攻击百分比在 <code>EquipTable</code> 中配置为 <code>ModifierType=6 (BaseMultiplier)</code>，因此是 <code>baseMultiplier += value</code>，多个装备之间是 <code>1 + a + b</code>，不是 <code>(1 + a) * (1 + b)</code>。少量配置为 <code>ModifierType=8 (BaseFinalMultiplier)</code> 的装备词条仍按通用规则乘算，这是数据显式选择的 bucket，而不是所有百分比装备统一乘算。</p>
+<h2 id="附录-其他辅助函数">附录: 其他辅助函数<a class="headerlink" href="#附录-其他辅助函数" title="Permanent link">&para;</a></h2>
+<h3 id="_lerp">_Lerp<a class="headerlink" href="#_lerp" title="Permanent link">&para;</a></h3>
+<p>在两个等级关键帧之间做逐属性线性插值。<code>GetEnemyBasicAttributeData</code> 中当 level 落在两个关键帧之间时调用。</p>
+<hr />
+<h2 id="_19">修改记录<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>已确认</code></td>
+<td>函数级注释：说明整体功能</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td>行注释：偏移 +0x10 = keyFrame.level</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td>行注释：偏移 +0x14 = keyFrame.breakStage</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td>行注释：偏移 +0x18 = keyFrame.attributesData</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td>行注释：返回 false 路径</td>
+</tr>
+<tr>
+<td><code>已确认</code></td>
+<td>行注释：返回 true 路径</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2459 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>击飞与控制 Action 逻辑分析 - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#action" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              击飞与控制 Action 逻辑分析
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../combat-core/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON 使用频次
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        公共枚举与底层组件
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="公共枚举与底层组件">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#controlledstatedeadoption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ControlledStateDeadOption
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#physicalinflictiontype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PhysicalInflictionType
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returntruemethod" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ReturnTrueMethod
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        敌人受控状态链路
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="敌人受控状态链路">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#controlledstatecomponentlaunchairborne" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ControlledStateComponent.LaunchAirborne
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#controlledstatecomponentapplyknockdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ControlledStateComponent.ApplyKnockDown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#controlledstatecomponentapplyblowoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ControlledStateComponent.ApplyBlowOff
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blowoffenemy-crush-fracture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BlowOffEnemy / Crush / Fracture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BlowOffEnemy / Crush / Fracture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        执行链路
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置示例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#airborne-launchupward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Airborne / LaunchUpward
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Airborne / LaunchUpward">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#airborneaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AirborneAction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#launchupwardaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LaunchUpwardAction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置示例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knockdown-takedown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KnockDown / TakeDown
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="KnockDown / TakeDown">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#knockdownaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KnockDownAction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#takedownaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TakeDownAction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置示例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blowoffcharacter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BlowOffCharacter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BlowOffCharacter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        底层逻辑
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置示例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pullaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PullAction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PullAction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        底层逻辑
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置示例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pushbackaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PushBackAction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PushBackAction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置示例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interruptaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InterruptAction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="InterruptAction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        执行链路
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置示例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interruptcurskillaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InterruptCurSkillAction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="InterruptCurSkillAction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#slowaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SlowAction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SlowAction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#elitebackswingbehit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EliteBackSwingBeHit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EliteBackSwingBeHit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adddynamicccs-inheritccs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AddDynamicCcs / InheritCCS 重新分类
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AddDynamicCcs / InheritCCS 重新分类">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adddynamicccsaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AddDynamicCcsAction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inheritccsaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InheritCCSAction
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        建议更新分类
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="action">击飞与控制 Action 逻辑分析<a class="headerlink" href="#action" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>范围: <code>Beyond.Gameplay.Core</code> 中击飞、浮空、击倒、拉拽、推开、打断、减速以及相关控制 Action。
+- <code>AKEDataMining/data/Json/SkillData</code>
+- <code>AKEDataMining/data/Json/BuffData</code></p>
+<p>最后更新: 2026-05-23</p>
+</blockquote>
+<hr />
+<h2 id="_1">结论摘要<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>敌人受控状态</strong>: <code>AirborneAction</code> / <code>KnockDownAction</code> / <code>BlowOffEnemyAction</code> / <code>CrushAction</code> / <code>FractureAction</code> / <code>LaunchUpwardAction</code> / <code>TakeDownAction</code></li>
+<li>最终落到 <code>ControlledStateComponent</code></li>
+<li>再进入 <code>AirborneComponent</code>、<code>KnockDownComponent</code>、<code>EnemyBlowOffComponent</code></li>
+<li><strong>角色击飞</strong></li>
+<li><code>BlowOffCharacterAction</code></li>
+<li>最终落到 <code>CharacterBlowOffComponent.ApplyBlowOff</code></li>
+<li>不走敌人的 <code>ControlledStateComponent</code> 流程，而是通过角色的 <code>MoveInput.Blown</code> 施加速度。</li>
+<li><strong>位移控制/软控制</strong></li>
+<li><code>PullAction</code> 使用 <code>PullComponent</code> 持续拉拽。</li>
+<li><code>PushBackAction</code> 是一次性推退位移。</li>
+<li><code>SlowAction</code> 是 <code>KeywordAction</code>，本质是创建关键词 Buff，不是物理控制状态。</li>
+<li><code>InterruptAction</code> 打断技能并附加短硬直 Buff。
+需要修正之前分类中的一个点: <code>AddDynamicCcsAction</code> 和 <code>InheritCCSAction</code> 里的 <code>CCS</code> 不是 Crowd Control Stack，而是 <strong>Camera Control State</strong>。这两个 Action 属于相机控制状态，不应放在“击飞与控制”玩法逻辑分类里。</li>
+</ol>
+<hr />
+<h2 id="json">JSON 使用频次<a class="headerlink" href="#json" title="Permanent link">&para;</a></h2>
+<p>在 <code>SkillData</code> 和 <code>BuffData</code> 中按 <code>$type</code> 统计:</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th style="text-align: right;">次数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BlowOffCharacterAction+Data</code></td>
+<td style="text-align: right;">596</td>
+</tr>
+<tr>
+<td><code>PullAction+Data</code></td>
+<td style="text-align: right;">496</td>
+</tr>
+<tr>
+<td><code>AddDynamicCcsAction+AddDynamicCcsActionData</code></td>
+<td style="text-align: right;">342</td>
+</tr>
+<tr>
+<td><code>InterruptAction+Data</code></td>
+<td style="text-align: right;">299</td>
+</tr>
+<tr>
+<td><code>InterruptCurSkillAction+Data</code></td>
+<td style="text-align: right;">107</td>
+</tr>
+<tr>
+<td><code>PushBackAction+Data</code></td>
+<td style="text-align: right;">61</td>
+</tr>
+<tr>
+<td><code>BlowOffAction+Data</code></td>
+<td style="text-align: right;">59</td>
+</tr>
+<tr>
+<td><code>AirborneAction+AirborneActionData</code></td>
+<td style="text-align: right;">21</td>
+</tr>
+<tr>
+<td><code>LaunchUpwardAction+Data</code></td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr>
+<td><code>KnockDownAction+Data</code></td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr>
+<td><code>EliteBackSwingBeHit+Data</code></td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td><code>CrushAction+Data</code></td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr>
+<td><code>BlowOffEnemyAction+Data</code></td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr>
+<td><code>SlowAction+Data</code></td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr>
+<td><code>TakeDownAction+Data</code></td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td><code>FractureAction+Data</code></td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>InheritCCSAction+Data</code></td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+<p>这个频次说明实际配置中最常用的是 <strong>角色击飞</strong>、<strong>拉拽</strong>、<strong>打断</strong> 和 <strong>镜头 CCS</strong>。敌人传统 <code>BlowOffEnemy/Crush/Fracture</code> 使用较少，更多是通用 Buff 或少数角色技能在用。</p>
+<hr />
+<h2 id="_2">公共枚举与底层组件<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h3 id="controlledstatedeadoption">ControlledStateDeadOption<a class="headerlink" href="#controlledstatedeadoption" title="Permanent link">&para;</a></h3>
+<p>这解释了多个控制 Action 中的 <code>deadOption</code>: 配置控制是否允许作用于死亡/存活目标。</p>
+<h3 id="physicalinflictiontype">PhysicalInflictionType<a class="headerlink" href="#physicalinflictiontype" title="Permanent link">&para;</a></h3>
+<p><code>BlowOffEnemyAction.DoBlowOff</code> 会把该类型传给 <code>AbilitySystem.BeforeControlledStateApplied</code> / <code>AfterControlledStateApplied</code>，用于事件、物理异常、弱点击破等后续逻辑区分。</p>
+<h3 id="returntruemethod">ReturnTrueMethod<a class="headerlink" href="#returntruemethod" title="Permanent link">&para;</a></h3>
+<p><code>AirborneAction</code>、<code>KnockDownAction</code>、<code>LaunchUpwardAction</code>、<code>TakeDownAction</code> 均有这个字段。它控制 Action 的布尔返回值如何由“成功施加控制”和“是否打断弱点/状态”组合得出。</p>
+<hr />
+<h2 id="_3">敌人受控状态链路<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="controlledstatecomponentlaunchairborne">ControlledStateComponent.LaunchAirborne<a class="headerlink" href="#controlledstatecomponentlaunchairborne" title="Permanent link">&para;</a></h3>
+<p>关键逻辑:</p>
+<ol>
+<li>取 <code>airborneComponent</code>。</li>
+<li>调用 <code>AirborneComponent.BeforeAirborne(source, isLaunchUpward)</code>。</li>
+<li>只有返回 <code>PhysicsStatusApplyResult.Success</code> 才继续。</li>
+<li>如果当前不是浮空状态，切换 <code>ControlledState</code> 到 <code>Airborne</code>。</li>
+<li>如果当前是 <code>BlowOff</code>，会先保存并恢复 <code>rootHeight</code>。</li>
+<li>调用 <code>AirborneComponent.Launch(source, airborneOption, fromKnockDown, restartAirborne, isLaunchUpward)</code>。</li>
+<li>触发实体事件。</li>
+<li>若目标死亡相关对象存在，会用剩余受控时间延迟死亡特效/释放。</li>
+</ol>
+<p>这说明浮空不是简单改坐标，而是一个正式的敌人受控状态。</p>
+<h3 id="controlledstatecomponentapplyknockdown">ControlledStateComponent.ApplyKnockDown<a class="headerlink" href="#controlledstatecomponentapplyknockdown" title="Permanent link">&para;</a></h3>
+<p>关键逻辑:</p>
+<ol>
+<li>取 <code>knockDownComponent</code>。</li>
+<li>调用 <code>KnockDownComponent.BeforeKnockDown(source, fromAirborne)</code>。</li>
+<li>成功后:</li>
+<li>如果是从浮空转击倒，会走 <code>AirborneComponent.KnockDown(duration + source.knockDownTimeAddition, faceDir)</code>。</li>
+<li>否则切到 <code>ControlledState.KnockDown</code> 并由 <code>KnockDownComponent.ApplyKnockDown</code> 接管。</li>
+<li>会触发 <code>AbilitySystem.Event</code> 中的击倒相关事件。</li>
+</ol>
+<h3 id="controlledstatecomponentapplyblowoff">ControlledStateComponent.ApplyBlowOff<a class="headerlink" href="#controlledstatecomponentapplyblowoff" title="Permanent link">&para;</a></h3>
+<p>关键逻辑:</p>
+<ol>
+<li>取 <code>blowOffComponent</code>。</li>
+<li>调用 <code>EnemyBlowOffComponent.BeforeBlowOff(source, isPureBlowOff)</code>。</li>
+<li>成功后切换 <code>ControlledState</code> 到 <code>BlowOff</code>。</li>
+<li>调用 <code>EnemyBlowOffComponent.ApplyBlowOff(source, dir, distance, height, totalTime, isPureBlowOff)</code>。</li>
+<li>触发事件，并同样会处理死亡延迟释放。</li>
+</ol>
+<hr />
+<h2 id="blowoffenemy-crush-fracture">BlowOffEnemy / Crush / Fracture<a class="headerlink" href="#blowoffenemy-crush-fracture" title="Permanent link">&para;</a></h2>
+<h3 id="_4">类定义<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<p>字段:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attackerTargetSettings</code></td>
+<td>攻击方</td>
+</tr>
+<tr>
+<td><code>targetSettings</code></td>
+<td>被击飞目标</td>
+</tr>
+<tr>
+<td><code>blowOffDistance</code></td>
+<td>水平击飞距离</td>
+</tr>
+<tr>
+<td><code>distanceRandomRange</code></td>
+<td>距离随机范围</td>
+</tr>
+<tr>
+<td><code>overwriteHeight</code></td>
+<td>是否覆盖高度</td>
+</tr>
+<tr>
+<td><code>blowOffHeight</code></td>
+<td>击飞高度</td>
+</tr>
+<tr>
+<td><code>directionSettings</code></td>
+<td>方向计算</td>
+</tr>
+<tr>
+<td><code>totalTime</code></td>
+<td>总击飞时间</td>
+</tr>
+<tr>
+<td><code>isExtra</code></td>
+<td>是否额外控制</td>
+</tr>
+<tr>
+<td><code>deadOption</code></td>
+<td>死亡目标处理</td>
+</tr>
+</tbody>
+</table>
+<p><code>CrushAction.Data</code> 继承 <code>BlowOffEnemyAction.Data</code>，额外:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>damageMultiplier</code></td>
+<td>粉碎伤害倍率</td>
+</tr>
+<tr>
+<td><code>immobilizedTime</code></td>
+<td>硬直时间</td>
+</tr>
+</tbody>
+</table>
+<p><code>FractureAction.Data</code> 继承 <code>BlowOffEnemyAction.Data</code>，额外:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>immobilizedTime</code></td>
+<td>硬直时间</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_5">执行链路<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BlowOffEnemyAction.ExecuteInternal</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>BlowOffEnemyAction.DoBlowOff</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>BlowOffEnemyAction.Process</code></td>
+<td><code>已确认</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>DoBlowOff</code> 的关键调用:</p>
+<ol>
+<li><code>AbilitySystem.BeforeControlledStateApplied(...)</code></li>
+<li><code>AbilityActionUtils.GetDirection(...)</code></li>
+<li>从黑板读取 <code>totalTime</code></li>
+<li><code>ControlledStateComponent.ApplyBlowOff(...)</code></li>
+<li><code>AbilitySystem.AfterControlledStateApplied(...)</code></li>
+</ol>
+<p>因此 <code>BlowOffEnemyAction</code> 系列是“事件包裹 + 方向/数值计算 + 受控状态组件”的组合。</p>
+<h3 id="_6">配置示例<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<p><code>AKEDataMining/data/Json/BuffData/buff_common_blowoff.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w"> </span><span class="nt">&quot;$type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Beyond.Gameplay.Core.BlowOffEnemyAction+Data, Gameplay.Beyond&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w"> </span><span class="nt">&quot;blowOffDistance&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">4.0</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w"> </span><span class="nt">&quot;distanceRandomRange&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w"> </span><span class="nt">&quot;overwriteHeight&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w"> </span><span class="nt">&quot;blowOffHeight&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w"> </span><span class="nt">&quot;directionSettings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;directionType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SourceToTarget&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w"> </span><span class="nt">&quot;totalTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w"> </span><span class="nt">&quot;isExtra&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w"> </span><span class="nt">&quot;deadOption&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AllValid&quot;</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>totalTime = 0</code> 时一般表示使用底层组件/配置默认时间。<code>distanceRandomRange</code> 会让击飞距离产生随机浮动。</p>
+<hr />
+<h2 id="airborne-launchupward">Airborne / LaunchUpward<a class="headerlink" href="#airborne-launchupward" title="Permanent link">&para;</a></h2>
+<h3 id="airborneaction">AirborneAction<a class="headerlink" href="#airborneaction" title="Permanent link">&para;</a></h3>
+<p>字段:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>source</code></td>
+<td>控制来源</td>
+</tr>
+<tr>
+<td><code>target</code></td>
+<td>浮空目标</td>
+</tr>
+<tr>
+<td><code>forceAirborne</code></td>
+<td>强制浮空</td>
+</tr>
+<tr>
+<td><code>floatingDuration</code></td>
+<td>浮空持续时间</td>
+</tr>
+<tr>
+<td><code>floatingHeight</code></td>
+<td>浮空高度</td>
+</tr>
+<tr>
+<td><code>speedFactorMultiplier</code></td>
+<td>速度系数</td>
+</tr>
+<tr>
+<td><code>faceDirection</code></td>
+<td>浮空后朝向</td>
+</tr>
+<tr>
+<td><code>airborneEffect</code></td>
+<td>浮空特效</td>
+</tr>
+<tr>
+<td><code>immobilizedTime</code></td>
+<td>额外硬直</td>
+</tr>
+<tr>
+<td><code>isExtra</code></td>
+<td>是否额外控制</td>
+</tr>
+<tr>
+<td><code>deadOption</code></td>
+<td>死亡目标处理</td>
+</tr>
+<tr>
+<td><code>returnTrueWhen</code></td>
+<td>返回值规则</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AirborneAction.ExecuteInternal</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>AirborneAction._TryAirborne</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>ControlledStateComponent.LaunchAirborne</code></td>
+<td><code>已确认</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>AirborneAction</code> 会构造 <code>AirborneOption</code>，然后调用 <code>ControlledStateComponent.LaunchAirborne(..., isLaunchUpward=false)</code>。</p>
+<h3 id="launchupwardaction">LaunchUpwardAction<a class="headerlink" href="#launchupwardaction" title="Permanent link">&para;</a></h3>
+<p>字段与 <code>AirborneAction</code> 接近，但没有 <code>forceAirborne</code> / <code>isExtra</code>，并且有 <code>teammateBigStagger</code>。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LaunchUpwardAction.ExecuteInternal</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>LaunchUpwardAction._TryLaunchUpward</code></td>
+<td><code>已确认</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>LaunchUpwardAction</code> 也是浮空链路，但会调用 <code>LaunchAirborne(..., isLaunchUpward=true)</code>。这说明它不是独立控制类型，而是浮空的“向上发射”变体。</p>
+<h3 id="_7">配置示例<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<p><code>AKEDataMining/data/Json/SkillData/chr_0024_deepfin_combo_skill.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w"> </span><span class="nt">&quot;$type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Beyond.Gameplay.Core.LaunchUpwardAction+Data, Gameplay.Beyond&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w"> </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;targetSource&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Context&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;targetGroupKey&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;combo_tar&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w"> </span><span class="nt">&quot;floatingDuration&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w"> </span><span class="nt">&quot;floatingHeight&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.6</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w"> </span><span class="nt">&quot;speedFactorMultiplier&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w"> </span><span class="nt">&quot;deadOption&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AllValid&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w"> </span><span class="nt">&quot;returnTrueWhen&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Always&quot;</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="knockdown-takedown">KnockDown / TakeDown<a class="headerlink" href="#knockdown-takedown" title="Permanent link">&para;</a></h2>
+<h3 id="knockdownaction">KnockDownAction<a class="headerlink" href="#knockdownaction" title="Permanent link">&para;</a></h3>
+<p>字段:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>source</code></td>
+<td>控制来源</td>
+</tr>
+<tr>
+<td><code>targetSettings</code></td>
+<td>击倒目标</td>
+</tr>
+<tr>
+<td><code>forceKnockDown</code></td>
+<td>强制击倒</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>击倒持续时间</td>
+</tr>
+<tr>
+<td><code>faceDirection</code></td>
+<td>击倒后朝向</td>
+</tr>
+<tr>
+<td><code>immobilizedTime</code></td>
+<td>额外硬直</td>
+</tr>
+<tr>
+<td><code>isExtra</code></td>
+<td>是否额外控制</td>
+</tr>
+<tr>
+<td><code>deadOption</code></td>
+<td>死亡目标处理</td>
+</tr>
+<tr>
+<td><code>returnTrueWhen</code></td>
+<td>返回值规则</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KnockDownAction.ExecuteInternal</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>KnockDownAction._DoKnockDown</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>ControlledStateComponent.ApplyKnockDown</code></td>
+<td><code>已确认</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="takedownaction">TakeDownAction<a class="headerlink" href="#takedownaction" title="Permanent link">&para;</a></h3>
+<p>字段与 <code>KnockDownAction</code> 接近，但没有 <code>forceKnockDown</code> / <code>isExtra</code>，并且有 <code>teammateBigStagger</code>。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TakeDownAction.ExecuteInternal</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>TakeDownAction._TryTakeDown</code></td>
+<td><code>已确认</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>TakeDownAction</code> 可理解为带擒拿/处决语义的击倒变体。底层仍是 <code>ControlledStateComponent.ApplyKnockDown(..., isTakeDown=true)</code> 这一类路径。</p>
+<h3 id="_8">配置示例<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<p><code>AKEDataMining/data/Json/BuffData/buff_debug_physical_knockdown.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w"> </span><span class="nt">&quot;$type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Beyond.Gameplay.Core.KnockDownAction+Data, Gameplay.Beyond&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w"> </span><span class="nt">&quot;duration&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.0</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w"> </span><span class="nt">&quot;faceDirection&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;directionType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TargetToSource&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w"> </span><span class="nt">&quot;immobilizedTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w"> </span><span class="nt">&quot;isExtra&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w"> </span><span class="nt">&quot;deadOption&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AllValid&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w"> </span><span class="nt">&quot;returnTrueWhen&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Always&quot;</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="blowoffcharacter">BlowOffCharacter<a class="headerlink" href="#blowoffcharacter" title="Permanent link">&para;</a></h2>
+<h3 id="_9">类定义<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<p>字段:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attackerTargetSettings</code></td>
+<td>攻击者</td>
+</tr>
+<tr>
+<td><code>targetSettings</code></td>
+<td>被击飞角色</td>
+</tr>
+<tr>
+<td><code>verticalSpeed</code></td>
+<td>垂直速度</td>
+</tr>
+<tr>
+<td><code>horizontalSpeed</code></td>
+<td>水平速度</td>
+</tr>
+<tr>
+<td><code>blownPriority</code></td>
+<td>击飞优先级</td>
+</tr>
+<tr>
+<td><code>preventSamePriorityReplacement</code></td>
+<td>同优先级是否阻止替换</td>
+</tr>
+<tr>
+<td><code>directionSettings</code></td>
+<td>击飞方向</td>
+</tr>
+<tr>
+<td><code>directionAngleOffset</code></td>
+<td>方向角偏移</td>
+</tr>
+<tr>
+<td><code>turnTargetToAttacker</code></td>
+<td>是否转向攻击者</td>
+</tr>
+<tr>
+<td><code>overrideSuperArmorLimit</code></td>
+<td>覆盖霸体判定</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">底层逻辑<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BlowOffCharacterAction.ExecuteInternal</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>CharacterBlowOffComponent.ApplyBlowOff</code></td>
+<td><code>已确认</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>CharacterBlowOffComponent.ApplyBlowOff</code> 的关键逻辑:</p>
+<ol>
+<li>触发 <code>OnBeforeCharacterTakeBlowOff</code> 类事件。</li>
+<li>使用 <code>CheckImmuneForCurrentSuperArmor</code> 检查霸体免疫，<code>overrideSuperArmorLimit &lt;= 0</code> 时使用默认值。</li>
+<li>比较 <code>blownPriority</code> 和当前击飞优先级。</li>
+<li>如果同优先级且 <code>preventSamePriorityReplacement</code> 为真，则拒绝替换。</li>
+<li>规范化方向。方向接近零时使用默认前向。</li>
+<li>如果 <code>turnTargetToAttacker</code> 为真，停止旋转并调用 <code>BaseController.RawSetDirXZ(-direction)</code>。</li>
+<li>调用 <code>MoveInput.Blown(horizontalSpeed, verticalSpeed, direction, attackerEntity)</code>。</li>
+<li>触发 <code>OnAfterCharacterTakeBlowOff</code> 类事件。</li>
+<li>记录角色受击。</li>
+</ol>
+<p>这条链路和敌人控制不同，不切 <code>ControlledStateComponent</code>，而是直接驱动角色移动输入系统。</p>
+<h3 id="_11">配置示例<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<p><code>AKEDataMining/data/Json/BuffData/buff_common_blowoffcharacter.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w"> </span><span class="nt">&quot;$type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Beyond.Gameplay.Core.BlowOffCharacterAction+Data, Gameplay.Beyond&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w"> </span><span class="nt">&quot;verticalSpeed&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">6.0</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w"> </span><span class="nt">&quot;horizontalSpeed&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">6.0</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w"> </span><span class="nt">&quot;blownPriority&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w"> </span><span class="nt">&quot;preventSamePriorityReplacement&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w"> </span><span class="nt">&quot;directionSettings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;directionType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SourceToTarget&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w"> </span><span class="nt">&quot;turnTargetToAttacker&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w"> </span><span class="nt">&quot;overrideSuperArmorLimit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="pullaction">PullAction<a class="headerlink" href="#pullaction" title="Permanent link">&para;</a></h2>
+<h3 id="_12">类定义<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<p>字段:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>targetSettings</code></td>
+<td>拉拽目标</td>
+</tr>
+<tr>
+<td><code>pullSpeed</code></td>
+<td>基础拉拽速度</td>
+</tr>
+<tr>
+<td><code>isInfinity</code></td>
+<td>是否无限持续</td>
+</tr>
+<tr>
+<td><code>pullDuration</code></td>
+<td>拉拽持续时间</td>
+</tr>
+<tr>
+<td><code>stopTolerance</code></td>
+<td>到达容差</td>
+</tr>
+<tr>
+<td><code>unmovable</code></td>
+<td>拉拽期间是否不可移动</td>
+</tr>
+<tr>
+<td><code>finishPullByAction</code></td>
+<td>是否随 Action 结束停止</td>
+</tr>
+<tr>
+<td><code>destination</code></td>
+<td>拉拽目标点</td>
+</tr>
+<tr>
+<td><code>pullTargetType</code></td>
+<td>Enemy / Character</td>
+</tr>
+<tr>
+<td><code>attenuationBySuperArmor</code></td>
+<td>是否按霸体衰减</td>
+</tr>
+<tr>
+<td><code>attenuationValues</code></td>
+<td>霸体值到衰减倍率列表</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_13">底层逻辑<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PullAction.ExecuteInternal</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>PullAction.OnEnd</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>PullComponent.ApplyPull</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>PullComponent._DoPull</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>PullRequest.GetMoveDelta</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>PullRequest._CalcSpeed</code></td>
+<td><code>已确认</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>PullComponent.ApplyPull</code>:</p>
+<ol>
+<li>分配递增 <code>requestId</code>。</li>
+<li>创建 <code>PullRequest(requestId, owner, speed, requestType, destination, direction, stopTolerance, unmovable, duration, infinity, attenuationValues)</code>。</li>
+<li>加入 <code>m_pullRequests</code>。</li>
+<li>检查/添加 Pull 标签。</li>
+<li>触发 Pull 开始类事件。</li>
+<li>返回 <code>requestId</code>，用于 <code>finishPullByAction</code> 时在 <code>OnEnd</code> 结束请求。</li>
+</ol>
+<p><code>PullComponent._DoPull</code>:</p>
+<ol>
+<li>若没有请求或目标不能移动则跳过。</li>
+<li>取第一个 <code>PullRequest</code>。</li>
+<li>调用 <code>PullRequest.GetMoveDelta(deltaTime)</code>。</li>
+<li>将位移 delta 交给实体移动组件执行。</li>
+</ol>
+<p><code>PullRequest.GetMoveDelta</code>:</p>
+<ol>
+<li>如果距离小于 <code>stopTolerance</code>，请求结束。</li>
+<li>调用 <code>_CalcSpeed</code> 得到实际速度。</li>
+<li>返回本帧移动 delta。</li>
+</ol>
+<p><code>PullRequest._CalcSpeed</code>:</p>
+<ol>
+<li>默认使用 <code>pullSpeed</code>。</li>
+<li>如果配置了衰减表，会取目标当前霸体值。</li>
+<li>遍历 <code>PullAttenuationValue</code>，找到满足阈值的 <code>attenuationFactor</code>。</li>
+<li>实际速度 = <code>pullSpeed * attenuationFactor</code>。</li>
+</ol>
+<h3 id="_14">配置示例<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<p><code>AKEDataMining/data/Json/BuffData/buff_chr_0013_aglina_normal_skill.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w"> </span><span class="nt">&quot;$type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Beyond.Gameplay.Core.PullAction+Data, Gameplay.Beyond&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w"> </span><span class="nt">&quot;pullSpeed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">6.0</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w"> </span><span class="nt">&quot;isInfinity&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w"> </span><span class="nt">&quot;pullDuration&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3.1</span><span class="p">,</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w"> </span><span class="nt">&quot;stopTolerance&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="p">,</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w"> </span><span class="nt">&quot;unmovable&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w"> </span><span class="nt">&quot;finishPullByAction&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w"> </span><span class="nt">&quot;pullTargetType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Enemy&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w"> </span><span class="nt">&quot;attenuationBySuperArmor&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w"> </span><span class="nt">&quot;attenuationValues&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;superArmorValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="nt">&quot;attenuationFactor&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;superArmorValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="nt">&quot;attenuationFactor&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w"> </span><span class="p">]</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="p">}</span>
+</code></pre></div>
+<p>含义: 霸体越高，拉拽越弱；到 30 这一档时拉拽速度变成 0。</p>
+<hr />
+<h2 id="pushbackaction">PushBackAction<a class="headerlink" href="#pushbackaction" title="Permanent link">&para;</a></h2>
+<h3 id="_15">类定义<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<p>字段:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attackerTargetSettings</code></td>
+<td>攻击者</td>
+</tr>
+<tr>
+<td><code>sourcePointSettings</code></td>
+<td>推退源点</td>
+</tr>
+<tr>
+<td><code>targetSettings</code></td>
+<td>被推目标</td>
+</tr>
+<tr>
+<td><code>pushBackDirection</code></td>
+<td>推退方向</td>
+</tr>
+<tr>
+<td><code>pushBackDistance</code></td>
+<td>推退距离</td>
+</tr>
+<tr>
+<td><code>distanceCurveEnabled</code></td>
+<td>是否启用距离曲线</td>
+</tr>
+<tr>
+<td><code>curveOriginUseSourcePoint</code></td>
+<td>曲线原点是否用源点</td>
+</tr>
+<tr>
+<td><code>distanceCurve</code></td>
+<td>距离曲线</td>
+</tr>
+<tr>
+<td><code>distanceUseScale</code></td>
+<td>距离是否受缩放影响</td>
+</tr>
+<tr>
+<td><code>timeUseScale</code></td>
+<td>时间是否受缩放影响</td>
+</tr>
+<tr>
+<td><code>unmovableUseScale</code></td>
+<td>不可移动时间是否受缩放影响</td>
+</tr>
+<tr>
+<td><code>pushBackTime</code></td>
+<td>推退耗时</td>
+</tr>
+<tr>
+<td><code>unmovableTime</code></td>
+<td>推退后不可移动时间</td>
+</tr>
+<tr>
+<td><code>useCustomCurve</code></td>
+<td>是否使用自定义曲线</td>
+</tr>
+<tr>
+<td><code>customCurve</code> / <code>curveTemplate</code></td>
+<td>曲线定义</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PushBackAction.ExecuteInternal</code></td>
+<td><code>已确认</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_16">配置示例<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<p><code>AKEDataMining/data/Json/SkillData/chr_0003_endminf_power_attack2.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w"> </span><span class="nt">&quot;$type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Beyond.Gameplay.Core.PushBackAction+Data, Gameplay.Beyond&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w"> </span><span class="nt">&quot;pushBackDirection&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SourceToTarget&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w"> </span><span class="nt">&quot;pushBackDistance&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w"> </span><span class="nt">&quot;distanceCurveEnabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w"> </span><span class="nt">&quot;distanceUseScale&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w"> </span><span class="nt">&quot;timeUseScale&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w"> </span><span class="nt">&quot;unmovableUseScale&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w"> </span><span class="nt">&quot;pushBackTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.12</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w"> </span><span class="nt">&quot;unmovableTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w"> </span><span class="nt">&quot;useCustomCurve&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w"> </span><span class="nt">&quot;curveTemplate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;EaseOut&quot;</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="interruptaction">InterruptAction<a class="headerlink" href="#interruptaction" title="Permanent link">&para;</a></h2>
+<h3 id="_17">类定义<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<p>字段:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attacker</code></td>
+<td>打断来源</td>
+</tr>
+<tr>
+<td><code>defender</code></td>
+<td>被打断目标</td>
+</tr>
+<tr>
+<td><code>overrideSuperArmorLimit</code></td>
+<td>覆盖霸体阈值</td>
+</tr>
+<tr>
+<td><code>immobilizedTime</code></td>
+<td>打断后硬直</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_18">执行链路<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>InterruptAction.ExecuteInternal</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>AbilitySystem.OnInterruptAction</code></td>
+<td><code>已确认</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>InterruptAction.ExecuteInternal</code>:</p>
+<ol>
+<li>取第一个 attacker。</li>
+<li>取 defender 目标列表。</li>
+<li>遍历 defender。</li>
+<li>对每个目标调用 <code>AbilitySystem.OnInterruptAction(attacker, immobilizedTime, overrideSuperArmorLimit)</code>。</li>
+</ol>
+<p><code>AbilitySystem.OnInterruptAction</code>:</p>
+<ol>
+<li><code>overrideSuperArmorLimit &lt;= 0</code> 时使用默认值。</li>
+<li>调用 <code>CheckImmuneForCurrentSuperArmor</code>，若霸体免疫则返回 false。</li>
+<li>若当前有技能，调用 <code>Skill.Interrupt(reason=5, context)</code>。</li>
+<li>触发 <code>OnInterruptActionSuccess</code> 类事件。</li>
+<li>如果配置了 <code>immobilizedTime</code>，添加 Buff:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>buff_common_immobilized_interrup
+</code></pre></div>
+<p>并传入黑板参数:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>duration = immobilizedTime
+</code></pre></div>
+<h3 id="_19">配置示例<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<p><code>AKEDataMining/data/Json/BuffData/buff_common_mini_poise_break.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w"> </span><span class="nt">&quot;$type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Beyond.Gameplay.Core.InterruptAction+Data, Gameplay.Beyond&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w"> </span><span class="nt">&quot;attacker&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;targetSource&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Source&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w"> </span><span class="nt">&quot;defender&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;targetSource&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Owner&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w"> </span><span class="nt">&quot;overrideSuperArmorLimit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w"> </span><span class="nt">&quot;immobilizedTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">4.0</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="interruptcurskillaction">InterruptCurSkillAction<a class="headerlink" href="#interruptcurskillaction" title="Permanent link">&para;</a></h2>
+<h3 id="_20">类定义<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h3>
+<p>字段:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>skillOwner</code></td>
+<td>技能拥有者</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>InterruptCurSkillAction.ExecuteInternal</code></td>
+<td><code>已确认</code></td>
+</tr>
+</tbody>
+</table>
+<p>执行逻辑:</p>
+<ol>
+<li>根据 <code>skillOwner</code> 找到目标 <code>AbilitySystem</code>。</li>
+<li>读取目标当前技能字段。</li>
+<li>如果当前技能存在，调用:</li>
+</ol>
+<p>它不做攻击者/防御者判定，也没有硬直 Buff，只是直接中断目标当前技能。</p>
+<hr />
+<h2 id="slowaction">SlowAction<a class="headerlink" href="#slowaction" title="Permanent link">&para;</a></h2>
+<h3 id="_21">类定义<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h3>
+<p><code>SlowAction.Data</code> 没有自己的字段，继承 <code>KeywordAction.KeywordActionData</code>:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>source</code></td>
+<td>来源</td>
+</tr>
+<tr>
+<td><code>target</code></td>
+<td>目标</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>持续时间</td>
+</tr>
+<tr>
+<td><code>rate</code></td>
+<td>关键词倍率</td>
+</tr>
+<tr>
+<td><code>overrideChildBuffId</code></td>
+<td>是否覆盖子 Buff ID</td>
+</tr>
+<tr>
+<td><code>childBuffId</code></td>
+<td>子 Buff ID</td>
+</tr>
+<tr>
+<td><code>asChildBuff</code></td>
+<td>是否作为子 Buff</td>
+</tr>
+<tr>
+<td><code>enhancingList</code></td>
+<td>关键词增强列表</td>
+</tr>
+<tr>
+<td><code>autoFinishByAction</code></td>
+<td>Action 结束时自动移除</td>
+</tr>
+</tbody>
+</table>
+<p><code>KeywordActionType</code>:</p>
+<p>结论: <code>SlowAction</code> 不是物理控制，它是关键词 Buff 创建器。<code>duration</code> 和 <code>rate</code> 可从黑板读取。
+配置示例 <code>buff_chr_0027_tangtang_comboskill_waterdebuff.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w"> </span><span class="nt">&quot;$type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Beyond.Gameplay.Core.SlowAction+Data, Gameplay.Beyond&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w"> </span><span class="nt">&quot;duration&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;useBlackboardKey&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;blackboardKey&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;duration_waterdebuff&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w"> </span><span class="nt">&quot;rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;useBlackboardKey&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;blackboardKey&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ratio_speedreduction&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w"> </span><span class="nt">&quot;asChildBuff&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w"> </span><span class="nt">&quot;autoFinishByAction&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="elitebackswingbehit">EliteBackSwingBeHit<a class="headerlink" href="#elitebackswingbehit" title="Permanent link">&para;</a></h2>
+<h3 id="_22">类定义<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h3>
+<p>字段:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>duration</code></td>
+<td>生效持续时间</td>
+</tr>
+<tr>
+<td><code>limitTimes</code></td>
+<td>限制触发次数</td>
+</tr>
+<tr>
+<td><code>finishByAction</code></td>
+<td>是否随 Action 结束</td>
+</tr>
+</tbody>
+</table>
+<p>配置示例:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w"> </span><span class="nt">&quot;$type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Beyond.Gameplay.Core.EliteBackSwingBeHit+Data, Gameplay.Beyond&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w"> </span><span class="nt">&quot;duration&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.0</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w"> </span><span class="nt">&quot;limitTimes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w"> </span><span class="nt">&quot;finishByAction&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="adddynamicccs-inheritccs">AddDynamicCcs / InheritCCS 重新分类<a class="headerlink" href="#adddynamicccs-inheritccs" title="Permanent link">&para;</a></h2>
+<h3 id="adddynamicccsaction">AddDynamicCcsAction<a class="headerlink" href="#adddynamicccsaction" title="Permanent link">&para;</a></h3>
+<p>字段大量指向相机:</p>
+<ul>
+<li><code>CinemachineBlendDefinition.Style</code></li>
+<li><code>blendInTime</code></li>
+<li><code>blendOutTime</code></li>
+<li><code>additiveHorizontalAngle</code></li>
+<li><code>additiveVerticalValue</code></li>
+<li><code>additiveZoomScale</code></li>
+<li><code>minZoom</code> / <code>maxZoom</code></li>
+<li><code>fovCurve</code></li>
+<li><code>screenYCurve</code></li>
+<li><code>shoulderOffset</code></li>
+<li><code>lookAtOffset</code></li>
+</ul>
+<p>因此这里的 <code>CCS</code> 是 <strong>Camera Control State</strong>。</p>
+<h3 id="inheritccsaction">InheritCCSAction<a class="headerlink" href="#inheritccsaction" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>InheritCCSAction.ExecuteInternal</code></td>
+<td><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>InheritCCSAction.OnEnd</code></td>
+<td><code>已确认</code></td>
+</tr>
+</tbody>
+</table>
+<p>执行逻辑:</p>
+<ol>
+<li>根据 <code>ccsOwner</code> 找到目标 <code>AbilitySystem</code>。</li>
+<li>调用 <code>AbilitySystem.TryGetInheritCCS(ccsKey, ..., out InheritCCSData)</code>。</li>
+<li>从 <code>LevelCameraController.CameraControlStateMachine.GetOuterControlState(id)</code> 取相机控制状态。</li>
+<li>如果 <code>overrideBlendOut</code>，覆盖 <code>CameraControlState</code> 的 blend out 时间。</li>
+<li><code>OnEnd</code> 时调用 <code>AbilitySystem.RemoveInheritCCS(id)</code> 和 <code>GameAction.RemoveCameraControlState(m_ccs)</code>。</li>
+</ol>
+<p>结论: <code>AddDynamicCcsAction</code> / <code>InheritCCSAction</code> 应移动到相机/镜头分类。</p>
+<hr />
+<h2 id="_23">建议更新分类<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h2>
+<p>建议将“击飞与控制”拆成以下子类:</p>
+<table>
+<thead>
+<tr>
+<th>子类</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>敌人受控状态</td>
+<td><code>AirborneAction</code>, <code>LaunchUpwardAction</code>, <code>KnockDownAction</code>, <code>TakeDownAction</code>, <code>BlowOffEnemyAction</code>, <code>CrushAction</code>, <code>FractureAction</code></td>
+</tr>
+<tr>
+<td>角色击飞</td>
+<td><code>BlowOffCharacterAction</code></td>
+</tr>
+<tr>
+<td>物理位移控制</td>
+<td><code>PullAction</code>, <code>PushBackAction</code>, <code>BlowOffAction</code></td>
+</tr>
+<tr>
+<td>技能打断</td>
+<td><code>InterruptAction</code>, <code>InterruptCurSkillAction</code></td>
+</tr>
+<tr>
+<td>关键词减速</td>
+<td><code>SlowAction</code></td>
+</tr>
+<tr>
+<td>特殊窗口/标记</td>
+<td><code>EliteBackSwingBeHit</code></td>
+</tr>
+<tr>
+<td>应移出本类</td>
+<td><code>AddDynamicCcsAction</code>, <code>InheritCCSAction</code></td>
+</tr>
+</tbody>
+</table>
+<p>其中 <code>BlowOffAction</code> 和 <code>PushBackAction</code> 都属于位移控制，但 <code>BlowOffEnemyAction</code> 系列属于敌人 <code>ControlledState</code>，<code>BlowOffCharacterAction</code> 属于角色 <code>MoveInput</code> 击飞，两者底层完全不同。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

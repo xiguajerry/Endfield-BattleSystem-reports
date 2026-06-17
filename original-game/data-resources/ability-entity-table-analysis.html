@@ -1,0 +1,2495 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>AbilityEntityTable 类分析 - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#abilityentitytable" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              AbilityEntityTable 类分析
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类定位
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abilityentitytemplatedata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AbilityEntityTemplateData
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        构造函数
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trygetdata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TryGetData 逻辑
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        装载入口
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        加载链路
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="加载链路">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#m_mainassetloaderloadthash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_mainAssetLoader.Load&lt;T&gt;(hash) 之后
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assetproxy-bundleproxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AssetProxy / BundleProxy 深层同步加载
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manifest-binary-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manifest binary 与 bundle 文件定位
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        序列化/反序列化过程
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="序列化/反序列化过程">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unity-asset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unity asset 层
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memorypack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MemoryPack 详细读取算法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        字段顺序风险
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行时使用链路
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="运行时使用链路">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        预加载
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spawnabilityentityexecuteinternal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SpawnAbilityEntity.ExecuteInternal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#objectcontainerloadentity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ObjectContainer.LoadEntity 的二次模板加载
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        注册、堆叠与启动
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        网络侧入口
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON 使用情况
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bundles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bundles 模块复用评估
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="abilityentitytable">AbilityEntityTable 类分析<a class="headerlink" href="#abilityentitytable" title="Permanent link">&para;</a></h1>
+<p>分析对象: <code>Beyond.Gameplay.AbilityEntityTable</code></p>
+<h2 id="_1">类定位<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p><code>AbilityEntityTable</code> 是技能实体模板表:</p>
+<p>它不是运行时实体容器，也不负责生成实体；它只保存 <code>TemplateDataConfig</code> 列表，并按 <code>abilityEntityId</code> 查出 <code>AbilityEntityTemplateData</code>。
+<code>TemplateDataConfig</code> 结构:</p>
+<p>查表时实际比较的是 <code>TemplateDataConfig.data.id</code>，不是 <code>name</code> 字段。</p>
+<h2 id="abilityentitytemplatedata">AbilityEntityTemplateData<a class="headerlink" href="#abilityentitytemplatedata" title="Permanent link">&para;</a></h2>
+<p><code>AbilityEntityTemplateData : EntityTemplateData</code>，是 AbilityEntity 的完整模板数据。继承关系:</p>
+<pre class="mermaid"><code>classDiagram
+    GameDataWithId &lt;|-- BaseTemplateData
+    BaseTemplateData &lt;|-- EntityTemplateData
+    EntityTemplateData &lt;|-- AbilityEntityTemplateData
+
+    class GameDataWithId {
+        +id
+    }
+    class BaseTemplateData {
+        +name
+        +factionIndex
+    }
+    class EntityTemplateData {
+        +bornTag
+        +componentList
+    }
+    class AbilityEntityTemplateData {
+        +maxStackingCnt
+        +lifeType
+        +duration
+        +canMove
+        +skillDataBundle
+    }</code></pre>
+<p>关键基类字段:</p>
+<table>
+<thead>
+<tr>
+<th>类</th>
+<th>字段</th>
+<th style="text-align: right;">偏移</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GameDataWithId</code></td>
+<td><code>id</code></td>
+<td style="text-align: right;">0x10</td>
+<td>查表 key</td>
+</tr>
+<tr>
+<td><code>BaseTemplateData</code></td>
+<td><code>name</code></td>
+<td style="text-align: right;">0x18</td>
+<td>展示/配置名</td>
+</tr>
+<tr>
+<td><code>BaseTemplateData</code></td>
+<td><code>factionIndex</code></td>
+<td style="text-align: right;">0x20</td>
+<td>阵营</td>
+</tr>
+<tr>
+<td><code>EntityTemplateData</code></td>
+<td><code>bornTag</code></td>
+<td style="text-align: right;">0x28</td>
+<td>出生标签</td>
+</tr>
+<tr>
+<td><code>EntityTemplateData</code></td>
+<td><code>componentList</code></td>
+<td style="text-align: right;">0x40</td>
+<td>组件配置列表</td>
+</tr>
+</tbody>
+</table>
+<p><code>AbilityEntityTemplateData</code> 自身主要字段:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th style="text-align: right;">偏移</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>maxStackingCnt</code> / <code>maxStackingCntBB</code></td>
+<td style="text-align: right;">0x50 / 0x58</td>
+<td>最大叠加数量，负数表示无限</td>
+</tr>
+<tr>
+<td><code>lifeType</code></td>
+<td style="text-align: right;">0x60</td>
+<td><code>Limited</code> / <code>Infinity</code></td>
+</tr>
+<tr>
+<td><code>duration</code> / <code>durationBB</code></td>
+<td style="text-align: right;">0x64 / 0x68</td>
+<td>持续时间</td>
+</tr>
+<tr>
+<td><code>maxDurationForServer</code></td>
+<td style="text-align: right;">0x70</td>
+<td>服务端最大持续时间</td>
+</tr>
+<tr>
+<td><code>canMove</code></td>
+<td style="text-align: right;">0x74</td>
+<td>是否可移动</td>
+</tr>
+<tr>
+<td><code>moveHeight</code> / <code>moveRadius</code> / <code>moveType</code></td>
+<td style="text-align: right;">0x78 / 0x7C / 0x80</td>
+<td>移动高度、半径、移动模式</td>
+</tr>
+<tr>
+<td><code>useFrameTick</code></td>
+<td style="text-align: right;">0x84</td>
+<td>是否逐帧 tick</td>
+</tr>
+<tr>
+<td><code>surroundingConfig</code></td>
+<td style="text-align: right;">0x88</td>
+<td>环绕移动配置</td>
+</tr>
+<tr>
+<td><code>followMountPointConfig</code></td>
+<td style="text-align: right;">0x90</td>
+<td>挂点跟随配置</td>
+</tr>
+<tr>
+<td><code>hasSkill</code> / <code>skillDataBundle</code></td>
+<td style="text-align: right;">0x98 / 0xA0</td>
+<td>是否携带技能与技能包</td>
+</tr>
+<tr>
+<td><code>requiresCastSkillConfirm</code></td>
+<td style="text-align: right;">0xA8</td>
+<td>技能释放确认</td>
+</tr>
+<tr>
+<td><code>hasModel</code> / <code>modelKey</code></td>
+<td style="text-align: right;">0xA9 / 0xB0</td>
+<td>模型资源</td>
+</tr>
+<tr>
+<td><code>mountPointDef</code> / <code>modelParts</code></td>
+<td style="text-align: right;">0xB8 / 0xC0</td>
+<td>挂点和模型部件</td>
+</tr>
+<tr>
+<td><code>hasNavObstacle</code> / <code>navObstacleConfig</code></td>
+<td style="text-align: right;">0xC8 / 0xD0</td>
+<td>NavMesh 障碍配置</td>
+</tr>
+<tr>
+<td><code>canBeSelect</code> / <code>detectedHeight</code> / <code>detectedRadius</code></td>
+<td style="text-align: right;">0xD8 / 0xDC / 0xE0</td>
+<td>可选中和探测体</td>
+</tr>
+<tr>
+<td><code>physical</code> / <code>physicalData</code></td>
+<td style="text-align: right;">0xE4 / 0xE8</td>
+<td>物理配置</td>
+</tr>
+<tr>
+<td><code>hasBattlePhysicalComponents</code></td>
+<td style="text-align: right;">0xF0</td>
+<td>战斗物理组件</td>
+</tr>
+<tr>
+<td><code>hasAirborneComponent</code> / <code>hasKnockDownComponent</code> / <code>hasPullComponent</code></td>
+<td style="text-align: right;">0xF1 / 0xF2 / 0xF3</td>
+<td>控制组件开关</td>
+</tr>
+<tr>
+<td><code>hasMovementComponent</code></td>
+<td style="text-align: right;">0xF4</td>
+<td>移动组件</td>
+</tr>
+<tr>
+<td><code>hasAnimation</code> / <code>animationPath</code></td>
+<td style="text-align: right;">0xF5 / 0xF8</td>
+<td>动画配置</td>
+</tr>
+<tr>
+<td><code>hasInteractiveAction</code> / <code>interactiveActions</code></td>
+<td style="text-align: right;">0x100 / 0x108</td>
+<td>交互动作</td>
+</tr>
+<tr>
+<td><code>isEnergySource</code></td>
+<td style="text-align: right;">0x110</td>
+<td>是否能源源</td>
+</tr>
+<tr>
+<td><code>maxIgniteNum</code> / <code>maxIgniteNumBB</code></td>
+<td style="text-align: right;">0x114 / 0x118</td>
+<td>最大可触发次数</td>
+</tr>
+<tr>
+<td><code>isUltimateShow</code></td>
+<td style="text-align: right;">0x120</td>
+<td>终结技展示</td>
+</tr>
+<tr>
+<td><code>healthType</code> / <code>headBarType</code></td>
+<td style="text-align: right;">0x124 / 0x128</td>
+<td>血条/生命类型</td>
+</tr>
+<tr>
+<td><code>headBar*</code></td>
+<td style="text-align: right;">0x12C+</td>
+<td>血条朝向、偏移、引导线</td>
+</tr>
+</tbody>
+</table>
+<p>移动相关枚举:</p>
+<h2 id="_2">构造函数<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>入口行为: <code>AbilityEntityTable::.ctor</code>
+构造逻辑:</p>
+<p>因此新建 asset 时默认有空列表；运行时缺项不会因为 list 为 null 崩溃，但查不到会返回 <code>false</code>。</p>
+<h2 id="trygetdata">TryGetData 逻辑<a class="headerlink" href="#trygetdata" title="Permanent link">&para;</a></h2>
+<p>入口行为: <code>AbilityEntityTable::TryGetData</code></p>
+<p>重要行为:</p>
+<ul>
+<li>查找方式是 <code>O(n)</code> 线性扫描，没有内部字典缓存。</li>
+<li>key 是 <code>EntityTemplateData.id</code>。</li>
+<li><code>TemplateDataConfig</code> 为 Unity null 时跳过。</li>
+<li><code>TemplateDataConfig.data == null</code> 或 <code>abilityEntityId == null</code> 会走空引用错误路径，而不是普通查找失败。</li>
+<li>成功时会把 <code>EntityTemplateData</code> cast 成 <code>AbilityEntityTemplateData</code> 后输出。</li>
+</ul>
+<h2 id="_3">装载入口<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p><code>DataManager</code> 持有该表:</p>
+<p><code>_LoadConstConfigs</code> 会加载常量配置:</p>
+<p>在 <code>_LoadConstConfigs</code> 内的相邻加载顺序是:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>GlobalBuffTable
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>AbilityEntityTable
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>ProjectileTable
+</code></pre></div>
+<h2 id="_4">加载链路<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>整体调用链:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["GamePreloadState.__DoPreload_d__68.MoveNext"]
+    N1["DataManager.LoadGameConfigs()"]
+    N2["DataManager._LoadConstConfigs()"]
+    N3["DataManager._LoadSingleConfig&amp;lt;AbilityEntityTable&amp;gt;('AbilityEntityTable')"]
+    N4["ResourceRouter.GetGameplayConfigFullPath('AbilityEntityTable')"]
+    N5["StringPathHash.op_Implicit(fullPath)"]
+    N6["DataManager.LoadAsset&amp;lt;AbilityEntityTable&amp;gt;(hash)"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6</code></pre>
+<p><code>LoadGameConfigs</code> 是游戏预加载阶段触发的配置总入口。
+<code>GamePreloadState.__DoPreload_d__68.MoveNext</code> 调用
+<code>DataManager.LoadGameConfigs</code>。
+<code>DataManager.LoadGameConfigs</code> 的主流程:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>_LoadConstConfigs()
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>_LoadJsonConfigs()
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>_PostProcessConfigs()
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>计算 worldSetting.enemyMoveLodDistance 的平方缓存
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>_PreloadAllLevelData()
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>dispose mmap scope
+</code></pre></div>
+<p>因此 <code>AbilityEntityTable</code> 在 <code>_LoadJsonConfigs</code> 和 <code>_PostProcessConfigs</code>
+之前加载完成，属于常量 ScriptableObject 配置，不是 JSON 配置。
+<code>_LoadSingleConfig&lt;T&gt;</code> 只做三件事:</p>
+<p><code>ResourceRouter.GetGameplayConfigFullPath</code> 的路径规则:</p>
+<p>所以该表实际资源路径是:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Assets/Beyond/DynamicAssets/GameData/GameplayConfig/AbilityEntityTable.asset
+</code></pre></div>
+<p><code>AKEDataMining/data/ExtendData/Main/StringPathHash.json</code> 中能查到对应哈希:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">&quot;1018030359377152006&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Assets/Beyond/DynamicAssets/GameData/GameplayConfig/AbilityEntityTable.asset&quot;</span>
+</code></pre></div>
+<p><code>DataManager.LoadAsset&lt;T&gt;</code> 的行为:</p>
+<pre class="mermaid"><code>flowchart TD
+    Start["DataManager.LoadAsset&lt;T&gt;(hash)"]
+    H0{"hash == 0"}
+    Exists{"ResourceManager.CheckExists(hash, Main)"}
+    Load["m_mainAssetLoader.Load&lt;T&gt;(hash)"]
+    Ready{"handle valid 且 isDone"}
+    Asset["return handle.Get&lt;T&gt;()"]
+    Null["return null"]
+    Start --&gt; H0
+    H0 --&gt;|是| Null
+    H0 --&gt;|否| Exists
+    Exists --&gt;|否| Null
+    Exists --&gt;|是| Load --&gt; Ready
+    Ready --&gt;|是| Asset
+    Ready --&gt;|否| Null</code></pre>
+<p>这里用的是 <code>DataManager.m_mainAssetLoader</code>，字段偏移 <code>0x80</code>。它期望
+<code>Load&lt;T&gt;</code> 返回的 <code>FAssetProxyLoaderHandle</code> 内部 <code>FAssetProxyHandle</code>
+已经可用并完成；如果 handle 未完成，不会在这里异步等待，而是进入失败日志路径。</p>
+<h3 id="m_mainassetloaderloadthash"><code>m_mainAssetLoader.Load&lt;T&gt;(hash)</code> 之后<a class="headerlink" href="#m_mainassetloaderloadthash" title="Permanent link">&para;</a></h3>
+<p><code>m_mainAssetLoader</code> 不是在 <code>OnPreInit</code> 里创建的，而是在 <code>DataManager::.ctor</code> 里初始化:</p>
+<p>因此 <code>AbilityEntityTable</code> 走的是第二个 loader，<code>RootCategory.Main = 0</code>。
+<code>m_initialAssetLoader</code> 则使用 <code>RootCategory.Initial = 1</code>，给 initial config 用。
+<code>SimpleAssetLoader</code> 构造函数 会:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>m_handles = new HashSet&lt;FAssetProxyHandle&gt;()
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>m_channel = channel
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>m_category = category
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>m_priority = priority
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>如果远程配置开启资源堆栈追踪，则保存 StackTrace
+</code></pre></div>
+<p><code>SimpleAssetLoader.Load&lt;T&gt;</code> 的同步加载路径:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>从泛型上下文取得 typeof(T)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>ResourceManager.Load(hash, typeof(T), this.m_category, EResourceRequestPriority.Default)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>SimpleAssetLoader.HandleAsset(handle)
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>return FAssetProxyLoaderHandle(handle)
+</code></pre></div>
+<p>非泛型版本 <code>SimpleAssetLoader.Load(StringPathHash, Type)</code>
+逻辑相同，只是 <code>Type</code> 由调用者传入。
+<code>HandleAsset</code> 只负责生命周期管理:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>if (!handle.IsValid())
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a> return
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>m_handles.Add(handle)
+</code></pre></div>
+<p>也就是说 <code>m_mainAssetLoader</code> 本身不解析 manifest，也不直接读 bundle；它只是把
+<code>ResourceManager</code> 返回的 handle 记到自己的 <code>HashSet</code>，方便后续 <code>ClearAll</code> /
+<code>Dispose</code> 时统一释放。
+下层 <code>ResourceManager.Load</code>:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["ResourceManager.instance"]
+    N1["BundleResourceManager.LoadUntracked(hash, type, category)"]
+    N2["new FAssetProxyHandle(untrackedHandle)"]
+    N0 --&gt; N1
+    N1 --&gt; N2</code></pre>
+<p><code>ResourceManager.instance</code> 最终取的是
+<code>Singleton&lt;BundleResourceManager&gt;.instance</code>。所以 gameplay config 的同步资源加载
+实际进入 <code>BundleResourceManager</code>。
+<code>BundleResourceManager.LoadUntracked</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>assetProxy = _LoadAssetInternal(hash, type, category, isAsync=false, priority=Default)
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>if (assetProxy != null)
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a> return new FAssetProxyUntrackedHandle(assetProxy, ELogChannel.Res)
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>LogErrorWithLuaStack(&quot;加载资源失败 {0}: {1} {2}&quot;, category, path, type)
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>return zero/default FAssetProxyUntrackedHandle
+</code></pre></div>
+<p><code>BundleResourceManager._LoadAssetInternal</code> 才是真正查 manifest
+并进入 bundle loader 的地方:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>if (m_manifest != null &amp;&amp;
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a> m_manifest.TryGetAssetInfoFromPath(hash.hash, out info)) {
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a> assetProxy = m_loadableMgr.LoadAsset(info, type, isAsync=false, priority=Default)
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a> if (assetProxy.status == 3 /* FailedToLoad */) {
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a> LogError(&quot;加载资源失败 {0}: {1} errorCode: {2}&quot;, category, path, errorCode)
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a> assetProxy.Release()
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a> } else {
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a> return assetProxy
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a> }
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>}
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>return null
+</code></pre></div>
+<p>其中 <code>RuntimeManifestBinary.TryGetAssetInfoFromPath</code>
+使用的是 <code>StringPathHash.hash</code>，也就是前面算出的
+<code>1018030359377152006</code>。
+<code>BundleLoader.Manager.LoadAsset</code> 继续做 asset proxy 缓存:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>groupID = ++s_operationGroupIDGenerator
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>key = AssetProxy.GetHashKey(info.assetData.pathHashHead, type)
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>if (_assetPools.TryGetValue(key, out asset) == false) {
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a> asset = BundleProxyContainer.NewAssetProxy(info, type)
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a> _assetPools.Add(key, asset)
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>}
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>如果 asset 已经 `Unloaded(status == 4)`，记录错误日志。
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>按开关记录资源加载/同步加载日志。
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>return _LoadAssetProxy(asset, groupID, isAsync=false, priority=Default)
+</code></pre></div>
+<p>同步路径的关键结论:</p>
+<ul>
+<li>
+<p><code>AbilityEntityTable.asset</code> 是否存在，先由 <code>DataManager.LoadAsset&lt;T&gt;</code> 的
+ <code>ResourceManager.CheckExists(hash, RootCategory.Main)</code> 过滤一次。</p>
+</li>
+<li>
+<p>真正加载时又会在 <code>BundleResourceManager._LoadAssetInternal</code> 里通过
+ <code>RuntimeManifestBinary.TryGetAssetInfoFromPath(hash.hash, out info)</code> 查 manifest。</p>
+</li>
+<li>
+<p><code>BundleLoader.Manager</code> 以 <code>(pathHashHead, type)</code> 组成 asset proxy cache key；
+ 同一个资源和类型重复加载时会复用 <code>_assetPools</code> 中的 <code>AssetProxy</code>。</p>
+</li>
+<li>
+<p><code>SimpleAssetLoader</code> 持有的是 <code>FAssetProxyHandle</code> 集合，不持有实际 asset；
+ 实际对象挂在 <code>AssetProxy</code> 上，最终由 <code>FAssetProxyHandle.Get&lt;T&gt;()</code> 取出。</p>
+</li>
+</ul>
+<h3 id="assetproxy-bundleproxy">AssetProxy / BundleProxy 深层同步加载<a class="headerlink" href="#assetproxy-bundleproxy" title="Permanent link">&para;</a></h3>
+<p><code>AbilityEntityTable</code> 这条链路传给 <code>BundleLoader.Manager.LoadAsset</code> 的
+<code>isAsync=false</code>，所以后续走同步分支。资源系统里的状态枚举是:</p>
+<p><code>BundleProxyContainer.NewAssetProxy(info, type)</code> / <code>AssetProxy.Init</code>
+会把 manifest 查出的 <code>AssetInfoPack</code> 复制到 <code>AssetProxy.m_info</code>，并记录:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>m_type = typeof(AbilityEntityTable)
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>m_isComponentType = ResourceConsts.COMPONENT_TYPE.IsAssignableFrom(m_type)
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>status = Wait
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>_objectID = FAssetObjectID.GetNewAssetID()
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>m_handlesSet = HashSet&lt;int&gt;
+</code></pre></div>
+<p><code>AbilityEntityTable</code> 是 <code>ScriptableObject</code>，不是 <code>Component</code>，所以后面不会走
+<code>GameObject.GetComponent(type)</code> 分支。
+<code>BundleLoader.Manager._LoadAssetProxy</code> 是 asset proxy
+进入加载操作的核心:</p>
+<pre class="mermaid"><code>flowchart TD
+    Start["_LoadAssetProxy(asset)"]
+    Done{"asset.status 已是 Success&lt;br/&gt;或 Failed"}
+    Return["直接返回 asset"]
+    Bundle["取得或创建 BundleProxy"]
+    LoadBundle["_LoadBundleProxy&lt;br/&gt;组织 bundle 依赖和加载"]
+    Bind["BundleAssetProxy.SetBundle"]
+    Sync{"同步加载且无异步冲突"}
+    Fast["_FastLoadAssetSync(asset)"]
+    Async["保留异步加载状态"]
+    Start --&gt; Done
+    Done --&gt;|是| Return
+    Done --&gt;|否| Bundle --&gt; LoadBundle --&gt; Bind --&gt; Sync
+    Sync --&gt;|是| Fast
+    Sync --&gt;|否| Async</code></pre>
+<p>如果同一个资源此前已经在异步加载，<code>_LoadAssetProxy</code> 会检查冲突。配置允许时会
+<code>WaitForAllAsyncOperationsToComplete</code>，否则会强制完成当前 asset bundle operation。
+但 <code>AbilityEntityTable</code> 在预加载阶段通常是同步加载，重点是 <code>_FastLoadAssetSync</code>。
+实际步骤:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>assInfo = asset.GetAssetInfo()
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>bundle = GetOrCreateBundleProxy(assInfo.bundleData.hashName, cancelRecycle=true)
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>_LoadBundleProxySync(ref assInfo, bundle, dep=0)
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>asset.SetBundle(bundle)
+</code></pre></div>
+<p><code>_LoadBundleProxySync</code> 会递归处理 bundle 依赖:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>manifest.TryGetBundleDirectDeps(bundleHashName, deps)
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>for each depHash:
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a> depBundle = GetOrCreateBundleProxy(depHash, true)
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a> mainBundle.RetainBundleRef(depBundle)
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a> _LoadBundleProxySync(ref depInfo, depBundle, dep + 1)
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>mainBundle.LoadSync()
+</code></pre></div>
+<p>所以这里不是只加载 <code>AbilityEntityTable.asset</code> 所在 bundle 本体；它会先把
+manifest 声明的直接依赖 bundle 同步拉起并建立引用关系。
+<code>BundleProxy.LoadSync</code> 的状态逻辑:</p>
+<pre class="mermaid"><code>flowchart TD
+    Start["BundleProxy.LoadSync()"]
+    Success{"status == SuccessToLoad"}
+    Bad{"status == FailedToLoad 或 Unloaded"}
+    Load["_LoadImmediate()"]
+    Check{"status == SuccessToLoad"}
+    True["return true"]
+    False["return false"]
+    Start --&gt; Success
+    Success --&gt;|是| True
+    Success --&gt;|否| Bad
+    Bad --&gt;|是| False
+    Bad --&gt;|否| Load --&gt; Check
+    Check --&gt;|是| True
+    Check --&gt;|否| False</code></pre>
+<p><code>BundleProxy._LoadImmediate</code> 的下层调用表确认它会:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>RuntimeManifestBinary.GetBundleNameUnSafeString(hashName)
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>_GetBundleFileFullPath(bundleName)
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>_LoadAssetBundle(filePath)
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>_FinishWithBundle(assetBundle)
+</code></pre></div>
+<p>其中 <code>_LoadAssetBundle</code> 直接调用 Unity:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>UnityEngine.AssetBundle.LoadFromFile(filePath)
+</code></pre></div>
+<p>也就是说 config 表 asset 的底层 bundle 同步加载是文件级 <code>AssetBundle.LoadFromFile</code>。
+如果已有异步请求或运行时加载冲突，<code>BundleProxy._LoadImmediate</code> 也有
+<code>AssetBundle.WaitForAllAsyncOperationsToComplete_Internal</code>、遍历已加载 bundle、
+日志和错误收尾分支；但正常同步路径是上面的 <code>LoadFromFile</code>。
+bundle 成功后，回到 <code>AssetProxy.LoadSync</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>if (!asset.isDone)
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a> asset._LoadImmediate()
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>return asset.status == SuccessToLoad
+</code></pre></div>
+<p><code>AssetProxy._LoadImmediate</code> 再从已经加载好的 bundle 中取具体 asset:</p>
+<pre class="mermaid"><code>flowchart TD
+    Start["AssetProxy._LoadImmediate()"]
+    HasBundle{"bundleProxy 存在"}
+    LoadBundle["bundleProxy.LoadSync()"]
+    BundleBad{"bundle status Failed 或 Unloaded"}
+    HasRequest{"m_request != null"}
+    Component{"bundle 成功且 m_isComponentType"}
+    LoadGO["LoadAsset&lt;GameObject&gt;"]
+    GetComp["gameObject.GetComponent(m_type)"]
+    FinishComp["_FinishWithAsset(component)"]
+    PlainAsset{"bundle 成功且非 Component"}
+    LoadAsset["LoadAsset(pathHashHead, m_type)"]
+    FinishAsset["_FinishWithAsset(asset)"]
+    Error["_FinishWithError"]
+    Start --&gt; HasBundle
+    HasBundle --&gt;|否| Error
+    HasBundle --&gt;|是| LoadBundle --&gt; BundleBad
+    BundleBad --&gt;|是| Error
+    BundleBad --&gt;|否| HasRequest
+    HasRequest --&gt;|是| Error
+    HasRequest --&gt;|否| Component
+    Component --&gt;|是| LoadGO --&gt; GetComp --&gt; FinishComp
+    Component --&gt;|否| PlainAsset
+    PlainAsset --&gt;|是| LoadAsset --&gt; FinishAsset
+    PlainAsset --&gt;|否| Error</code></pre>
+<p><code>AbilityEntityTable</code> 属于最后的非 component 成功分支。<code>BundleProxy.LoadAsset</code> 不再通过字符串路径查找，而是解析 Unity 内部调用:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>UnityEngine.AssetBundle::LoadAssetByHash_Internal(System.Int64,System.Type)
+</code></pre></div>
+<p>然后执行:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>assetBundle.LoadAssetByHash_Internal(hash.hash, type)
+</code></pre></div>
+<p>这里传入的 <code>hash.hash</code> 是 <code>AssetInfoPack.assetData.pathHashHead</code>。对
+<code>AbilityEntityTable.asset</code> 来说，这个值对应 manifest 中 asset 路径的 hash；
+<code>type</code> 是 <code>typeof(AbilityEntityTable)</code>。
+<code>AssetProxy._FinishWithAsset</code> 会把 Unity 返回对象写入
+<code>AssetProxy.m_asset</code>，并将状态置为 <code>SuccessToLoad</code>。如果 Unity 对象为空或
+后续校验失败，则写入错误码并置为 <code>FailedToLoad</code>，上层
+<code>BundleResourceManager._LoadAssetInternal</code> 会识别 <code>status == 3</code>，记录加载失败并
+<code>Release()</code> 该 proxy。
+最后回到 <code>DataManager.LoadAsset&lt;T&gt;</code> 的 <code>handle.Get&lt;T&gt;()</code>。取对象链路是:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["FAssetProxyLoaderHandle.Get&amp;lt;T&amp;gt;()"]
+    N1["FAssetProxyHandle.Get&amp;lt;T&amp;gt;()"]
+    N2["FAssetProxyUntrackedHandle.assetProxy"]
+    N3["AssetProxy.Get&amp;lt;T&amp;gt;()"]
+    N4["return AssetProxy.m_asset as T"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4</code></pre>
+<p>非泛型 <code>FAssetProxyHandle.Get()</code> 会先确认 untracked handle 有效，
+再取 <code>FAssetProxyUntrackedHandle.assetProxy</code>，通过 <code>IAssetProxy.Get()</code> 返回对象。
+<code>AssetProxy.Get()</code> 返回的是 <code>m_asset</code>；泛型
+检查做一次 cast。
+因此 <code>abilityEntityTable</code> 字段最终拿到的对象来源可以精确写成:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["AbilityEntityTable.asset path"]
+    N1["StringPathHash(1018030359377152006)"]
+    N2["RuntimeManifestBinary.TryGetAssetInfoFromPath"]
+    N3["AssetInfoPack.assetData.pathHashHead + bundleData.hashName"]
+    N4["BundleProxy.LoadSync()"]
+    N5["AssetBundle.LoadFromFile(bundleFilePath)"]
+    N6["BundleProxy.LoadAsset(pathHashHead, typeof(AbilityEntityTable))"]
+    N7["AssetBundle.LoadAssetByHash_Internal(pathHashHead, typeof(AbilityEntityTable))"]
+    N8["AssetProxy.m_asset"]
+    N9["FAssetProxyHandle.Get&amp;lt;AbilityEntityTable&amp;gt;()"]
+    N10["DataManager.abilityEntityTable"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6
+    N6 --&gt; N7
+    N7 --&gt; N8
+    N8 --&gt; N9
+    N9 --&gt; N10</code></pre>
+<h3 id="manifest-binary-bundle">Manifest binary 与 bundle 文件定位<a class="headerlink" href="#manifest-binary-bundle" title="Permanent link">&para;</a></h3>
+<p><code>StringPathHash</code> 只能把配置路径压缩成一个 <code>long</code>，真正知道 asset 属于哪个
+bundle 的是 <code>RuntimeManifestBinary</code>。它包了一层 <code>ManifestDataBinary</code>:</p>
+<p><code>ManifestDataBinary</code> 的核心索引:</p>
+<p>其中 asset 和 bundle 的二进制结构是:</p>
+<p>因此 <code>TryGetAssetInfoFromPath(long assetPathHash, out AssetInfoPack info)</code> 的数据模型是:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["assetPathHash"]
+    N1["ManifestDataBinary.TryGetValue(hash, out AssetInfo*)"]
+    N2["asset.bundleIndex"]
+    N3["ManifestDataBinary.TryGetBundleByIndex(bundleIndex, out Bundle)"]
+    N4["RuntimeManifestBinary.AssetInfoPack(asset, bundle, BundleResourceManager)"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4</code></pre>
+<p>这个 pack 是后续所有加载步骤的上下文:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>assetData.pathHashHead</code></td>
+<td>传给 <code>AssetBundle.LoadAssetByHash_Internal</code> 的 asset hash</td>
+</tr>
+<tr>
+<td><code>assetData.path</code></td>
+<td>debug/profile 用路径，运行时标注为较卡</td>
+</tr>
+<tr>
+<td><code>assetData.bundleIndex</code></td>
+<td>连接 asset 和 bundle</td>
+</tr>
+<tr>
+<td><code>bundleData.name</code> / <code>hashName</code></td>
+<td>bundle 文件名和 bundle proxy key</td>
+</tr>
+<tr>
+<td><code>bundleData.directDependencies</code></td>
+<td><code>_LoadBundleProxySync</code> 的直接依赖列表</td>
+</tr>
+<tr>
+<td><code>bundleData.category</code></td>
+<td><code>RootCategory.Main</code> / <code>Initial</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>BundleResourceManager</code> 持有 <code>RuntimeManifestBinary m_manifest</code> 和
+<code>BundleLoader.Manager m_loadableMgr</code>:</p>
+<p>初始化相关方法在 类型信息 中能看到:</p>
+<p>也就是说 runtime 优先使用二进制 manifest；JSON manifest 只是同一套数据的
+非 binary 表达。<code>ManifestDataBinary</code> 本身支持 brotli 解压和 memory-mapped data:</p>
+<p>本地 <code>StringPathHash</code> 里能看到 manifest binary 自身的路径:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nt">&quot;4361581287989299209&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Data/Bundles/Windows/manifest.hgmmap&quot;</span>
+</code></pre></div>
+<p>但是当前仓库里的 <code>AKEDataMining/data/Bundles/manifest.json</code> 是 0 字节，且没有
+<code>manifest.hgmmap</code>；所以仅靠本地 datamining 文件，能确认
+<code>AbilityEntityTable.asset -&gt; 1018030359377152006</code>，但不能还原它对应的具体
+<code>bundleData.name/hashName/directDependencies</code>。这一段只能在运行时 manifest binary
+或完整 bundle manifest 可用时继续落到具体 bundle 文件名。
+bundle 文件路径由 <code>BundleResourceManager.FileRouter</code> 和 <code>BundleProxy</code> 组合:</p>
+<p><code>BundleProxy._GetBundleFileFullPath(bundleName)</code> 最终会通过资源管理器的
+<code>FileRouter</code> 拼出实际 bundle 文件路径。正常情况下优先找本地持久化/更新目录，
+找不到再落到 streaming assets。<code>PathConsts</code> 提供这些根路径:</p>
+<p>所以从路径 hash 到磁盘文件可以再细化为:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["AbilityEntityTable.asset"]
+    N1["StringPathHash.hash"]
+    N2["ManifestDataBinary.AssetInfo.pathHashHead"]
+    N3["AssetInfo.bundleIndex"]
+    N4["ManifestDataBinary.Bundle.name / hashName"]
+    N5["BundleProxy._GetBundleFileFullPath(bundleName)"]
+    N6["FileRouter.GetBundleFullPath(bundleName)"]
+    N7["AssetBundle.LoadFromFile(fullBundlePath)"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6
+    N6 --&gt; N7</code></pre>
+<p>需要和 <code>DataManager.OnPreInit</code> 区分开:</p>
+<ul>
+<li>
+<p><code>OnPreInit</code> 会初始化 <code>m_kvTables</code>，并通过 <code>_LoadSingleInitialConfig&lt;T&gt;</code> 加载
+ <code>AudioGlobalConfig</code>、<code>WorldInitSetting</code> 等 initial config。</p>
+</li>
+<li>
+<p><code>_LoadSingleInitialConfig&lt;T&gt;</code> 使用 <code>ResourceRouter.GetInitialConfigFullPath</code> 和
+ <code>m_initialAssetLoader</code>。</p>
+</li>
+<li>
+<p><code>AbilityEntityTable</code> 不走 initial config 链路；它在 <code>LoadGameConfigs</code> 的
+ <code>_LoadConstConfigs</code> 中走 gameplay config 路径和 <code>m_mainAssetLoader</code>。</p>
+</li>
+</ul>
+<h2 id="_5">序列化/反序列化过程<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="unity-asset">Unity asset 层<a class="headerlink" href="#unity-asset" title="Permanent link">&para;</a></h3>
+<p><code>AbilityEntityTable</code> 本体是 Unity <code>ScriptableObject</code> asset，不是
+<code>IMemoryPackSerialize</code> 表:</p>
+<p>列表元素 <code>TemplateDataConfig</code> 也是 <code>ScriptableObject</code>:</p>
+<p>实际模板类型 <code>AbilityEntityTemplateData</code> 标记为 <code>[Serializable]</code>，继承
+<code>EntityTemplateData</code>。这三类都没有实现 <code>ISerializationCallbackReceiver</code>，
+也没有 <code>OnBeforeSerialize</code> / <code>OnAfterDeserialize</code>。因此运行时没有业务层
+回调去重建索引或修正字段；<code>DataManager.LoadAsset&lt;AbilityEntityTable&gt;</code> 拿到的
+就是资源系统/Unity 反序列化后的对象图:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["AbilityEntityTable"]
+    N1["abilityEntityList: List&amp;lt;TemplateDataConfig&amp;gt;"]
+    N2["TemplateDataConfig.data: EntityTemplateData [SerializeReference]"]
+    N3["AbilityEntityTemplateData"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3</code></pre>
+<p><code>TryGetData</code> 直接扫描这个对象图，不再做额外反序列化。
+更细一点，<code>AbilityEntityTable.asset</code> 运行时落到 Unity 反序列化的边界是:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["DataManager.LoadAsset&amp;lt;AbilityEntityTable&amp;gt;(hash)"]
+    N1["m_mainAssetLoader.Load&amp;lt;AbilityEntityTable&amp;gt;(hash)"]
+    N2["ResourceManager.Load(hash, typeof(AbilityEntityTable), RootCategory.Main, Default)"]
+    N3["BundleResourceManager._LoadAssetInternal(...)"]
+    N4["BundleLoader.Manager.LoadAsset(assetInfo, typeof(AbilityEntityTable), isAsync=false)"]
+    N5["AssetProxy.LoadSync()"]
+    N6["BundleProxy.LoadAsset(StringPathHash(assetInfo.assetData.pathHashHead),"]
+    N7["typeof(AbilityEntityTable))"]
+    N8["UnityEngine.AssetBundle.LoadAssetByHash_Internal(pathHashHead,"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6
+    N6 --&gt; N7
+    N7 --&gt; N8
+    N8 --&gt; N7</code></pre>
+<p>从 <code>LoadAssetByHash_Internal</code> 往下就是 Unity native asset deserializer；C# 侧看不到
+逐字段读取代码。它做的事情可以抽象成:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>1. 通过 asset path hash 在已加载 AssetBundle 中找到 AbilityEntityTable 对象记录。
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>2. 按 Unity serialized file / TypeTree / managed type metadata 创建 ScriptableObject。
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>3. 写入字段 abilityEntityList。
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>4. 对 list 中每个 TemplateDataConfig 引用，解析对应 ScriptableObject。
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>5. 对 TemplateDataConfig.data 的 [SerializeReference] managed reference，
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a> 读取记录中的实际 managed type，构造 EntityTemplateData 子类。
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>6. 如果实际类型是 AbilityEntityTemplateData，则填充继承链字段和自身字段。
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>7. 返回已经成形的 AbilityEntityTable 对象，AssetProxy.m_asset 持有它。
+</code></pre></div>
+<p>这条路径没有调用 <code>AbilityEntityTable.TryGetData</code>，也不会调用
+<code>AbilityEntityTemplateDataForMemoryPack.Deserialize</code>。<code>TryGetData</code> 是反序列化完成后的
+<code>MemoryPack.Beyond.cs</code> 中没有 <code>AbilityEntityTableForMemoryPack</code> 或
+<code>TemplateDataConfigForMemoryPack</code>，说明整张 <code>AbilityEntityTable.asset</code> 不是以
+MemoryPack 表对象的形式注册的。MemoryPack 生成代码覆盖的是模板数据类型本身，
+尤其是 <code>EntityTemplateData</code> 的多态子类。
+<code>GameDataWithIdForMemoryPack</code> 和 <code>EntityTemplateDataForMemoryPack</code> 都声明了
+MemoryPack union，其中 <code>AbilityEntityTemplateData</code> 的 tag 是 <code>0</code>:</p>
+<p>这对应 <code>[SerializeReference] EntityTemplateData data</code> 的多态语义: 如果二进制流中
+该字段使用 MemoryPack union 表达，tag <code>0</code> 会选择
+<code>Beyond_Gameplay_AbilityEntityTemplateDataForMemoryPack</code>，再把字段写入真实的
+<code>AbilityEntityTemplateData</code> 实例。
+<code>AbilityEntityTemplateDataForMemoryPack</code> 的结构:</p>
+<p>外层 <code>MemoryPackFormatter&lt;AbilityEntityTemplateData&gt;.Deserialize</code> 的逻辑:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>if reader is null object:
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a> consume null
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a> value = null
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>else:
+</code></pre></div>
+<ul>
+<li>它读取 MemoryPack object header。</li>
+<li>它用 <code>MemoryPackSerializationException.ThrowInvalidPropertyCount</code> 校验字段数。</li>
+<li>期望字段数是 <code>0x39</code>，即 57 个字段。</li>
+<li>57 个字段 = 继承链字段 10 个 + <code>AbilityEntityTemplateData</code> 自身字段 47 个。</li>
+<li>它按 MemoryPack 字段顺序读取标量、字符串、数组、列表、字典、嵌套对象和枚举。</li>
+<li>每个字段通过生成的 <code>set___fieldName__</code> setter 写回 <code>__instance</code>。</li>
+</ul>
+<p>字段数量拆分:</p>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th style="text-align: right;">字段数</th>
+<th>代表字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GameDataWithId</code></td>
+<td style="text-align: right;">1</td>
+<td><code>id</code></td>
+</tr>
+<tr>
+<td><code>BaseTemplateData</code></td>
+<td style="text-align: right;">2</td>
+<td><code>name</code>, <code>factionIndex</code></td>
+</tr>
+<tr>
+<td><code>EntityTemplateData</code></td>
+<td style="text-align: right;">7</td>
+<td><code>bornTag</code>, <code>componentList</code>, <code>delayToRecycleTime</code>, <code>sendDieEvent</code> 等</td>
+</tr>
+<tr>
+<td><code>AbilityEntityTemplateData</code></td>
+<td style="text-align: right;">47</td>
+<td><code>lifeType</code>, <code>duration</code>, <code>skillDataBundle</code>, <code>hasAirborneComponent</code>, <code>physicalData</code> 等</td>
+</tr>
+</tbody>
+</table>
+<p>AbilityEntityTemplateData 的 MemoryPack 初始化/注册路径会为依赖类型准备 formatter，
+包括:</p>
+<ul>
+<li><code>AbilityEntityTemplateDataForMemoryPack</code></li>
+<li><code>GameplayTag[]</code></li>
+<li><code>BaseComponentData[]</code></li>
+<li><code>AbilityEntityModelPart[]</code></li>
+<li><code>List&lt;NavObstacleConfigData&gt;</code></li>
+<li><code>FactionIndex</code></li>
+<li><code>HealthType</code></li>
+<li><code>AbilityEntityTemplateData.LifeType</code></li>
+<li><code>AbilityEntityTemplateData.MoveType</code></li>
+<li><code>AbilityEntityTemplateData.HeadBarType</code></li>
+<li><code>MountPoint</code></li>
+<li><code>ItemInteractType</code></li>
+</ul>
+<p>formatter 显式注册、显式读取、显式 setter 赋值。
+注意: 类型信息对这一段生成代码的函数边界和名称有偏差；这里以确认到的调用链为准:
+<code>已确认</code> 是外层 <code>MemoryPackFormatter&lt;AbilityEntityTemplateData&gt;.Deserialize</code>，
+<code>已确认</code> 是真正读取 57 个字段的静态 <code>Deserialize</code> 大函数。</p>
+<h3 id="memorypack">MemoryPack 详细读取算法<a class="headerlink" href="#memorypack" title="Permanent link">&para;</a></h3>
+<p>这条链路可以拆成三层:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["MemoryPackFormatter&amp;lt;AbilityEntityTemplateData&amp;gt;.Deserialize"]
+    N1["at 已确认"]
+    N2["reader nil check"]
+    N3["new AbilityEntityTemplateDataForMemoryPack()"]
+    N4["MemoryPackFormatterProvider.GetFormatter&amp;lt;AbilityEntityTemplateDataForMemoryPack&amp;gt;()"]
+    N5["AbilityEntityTemplateDataForMemoryPack.Deserialize at 已确认"]
+    N6["output AbilityEntityTemplateData"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6</code></pre>
+<p>外层 formatter 的关键分支:</p>
+<p><code>AbilityEntityTemplateDataForMemoryPack</code> 构造函数 会先构造
+<code>set___field__</code> setter 都是写这个真实实例，不是写一份中间 DTO。
+静态 <code>AbilityEntityTemplateDataForMemoryPack.Deserialize</code>
+是实际读字段的大函数。核心流程:</p>
+<p>关键点:</p>
+<ul>
+<li><code>0x39</code> 是最大字段数，即 57。</li>
+<li>只在 <code>memberCount &gt; 57</code> 时抛 <code>ThrowInvalidPropertyCount</code>。</li>
+<li>
+<p><code>memberCount &lt; 57</code> 不抛错，但只能表达“末尾新增字段缺省”；如果中间插入、删除或换序，
+ 后续字段都会错位。</p>
+</li>
+<li>
+<p><code>GenerateType.Object</code> 没有字段名表，slot 到字段的映射完全依赖顺序。</p>
+</li>
+<li>字符串通过 <code>MemoryPackReaderExtensions.BeyondReadString</code> 读取。</li>
+<li>
+<p>标量会被生成代码合并读取，例如 <code>ReadUnmanaged&lt;bool,bool,float,float,float&gt;</code>、
+ <code>ReadUnmanaged&lt;uint,int,int&gt;</code>。</p>
+</li>
+<li>
+<p>数组、列表、字典和嵌套对象通过各自 formatter 递归读取，例如
+ <code>GameplayTag[]</code>、<code>BaseComponentData[]</code>、<code>SkillDataBundle</code>、
+ <code>SurroundingConfig</code>、<code>FollowMountPointConfig</code>、<code>SerializeFieldDictionary&lt;...&gt;</code>。
+按当前离线解析修正后的 slot 顺序，57 个字段为:</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>00 id
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>01 name
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>02 factionIndex
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>03 bornTag
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>04 delayToRecycleTime
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>05 delayRecyclePerformTime
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>06 sendDieEvent
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>07 enableBornFadeIn
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>08 fadeInTime
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>09 componentList
+<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>10 maxStackingCnt
+<a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>11 maxStackingCntBB
+<a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>12 lifeType
+<a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>13 duration
+<a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a>14 durationBB
+<a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a>15 maxDurationForServer
+<a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a>16 canMove
+<a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a>17 moveHeight
+<a id="__codelineno-21-19" name="__codelineno-21-19" href="#__codelineno-21-19"></a>18 moveRadius
+<a id="__codelineno-21-20" name="__codelineno-21-20" href="#__codelineno-21-20"></a>19 moveType
+<a id="__codelineno-21-21" name="__codelineno-21-21" href="#__codelineno-21-21"></a>20 useFrameTick
+<a id="__codelineno-21-22" name="__codelineno-21-22" href="#__codelineno-21-22"></a>21 surroundingConfig
+<a id="__codelineno-21-23" name="__codelineno-21-23" href="#__codelineno-21-23"></a>22 followMountPointConfig
+<a id="__codelineno-21-24" name="__codelineno-21-24" href="#__codelineno-21-24"></a>23 hasSkill
+<a id="__codelineno-21-25" name="__codelineno-21-25" href="#__codelineno-21-25"></a>24 skillDataBundle
+<a id="__codelineno-21-26" name="__codelineno-21-26" href="#__codelineno-21-26"></a>25 requiresCastSkillConfirm
+<a id="__codelineno-21-27" name="__codelineno-21-27" href="#__codelineno-21-27"></a>26 hasModel
+<a id="__codelineno-21-28" name="__codelineno-21-28" href="#__codelineno-21-28"></a>27 modelKey
+<a id="__codelineno-21-29" name="__codelineno-21-29" href="#__codelineno-21-29"></a>28 mountPointDef
+<a id="__codelineno-21-30" name="__codelineno-21-30" href="#__codelineno-21-30"></a>29 modelParts
+<a id="__codelineno-21-31" name="__codelineno-21-31" href="#__codelineno-21-31"></a>30 hasNavObstacle
+<a id="__codelineno-21-32" name="__codelineno-21-32" href="#__codelineno-21-32"></a>31 navObstacleConfig
+<a id="__codelineno-21-33" name="__codelineno-21-33" href="#__codelineno-21-33"></a>32 canBeSelect
+<a id="__codelineno-21-34" name="__codelineno-21-34" href="#__codelineno-21-34"></a>33 detectedHeight
+<a id="__codelineno-21-35" name="__codelineno-21-35" href="#__codelineno-21-35"></a>34 detectedRadius
+<a id="__codelineno-21-36" name="__codelineno-21-36" href="#__codelineno-21-36"></a>35 physical
+<a id="__codelineno-21-37" name="__codelineno-21-37" href="#__codelineno-21-37"></a>36 physicalData
+<a id="__codelineno-21-38" name="__codelineno-21-38" href="#__codelineno-21-38"></a>37 hasBattlePhysicalComponents
+<a id="__codelineno-21-39" name="__codelineno-21-39" href="#__codelineno-21-39"></a>38 hasAirborneComponent
+<a id="__codelineno-21-40" name="__codelineno-21-40" href="#__codelineno-21-40"></a>39 hasKnockDownComponent
+<a id="__codelineno-21-41" name="__codelineno-21-41" href="#__codelineno-21-41"></a>40 hasPullComponent
+<a id="__codelineno-21-42" name="__codelineno-21-42" href="#__codelineno-21-42"></a>41 hasMovementComponent
+<a id="__codelineno-21-43" name="__codelineno-21-43" href="#__codelineno-21-43"></a>42 hasAnimation
+<a id="__codelineno-21-44" name="__codelineno-21-44" href="#__codelineno-21-44"></a>43 animationPath
+<a id="__codelineno-21-45" name="__codelineno-21-45" href="#__codelineno-21-45"></a>44 hasInteractiveAction
+<a id="__codelineno-21-46" name="__codelineno-21-46" href="#__codelineno-21-46"></a>45 maxPickUpTime
+<a id="__codelineno-21-47" name="__codelineno-21-47" href="#__codelineno-21-47"></a>46 interactiveActions
+<a id="__codelineno-21-48" name="__codelineno-21-48" href="#__codelineno-21-48"></a>47 isEnergySource
+<a id="__codelineno-21-49" name="__codelineno-21-49" href="#__codelineno-21-49"></a>48 maxIgniteNum
+<a id="__codelineno-21-50" name="__codelineno-21-50" href="#__codelineno-21-50"></a>49 maxIgniteNumBB
+<a id="__codelineno-21-51" name="__codelineno-21-51" href="#__codelineno-21-51"></a>50 isUltimateShow
+<a id="__codelineno-21-52" name="__codelineno-21-52" href="#__codelineno-21-52"></a>51 healthType
+<a id="__codelineno-21-53" name="__codelineno-21-53" href="#__codelineno-21-53"></a>52 headBarType
+<a id="__codelineno-21-54" name="__codelineno-21-54" href="#__codelineno-21-54"></a>53 overrideHeadBarDeltaTowardCamera
+<a id="__codelineno-21-55" name="__codelineno-21-55" href="#__codelineno-21-55"></a>54 headBarDeltaTowardCamera
+<a id="__codelineno-21-56" name="__codelineno-21-56" href="#__codelineno-21-56"></a>55 headBar2DOffset
+<a id="__codelineno-21-57" name="__codelineno-21-57" href="#__codelineno-21-57"></a>56 useHeadBarGuideLine
+</code></pre></div>
+<p>属性的排列接近生成代码视角，不能直接当作二进制 slot 顺序；离线解析必须使用修正后的
+schema 顺序。</p>
+<h3 id="_6">字段顺序风险<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<p><code>AbilityEntityTemplateData</code> 使用 <code>GenerateType.Object</code>，不是 version tolerant
+本地 DLL 的字段定义不同，反序列化会出现两类风险:</p>
+<ul>
+<li>字段数超过已知字段数时直接抛 <code>InvalidPropertyCount</code>。
+ 解析失败或配置值异常；字段数变少只对“末尾字段缺省”相对安全。
+<code>AbilityEntityTemplateData</code> 做了显式字段顺序修正；离线解析时必须严格对齐这个</li>
+</ul>
+<h2 id="_7">运行时使用链路<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<h3 id="_8">预加载<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<p><code>SpawnAbilityEntity.Data.OnPreload</code> 不直接访问 <code>AbilityEntityTable</code>。它把
+<code>abilityEntityId</code> 交给 <code>PreloadManagerUtils.PreloadAbilityEntity</code>:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["SpawnAbilityEntity.Data.OnPreload"]
+    N1["PreloadManagerUtils.PreloadAbilityEntity(templateId = abilityEntityId)"]
+    N2["PreloadGroupAbilityEntity.PreloadAbilityEntity"]
+    N3["DoPreloadStep()"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3</code></pre>
+<p><code>PreloadGroupAbilityEntity</code> 分三步:</p>
+<table>
+<thead>
+<tr>
+<th>step</th>
+<th>方法</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PreloadConfig</code></td>
+<td><code>_PreloadConfig</code></td>
+<td><code>ResourceRouter.GetEntityTemplateDataConfigFullPath(ObjectType.AbilityEntity, templateId)</code>，再 <code>ResourceManager.LoadAsync&lt;TemplateDataConfig&gt;</code></td>
+</tr>
+<tr>
+<td><code>PreloadAsset</code></td>
+<td><code>_PreloadAsset</code></td>
+<td>从 <code>TemplateDataConfig.data</code> cast 到 <code>AbilityEntityTemplateData</code>，查 <code>AbilityEntityAnimationComponentData</code>，异步加载动画配置 json</td>
+</tr>
+<tr>
+<td><code>PreloadAnimatorController</code></td>
+<td><code>_PreloadController</code></td>
+<td>从动画配置取 <code>controllerPath</code>，<code>ResourceManager.TryLoadAsync&lt;RuntimeAnimatorController&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<p>其中 AbilityEntity 单体模板路径由 <code>ResourceRouter</code> 拼出:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>Assets/Beyond/DynamicAssets/GameData/AbilityEntity/data_{templateId}.asset
+</code></pre></div>
+<p>本地 <code>StringPathHash.json</code> 能看到对应项，例如:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>Assets/Beyond/DynamicAssets/GameData/AbilityEntity/data_abilityentity_chr_0029_pograni_ultimate_skill.asset
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>Assets/Beyond/DynamicAssets/GameData/AbilityEntity/data_abilityentity_eny_0079_nefarp2_ground_fire.asset
+</code></pre></div>
+<p>不是把 <code>AbilityEntityTable</code> 建成查询缓存。</p>
+<h3 id="spawnabilityentityexecuteinternal"><code>SpawnAbilityEntity.ExecuteInternal</code><a class="headerlink" href="#spawnabilityentityexecuteinternal" title="Permanent link">&para;</a></h3>
+<p><code>AbilityEntityTable.TryGetData</code> 的直接代码调用点只有一个:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>SpawnAbilityEntity::ExecuteInternal -&gt; AbilityEntityTable::TryGetData
+</code></pre></div>
+<p>调用前后逻辑:</p>
+<p>这里的查表是生成前校验和取模板数据的入口。查不到时直接返回失败，不再继续生成。
+成功后 <code>ExecuteInternal</code> 继续处理:</p>
+<ul>
+<li><code>assignEntityBlackboard/assignPairs</code> 生成传给实体自身黑板的 <code>DataPair</code> 列表。</li>
+<li>
+<p><code>setAbilityEntitySource</code> 决定使用 action owner/source/context 中的哪个 <code>AbilitySystem</code>
+ 作为新实体 source。</p>
+</li>
+<li>
+<p><code>setAbilityEntityTarget</code> 为新实体的 <code>AbilityEntityController</code> 设置 target handle。</p>
+</li>
+<li><code>overrideDuration</code> 时从 <code>duration</code> 黑板表达式求值，传给 <code>OnSpawn</code>。</li>
+<li><code>saveToContext</code> 时把新实体或 target group 写回 action context 的 <code>contextKey</code>。</li>
+</ul>
+<p>后续实体创建路径:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["SpawnAbilityEntity.ExecuteInternal"]
+    N1["AbilityEntityTable.TryGetData(abilityEntityId)"]
+    N2["ObjectContainer.SpawnAbilityEntity(...)"]
+    N3["ObjectContainer.LoadEntity(ObjectType.AbilityEntity, templateId, ...)"]
+    N4["AbilitySystem.SetSource(...)"]
+    N5["AbilityEntityManager.RegisterEntity(entity)"]
+    N6["Entity.TryStart()"]
+    N7["AbilityEntityController.OnSpawn(abilityEntitySkillId, skillCastInfo, duration, dieWhenSourceDie)"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6
+    N6 --&gt; N7</code></pre>
+<p><code>SpawnAbilityEntity.Data.ConvertToServerDataInternal</code> 只写入少量字段到
+<code>BATTLE_SPAWN_ABILITY_ENTITY_ACTION_DATA</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>AbilityEntityId = abilityEntityId
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>assignBlackboard = assignBlackboard
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>dieWhenSourceDie = dieWhenSourceDie
+</code></pre></div>
+<p>战斗 detail 的，不在这个 action data proto 方法里完整序列化。</p>
+<h3 id="objectcontainerloadentity"><code>ObjectContainer.LoadEntity</code> 的二次模板加载<a class="headerlink" href="#objectcontainerloadentity" title="Permanent link">&para;</a></h3>
+<p><code>ObjectContainer.SpawnAbilityEntity</code> 里真正分配实体时，会调用:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["ObjectContainer.LoadEntity(ObjectType.AbilityEntity, abilityEntityKey, ...)"]
+    N1["DataManager.TryGetEntityTemplate(ObjectType.AbilityEntity, templateId, out data)"]
+    N2["DataManager._TryGetEntityTemplateById(...)"]
+    N0 --&gt; N1
+    N1 --&gt; N2</code></pre>
+<p>这条路径不走 <code>AbilityEntityTable.TryGetData</code>，而是按 <code>ObjectType + templateId</code>
+从 <code>m_entityIdTemplates</code> 字典缓存取模板。缓存 miss 时:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["ResourceRouter.GetEntityTemplateDataConfigFullPath(ObjectType.AbilityEntity, templateId)"]
+    N1["'Assets/Beyond/DynamicAssets/GameData/AbilityEntity/data_{templateId}.asset'"]
+    N2["DataManager.LoadAsset&amp;lt;TemplateDataConfig&amp;gt;(StringPathHash(path))"]
+    N3["TemplateDataConfig.data"]
+    N4["m_entityIdTemplates[ObjectType.AbilityEntity][templateId] = data"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4</code></pre>
+<p>随后 <code>LoadEntity</code> 通过 <code>EntityAllocator.AllocateObject(data, serverId, allocParam, inLevelData)</code>
+创建实体，设置 server data/generation/battle instance id/entity data，调用
+<code>Entity.Init(async)</code>，最后注册到 <code>ObjectContainer</code>。
+所以运行时有两个不同的模板解析层:</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>入口</th>
+<th>数据来源</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>表查找</td>
+<td><code>AbilityEntityTable.TryGetData</code></td>
+<td><code>AbilityEntityTable.asset</code> 的列表</td>
+<td><code>SpawnAbilityEntity</code> 执行前按 id 校验并取 <code>AbilityEntityTemplateData</code></td>
+</tr>
+<tr>
+<td>单体模板加载</td>
+<td><code>DataManager._TryGetEntityTemplateById</code></td>
+<td><code>GameData/AbilityEntity/data_{id}.asset</code></td>
+<td><code>LoadEntity</code> 实际分配实体时取得 <code>EntityTemplateData</code> 并缓存</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">注册、堆叠与启动<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<p><code>ObjectContainer.SpawnAbilityEntity</code> 完成 <code>LoadEntity</code> 后:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>entity.abilitySystem.SetSource(source, sourceEnvironment, sourceBlackboard, entityBBAssignItems)
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>abilityEntityManager.RegisterEntity(entity)
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>entity.TryStart()
+</code></pre></div>
+<p><code>AbilityEntityManager.RegisterEntity</code> 的核心逻辑:</p>
+<ul>
+<li>只处理有 <code>AbilityEntityRootComponent</code> 的实体。</li>
+<li>
+<p>如果模板数据是 <code>AbilityEntityTemplateData</code> 且配置了 ultimate/show 相关标记，会把符合
+ source 的实体切到 ultimate show layer。</p>
+</li>
+<li>
+<p>如果 root component <code>needStack == false</code>，不进入分组堆叠管理。</p>
+</li>
+<li>
+<p>2026-06-01 复核 <code>AbilityEntityRootComponent.get_needStack</code>：该 getter 会先解析
+ <code>maxStackingCntBB</code>，没有 BB 时读取 <code>maxStackingCnt</code>，最终返回
+ <code>resolvedMaxStackingCnt &gt; 0</code>。因此 <code>maxStackingCnt &lt;= 0</code> 或 BB 解析结果 <code>&lt;= 0</code>
+ 都等价于 <code>needStack=false</code>。</p>
+</li>
+<li>
+<p>如果需要堆叠，则用 <code>entity.templateData.id</code> 作为 key，从 <code>m_groups</code> 取
+ <code>AbilityEntityManager.Group</code>。</p>
+</li>
+<li>
+<p><code>SpawnConfig.maxCount</code> 来自 <code>AbilityEntityRootComponent.get_maxStackingCnt()</code>。</p>
+</li>
+<li><code>Group.Add(entity, config)</code> 在超过 <code>maxCount</code> 时释放组内最旧的有效实体，然后把新实体
+ 以 <code>(ObjectPtr&lt;Entity&gt;, SpawnConfig)</code> 加入列表。
+最后 <code>SpawnAbilityEntity.ExecuteInternal</code> 调用 <code>AbilityEntityController.OnSpawn</code>:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>OnSpawn(skillId = abilityEntitySkillId,
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a> skillCastInfo,
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a> overrideDuration?,
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a> dieWhenSourceDie)
+</code></pre></div>
+<p><code>OnSpawn</code> 会:</p>
+<ul>
+<li>保存 <code>m_skillId</code> 和 <code>m_skillCastInfo</code>。</li>
+<li>
+<p>根据 <code>AbilityEntityTemplateData</code> / <code>AbilityEntityRootComponentData</code> 的 life type、
+ <code>duration</code>、<code>durationBB</code> 或传入的 <code>overrideDuration</code> 重置 duration timer。</p>
+</li>
+<li>
+<p><code>dieWhenSourceDie</code> 为 true 时订阅 source <code>AbilitySystem.onDieAction</code>，source 死亡时释放该
+ AbilityEntity。</p>
+</li>
+<li>
+<p>触发 source <code>AbilitySystem.Event.OnAbilityEntitySpawned</code> 和全局预定义事件；事件 context 的
+ <code>eventSource</code> 是新生成的 AbilityEntity 自身 AbilitySystem。</p>
+</li>
+<li>
+<p>记录 <code>BattleRecorder.RecordAbilityEntity</code>。</p>
+</li>
+<li>
+<p>调用 <code>_CastSkill()</code>，也就是使用 <code>abilityEntitySkillId</code> 让新生成的 AbilityEntity 开始释放
+ 自己的技能。
+<code>OnFinish</code> 的对称逻辑是：</p>
+</li>
+<li>
+<p>先调用 <code>BaseComponent.OnFinish()</code>。</p>
+</li>
+<li>
+<p>锁定 AbilityEntity 的 source AbilitySystem，并清理之前挂到 source <code>onDieAction</code> 上的
+ <code>_OnSourceDie</code> 回调。</p>
+</li>
+<li>
+<p>如果 source 需要 <code>OnAbilityEntityFinished</code>，分配 <code>AbilityEntityContext</code>，把
+ <code>eventSource</code> 写成当前 AbilityEntity 的 AbilitySystem，并拷贝 <code>m_skillCastInfo</code>。</p>
+</li>
+<li>
+<p>在 source AbilitySystem 上触发 <code>OnAbilityEntityFinished</code>。</p>
+</li>
+<li>记录 <code>BattleRecorder.RecordAbilityEntity(..., false)</code>。</li>
+</ul>
+<p><code>OnRelease</code> 只做 runtime 资源清理：清 source die action、dispose <code>m_targetHandle</code>、清
+<code>m_durationTimer</code> / <code>m_abilitySystem</code> / <code>m_skillCastInfo</code>，销毁 duration tick function，然后进入
+<code>BaseController.OnRelease()</code>。</p>
+<ul>
+<li>
+<p><code>World.createAbilityEntity</code> 生成 AE 后，把 <code>OnAbilityEntitySpawned</code> 派给
+ <code>sourceEntity ?: ownerEntity</code>，并把 AE 自身作为 event source 传入事件上下文。</p>
+</li>
+<li>
+<p><code>World.removeEntity</code> 对 AE 触发 <code>OnAbilityEntityFinished</code> 时使用同一接收者/source 语义。</p>
+</li>
+<li><code>dieWhenSourceDie</code> 监听对象按 <code>sourceEntity ?: ownerEntity</code> 近似；source 死亡、duration 到期
+ 和手动释放都会进入统一 <code>EntityAbility.die() -&gt; World.removeEntity()</code> 链路。</li>
+</ul>
+<p><code>OnSpawn / CastSkill / DurationUpdated / OnFinish / OnRelease</code>、event receiver、eventSource、target handle、
+ duration tick 和 source-die action 状态。</p>
+<h3 id="_10">网络侧入口<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<p>网络侧还有服务端生成入口:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["GameAction.SpawnAbilityEntity(...)"]
+    N1["GameplayNetwork.SpawnAbilityEntityByServer(...)"]
+    N2["CS_SCENE_SPAWN_SUMMON {"]
+    N3["SummonId = templateId,"]
+    N4["SkillId = skillId,"]
+    N5["position,"]
+    N6["rotation,"]
+    N7["blackboard"]
+    N8["}"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6
+    N6 --&gt; N7
+    N7 --&gt; N8</code></pre>
+<p>服务端生成最终也会落到对象生成/实体初始化链路；区别是实体 id、generation、
+server battle instance id 和 server data 由服务端消息提供。</p>
+<h2 id="json">JSON 使用情况<a class="headerlink" href="#json" title="Permanent link">&para;</a></h2>
+<p><code>SkillData</code> 与 <code>BuffData</code> 中的 <code>SpawnAbilityEntity+Data</code> 通过 <code>abilityEntityId</code> 引用该表:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="p">{</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w"> </span><span class="nt">&quot;$type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Beyond.Gameplay.Core.SpawnAbilityEntity+Data, Gameplay.Beyond&quot;</span><span class="p">,</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w"> </span><span class="nt">&quot;abilityEntityId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abilityentity_chr_0029_pograni_ultimate_skill&quot;</span><span class="p">,</span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="w"> </span><span class="nt">&quot;abilityEntitySkillId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chr_0029_pograni_ultimate_skill_abilityentity&quot;</span><span class="p">,</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="w"> </span><span class="nt">&quot;bornAt&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;targetSource&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Source&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="w"> </span><span class="nt">&quot;bornPosOffset&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-5.06</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;z&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.57</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="w"> </span><span class="nt">&quot;bornRotation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SameWithSource&quot;</span><span class="p">,</span>
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="w"> </span><span class="nt">&quot;setAbilityEntitySource&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a><span class="w"> </span><span class="nt">&quot;abilityEntitySource&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ActionOwner&quot;</span><span class="p">,</span>
+<a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a><span class="w"> </span><span class="nt">&quot;setAbilityEntityTarget&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a><span class="w"> </span><span class="nt">&quot;assignBlackboard&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a><span class="w"> </span><span class="nt">&quot;saveToContext&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a><span class="w"> </span><span class="nt">&quot;contextKey&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ae1&quot;</span><span class="p">,</span>
+<a id="__codelineno-28-14" name="__codelineno-28-14" href="#__codelineno-28-14"></a><span class="w"> </span><span class="nt">&quot;inheritSourceSkillCastId&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-28-15" name="__codelineno-28-15" href="#__codelineno-28-15"></a><span class="p">}</span>
+</code></pre></div>
+<p>扫描 <code>SkillData</code> 与 <code>BuffData</code>:</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th style="text-align: right;">数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SpawnAbilityEntity+Data</code> 配置数</td>
+<td style="text-align: right;">713</td>
+</tr>
+<tr>
+<td>唯一 <code>abilityEntityId</code></td>
+<td style="text-align: right;">121</td>
+</tr>
+<tr>
+<td>唯一 <code>abilityEntitySkillId</code></td>
+<td style="text-align: right;">136</td>
+</tr>
+</tbody>
+</table>
+<p>高频 <code>abilityEntityId</code>:</p>
+<table>
+<thead>
+<tr>
+<th>abilityEntityId</th>
+<th style="text-align: right;">出现次数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>abilityentity_eny_0079_nefarp2_ground_fire</code></td>
+<td style="text-align: right;">132</td>
+</tr>
+<tr>
+<td><code>abilityentity_eny_0091_wgshoal_skill05</code></td>
+<td style="text-align: right;">81</td>
+</tr>
+<tr>
+<td><code>abilityentity_eny_0090_wgabyss_skill02</code></td>
+<td style="text-align: right;">54</td>
+</tr>
+<tr>
+<td><code>abilityentity_chr_0030_zhuangfy_attack_ult</code></td>
+<td style="text-align: right;">32</td>
+</tr>
+<tr>
+<td><code>abilityentity_eny_0045_agtrinit_skill111mark</code></td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td><code>abilityentity_chr_0029_pograni_ultimate_skill</code></td>
+<td style="text-align: right;">10</td>
+</tr>
+</tbody>
+</table>
+<p>另外 <code>AKEDataMining/data/TableCfg/AbilityEntityAttrTable.json</code> 保存部分 AbilityEntity 的属性:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="p">{</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="w"> </span><span class="nt">&quot;abilityentity_eny_0051_rodin_wall&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="w"> </span><span class="nt">&quot;abilityEntityId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abilityentity_eny_0051_rodin_wall&quot;</span><span class="p">,</span>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="w"> </span><span class="nt">&quot;atk&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">,</span>
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="w"> </span><span class="nt">&quot;maxHp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span>
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a><span class="w"> </span><span class="nt">&quot;abilityentity_interact_bomb&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a><span class="w"> </span><span class="nt">&quot;abilityEntityId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abilityentity_interact_bomb&quot;</span><span class="p">,</span>
+<a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a><span class="w"> </span><span class="nt">&quot;atk&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">50.0</span><span class="p">,</span>
+<a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a><span class="w"> </span><span class="nt">&quot;maxHp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span>
+<a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a><span class="p">}</span>
+</code></pre></div>
+<p>这个属性表不是 <code>AbilityEntityTable</code> 本体，但 key 体系相同，通常用于实体属性初始化或战斗属性计算。</p>
+<h2 id="bundles">bundles 模块复用评估<a class="headerlink" href="#bundles" title="Permanent link">&para;</a></h2>
+<p><code>bundles</code> 模块已经覆盖了 Unity 资源读取的下半段，适合作为离线还原
+<code>AbilityEntityTable</code> 的基础。
+可直接复用的部分:</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>已有实现</th>
+<th>对还原表的作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bundle 解包</td>
+<td><code>BundleFile</code> / <code>WebFile</code> / <code>UnityCompression</code></td>
+<td>读取 UnityFS/UnityWeb/ENCR bundle，解压 block 和内部 stream file</td>
+</tr>
+<tr>
+<td>Endfield VFS chunk 读取</td>
+<td><code>AnimeStudioAssetScanner</code> + <code>EndfieldVfsFileResolver</code></td>
+<td>支持 <code>.chk/.blc</code> 结构、手动 offset、加密 chunk 解密</td>
+</tr>
+<tr>
+<td>Unity object reader</td>
+<td><code>SerializedObjectReader</code></td>
+<td>读取 <code>PPtr</code>、<code>AssetBundle</code>、<code>MonoBehaviour</code>、<code>MonoScript</code> 等常见对象</td>
+</tr>
+<tr>
+<td>通用 TypeTree 值树</td>
+<td><code>TypeTreeReader</code> / <code>TypeTreeValueFormatter</code></td>
+<td>可以把未知 Unity 对象按 TypeTree 读成 <code>Map/List</code></td>
+</tr>
+<tr>
+<td>AssetBundle container</td>
+<td><code>AssetBundleObject</code></td>
+<td>可从 container/preload table 找到 asset path 到 object pointer 的关系</td>
+</tr>
+<tr>
+<td>跨文件依赖追踪</td>
+<td><code>AnimeStudioAssetMapBuilder</code></td>
+<td>已有私有逻辑能解析 externals、追踪 PPtr、必要时扫描 raw object pointer</td>
+</tr>
+<tr>
+<td>manifest.hgmmap 解析</td>
+<td><code>HypergryphManifestReader</code></td>
+<td>能把 manifest 转成 <code>assetByHash</code>、<code>bundleByIndex</code>、<code>bundleByHash</code></td>
+</tr>
+<tr>
+<td>MemoryPack schema</td>
+<td><code>MemoryPackSchemaRepository</code> / <code>MemoryPackDumper</code></td>
+<td>可复用为 <code>AbilityEntityTemplateData</code> 字段清单和 JSON 目标结构</td>
+</tr>
+</tbody>
+</table>
+<p>这些能力说明: 还原 <code>AbilityEntityTable</code> 不需要重写 Unity bundle/asset 文件解析。
+主要缺口在更上层的“资源定位 + 自定义 ScriptableObject 对象图还原”。
+还缺的关键能力:</p>
+<ol>
+<li>
+<p><strong>可用 manifest 输入和物理 bundle 定位。</strong>
+ 运行时从
+ <code>StringPathHash(1018030359377152006)</code> 查 <code>manifest.hgmmap</code>，得到
+ <code>AssetInfo.bundleIndex</code>，再找 <code>Bundle.name/hashName</code>。项目已有
+ <code>HypergryphManifestReader</code>，但当前
+ <code>AKEDataMining/data/Bundles/manifest.json</code> 是 0 字节；因此本地数据目前只能确认
+ <code>AbilityEntityTable.asset</code> 的 path hash，不能直接确认对应 bundle 文件。
+ 要真正还原，需要原始 <code>Data/Bundles/Windows/manifest.hgmmap</code>，或已经转换好的非空
+ <code>manifest.json</code>，以及对应 bundle/chunk 文件。</p>
+</li>
+<li>
+<p><strong>从 manifest/bundle 找到目标 object。</strong>
+ Unity 运行时最终调用:</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a> AssetBundle.LoadAssetByHash_Internal(pathHashHead, typeof(AbilityEntityTable))
+</code></pre></div>
+<p>离线实现可以优先走 <code>AssetBundleObject.container</code>:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["container path == Assets/Beyond/DynamicAssets/GameData/GameplayConfig/AbilityEntityTable.asset"]
+    N1["AssetBundleEntry.asset PPtr"]
+    N2["ObjectInfo(pathId)"]
+    N0 --&gt; N1
+    N1 --&gt; N2</code></pre>
+<p>如果 container 中没有明文 path，则需要用 manifest 的 path hash、对象名
+ <code>AbilityEntityTable</code>、以及 <code>m_Script</code> 指向的 <code>MonoScript</code> 类型共同确认目标。</p>
+<ol>
+<li><strong>自定义 ScriptableObject 类型识别。</strong>
+ <code>AbilityEntityTable</code> 与 <code>TemplateDataConfig</code> 都是 managed ScriptableObject。
+ 在 serialized file 中通常按 Unity <code>MonoBehaviour</code> 类别承载，并通过 <code>m_Script</code>
+ 指向 <code>MonoScript</code>。现有 <code>readMonoBehaviour()</code> 只返回 <code>gameObject/script/name</code>，
+ 还没有把 <code>m_Script</code> PPtr 解析成:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a> assemblyName = Gameplay.Beyond
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a> namespace = Beyond.Gameplay
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a> className = AbilityEntityTable / TemplateDataConfig
+</code></pre></div>
+<p>需要把 <code>MonoScriptObject</code> 解析和 PPtr resolver 接起来，用脚本类型确认对象身份。</p>
+<ol>
+<li><strong>公开/抽取 PPtr graph resolver。</strong>
+ <code>AnimeStudioAssetMapBuilder</code> 内部已经有 <code>resolveTarget(owner, pointer)</code>、
+ <code>buildContainerMaps</code>、<code>collectObjectPointers</code> 等逻辑，但它们是 asset map 私有流程。
+ 还原 <code>AbilityEntityTable</code> 时需要可复用的对象图解析器:</li>
+</ol>
+<pre class="mermaid"><code>flowchart TD
+    N0["ObjectPointer(fileId, pathId)"]
+    N1["当前 SerializedFile 或 owner.externals[fileId - 1]"]
+    N2["目标 SerializedFile"]
+    N3["ObjectInfo(pathId)"]
+    N4["readTypeTree / readObject"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4</code></pre>
+<p><code>abilityEntityList</code> 本质上就是一组 <code>TemplateDataConfig</code> PPtr；没有这个 resolver，
+ 只能看到 pathId，拿不到每个模板的 <code>data.id</code>。</p>
+<ol>
+<li><strong>Unity <code>[SerializeReference]</code> managed reference registry。</strong>
+ 这是最大缺口。<code>TemplateDataConfig.data</code> 是:</li>
+</ol>
+<p><code>EntityTemplateData.componentList</code> 又是:</p>
+<p>当前 <code>TypeTreeReader</code> 能按 TypeTree 读普通字段、array、map、PPtr 形态的
+ <code>{ m_FileID, m_PathID }</code>，但没有专门处理 Unity managed reference registry，
+ 也没有把 <code>SerializedFile.refTypes</code> 映射回具体 managed 类型。因此它还不能稳定地把
+ <code>TemplateDataConfig.data</code> 还原成 <code>AbilityEntityTemplateData</code>，更不能还原
+ <code>componentList</code> 中的各类 <code>BaseComponentData</code> 子类。</p>
+<ol>
+<li><strong>Unity 序列化值树到业务模型的 materializer。</strong>
+ 即使 managed reference registry 被读出来，还需要把 Unity 字段值转换成现有</li>
+</ol>
+<pre class="mermaid"><code>flowchart TD
+    N0["Beyond.Gameplay.AbilityEntityTemplateData"]
+    N1["id/name/factionIndex/bornTag/..."]
+    N2["BlackboardInt / BlackboardDouble"]
+    N3["GameplayTag"]
+    N4["SerializeFieldDictionary"]
+    N5["Vector2/Vector3"]
+    N6["BaseComponentData 子类数组"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6</code></pre>
+<p><code>MemoryPackSchemaRepository</code> 可以复用为字段顺序、类型名、enum 和目标 JSON 结构的
+ 参考，但 <code>AbilityEntityTable.asset</code> 本身不是 MemoryPack blob，所以不能直接把
+ Unity object bytes 丢给 <code>MemoryPackDumper</code>。</p>
+<ol>
+<li><strong>验证 fixture。</strong>
+ 现有 tests 覆盖了 <code>readTypeTree</code>、<code>AssetBundle</code> preload table、
+ VFS chunk 读取等基础能力，但还没有覆盖:</li>
+</ol>
+<pre class="mermaid"><code>flowchart TD
+    N0["AbilityEntityTable"]
+    N1["List&amp;lt;PPtr&amp;lt;TemplateDataConfig&amp;gt;&amp;gt;"]
+    N2["TemplateDataConfig.data [SerializeReference]"]
+    N3["AbilityEntityTemplateData"]
+    N4["BaseComponentData[] [SerializeReference]"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4</code></pre>
+<p>需要至少一个真实 bundle fixture，或从真实资源截取出的最小 serialized file，
+ 才能防止 Unity 版本细节导致解析错位。
+建议的最短实现路径:</p>
+<ol>
+<li>
+<p>先接入 <code>manifest.hgmmap</code>/非空 <code>manifest.json</code>，用
+ <code>1018030359377152006</code> 定位 <code>AbilityEntityTable.asset</code> 所在 bundle。</p>
+</li>
+<li>
+<p>复用 <code>AnimeStudioAssetScanner</code> 和 <code>BundleFile</code> 读取该 bundle 的 serialized file group。</p>
+</li>
+<li>用 <code>AssetBundleObject.container</code> 找到 <code>AbilityEntityTable.asset</code> 的 PPtr。</li>
+<li>
+<p>抽出通用 PPtr resolver，解析 <code>AbilityEntityTable.abilityEntityList</code> 到
+ <code>TemplateDataConfig</code> 对象列表。</p>
+</li>
+<li>
+<p>实现最小 managed reference parser，先只从 <code>TemplateDataConfig.data</code> 读出
+ concrete type 与 <code>id</code>，验证能覆盖 <code>SkillData/BuffData</code> 中扫描到的 121 个唯一
+ <code>abilityEntityId</code>。</p>
+</li>
+<li>
+<p>再扩展 <code>AbilityEntityTemplateData</code> 全字段 materializer。</p>
+</li>
+<li>最后处理 <code>componentList</code> 的 <code>BaseComponentData</code> 多态数组，做到完整模板恢复。</li>
+</ol>
+<p>当前代码进度:</p>
+<ul>
+<li>
+<p><code>SerializedObjectGraph</code> 负责在一组 <code>SerializedFile</code> 之间解析
+ <code>ObjectPointer(fileId, pathId)</code>，并可通过 <code>AssetBundleObject.container</code> 定位
+ <code>AbilityEntityTable.asset</code>。</p>
+</li>
+<li>
+<p><code>ManagedScriptType</code> / <code>resolveScript</code> 可以把 <code>m_Script</code> 指向的 <code>MonoScript</code>
+ 解析成 <code>assembly + namespace + className</code>，用于确认
+ <code>AbilityEntityTable</code>、<code>TemplateDataConfig</code> 这类 managed ScriptableObject。</p>
+</li>
+<li>
+<p><code>ManagedReferenceRegistryReader</code> 解析 <code>TemplateDataConfig.data</code> 后面的 Unity
+ managed reference registry，切出每个 <code>rid -&gt; managed type -&gt; data blob</code>。</p>
+</li>
+<li>
+<p><code>AbilityEntityTableDeserializer.readTable(...)</code> 会:</p>
+</li>
+</ul>
+<pre class="mermaid"><code>flowchart TD
+    N0["AbilityEntityTable TypeTree"]
+    N1["abilityEntityList PPtr[]"]
+    N2["TemplateDataConfig object"]
+    N3["TemplateDataConfig.data rid"]
+    N4["ManagedReferenceEntry(Beyond.Gameplay.AbilityEntityTemplateData)"]
+    N5["AbilityEntityDataResolver.readAbilityEntityTemplateData(...)"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5</code></pre>
+<ul>
+<li>同一个测试类里也放了可选真实资源集成测试。默认未配置资源路径时跳过；传入
+ <code>assets.map</code> 后会打印详细诊断日志，包括:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a> asset map 基本信息
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a> AbilityEntityTable entry 的 source / offset / pathId / type / hash
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a> scanner 读出的 serialized file group
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a> 每个 SerializedFile 的 unityVersion / object count / externals / classId histogram
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a> table object 信息
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a> AbilityEntityTable script type、abilityEntityList pointer 数量
+<a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a> TemplateDataConfig resolved/decoded 数量
+<a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a> 每个前若干 entry 的 pointer、script type、data type、rid、registry refs、id
+<a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a> 解码失败 entry 样本
+<a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a> 成功解出的 id 样本
+</code></pre></div>
+<p>验证结果:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>BUILD SUCCESSFUL
+</code></pre></div>
+<p>真实资源测试运行方式:</p>
+<p>也可以用环境变量传入:</p>
+<p><code>perlica.abilityEntity.assetsMap</code> 或 <code>PERLICA_ABILITY_ENTITY_ASSETS_MAP</code>
+存在时，Gradle 才打开该测试的 <code>standardOut/standardError</code> 输出，方便调试真实资源。</p>
+<ul>
+<li>
+<p>当前本地 <code>AKEDataMining/data/Bundles/manifest.json</code> 仍是 0 字节，所以代码尚未能用真实
+ <code>AbilityEntityTable.asset</code> 跑端到端。</p>
+</li>
+<li>
+<p><code>componentList</code> 目前通过现有 AbilityEntity reader 保留为 managed reference RID 列表；
+ 还没有把所有 <code>BaseComponentData</code> 子类 materialize 成业务模型。</p>
+</li>
+<li>
+<p>如果某个 bundle 的 <code>AssetBundleObject.container</code> 不带明文 asset path，需要再接
+ <code>manifest.hgmmap</code> 的 path hash 定位逻辑。
+另一个可并行推进的捷径是扫描:</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>Assets/Beyond/DynamicAssets/GameData/AbilityEntity/data_{id}.asset
+</code></pre></div>
+<p>这些单体 <code>TemplateDataConfig</code> 是实体实际生成时的加载来源。若只需要复现
+<code>TryGetData(id)</code> 的查询结果，并确认不存在重复 id，则可以从所有
+<code>GameData/AbilityEntity/data_*.asset</code> 重建一张 <code>id -&gt; AbilityEntityTemplateData</code>
+索引；只有在需要严格还原 <code>AbilityEntityTable.asset</code> 的列表成员和原始顺序时，
+才必须优先解析表 asset 本体。</p>
+<h2 id="_11">结论<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<p><code>AbilityEntityTable</code> 是一个很薄的 ScriptableObject 配表层:</p>
+<ul>
+<li>持有 <code>TemplateDataConfig</code> 列表。</li>
+<li>用 <code>abilityEntityId == TemplateDataConfig.data.id</code> 查找模板。</li>
+<li>输出 <code>AbilityEntityTemplateData</code>，供 <code>SpawnAbilityEntity</code> 执行阶段做生成前校验和读取模板参数。</li>
+<li>自身没有缓存、生成、生命周期或网络逻辑。</li>
+<li>资源本体来自 <code>Assets/Beyond/DynamicAssets/GameData/GameplayConfig/AbilityEntityTable.asset</code>。</li>
+<li>
+<p>加载时机是 <code>GamePreloadState</code> 预加载阶段的 <code>DataManager.LoadGameConfigs -&gt; _LoadConstConfigs</code>。
+ 其中 <code>AbilityEntityTemplateData</code> 是 <code>EntityTemplateData</code> union tag <code>0</code>。</p>
+</li>
+<li>
+<p>实体实际分配时还会通过 <code>DataManager.TryGetEntityTemplate(ObjectType.AbilityEntity, id)</code>
+ 加载或复用 <code>GameData/AbilityEntity/data_{id}.asset</code> 单体模板缓存。
+从实现看，风险点主要有三类:</p>
+</li>
+<li>
+<p><code>AbilityEntityTable.TryGetData</code> 为线性扫描，配置规模增大时会随 <code>SpawnAbilityEntity</code>
+ 执行频率线性增加成本。</p>
+</li>
+<li>
+<p>MemoryPack 解析依赖 57 个字段的顺序和类型精确匹配；字段漂移会造成反序列化失败或错位。</p>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

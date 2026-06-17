@@ -1,0 +1,2277 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>DamageAction 定量分析 - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#damageaction" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DamageAction 定量分析
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../combat-core/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类结构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="类结构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#damageactiondata-key-0x20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DamageActionData (Key: 0x20+)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#damageunit-key-0x00" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DamageUnit (Key: 0x00+)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#damagepackdata-256-bytes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DamagePackData (256 bytes, 传输用结构体)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#normalentity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        伤害计算公式 (NormalEntity 路径)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="伤害计算公式 (NormalEntity 路径)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        完整公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#beforecalculate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段二：BeforeCalculate 处理器
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rawdamage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段三：主伤害计算 (rawDamage)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="阶段三：主伤害计算 (rawDamage)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#atkscalecalculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类型一：AtkScaleCalculation（最常用）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#primaryattrcalculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类型二：PrimaryAttrCalculation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiplyattributecalculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类型三：MultiplyAttributeCalculation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#definitevaluecalculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类型四：DefiniteValueCalculation（固伤）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#breakingattackcalculation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类型五：BreakingAttackCalculation（破防攻击）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getattribute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GetAttribute 实现
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#damagescale-zone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段四：DamageScale Zone 系统
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="阶段四：DamageScale Zone 系统">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        六区定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        属性→Zone 详细映射
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attacker-zone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attacker 侧 Zone 填充详情
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defender-zone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defender 侧 Zone 填充详情
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zone_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zone 计算公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#damagescaleprocessor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        动态注入：DamageScaleProcessor
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aftercalculate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        阶段五：AfterCalculate 处理器
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#def-shelterdmgscalar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Def 与 ShelterDmgScalar 的最终乘区
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Def 与 ShelterDmgScalar 的最终乘区">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#def" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Def 的读取来源
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#def_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Def 公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shelterdmgscalar-shelterdmgtakenscalar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ShelterDmgScalar / ShelterDmgTakenScalar
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_processdamage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        执行流程 (_ProcessDamage)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        怪物间伤害转移
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        暴击计算
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#poise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        韧性(Poise)并行计算
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="damageaction">DamageAction 定量分析<a class="headerlink" href="#damageaction" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>分析目标: <code>Beyond::Gameplay::Core::DamageAction</code></p>
+</blockquote>
+<hr />
+<h2 id="_1">类结构<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    N0["AbilityAction&amp;lt;DamageActionData&amp;gt; (基类, 泛型)"]
+    N1["DamageAction (核心逻辑, T=DamageActionData)"]
+    N2["DamageAction&amp;lt;T&amp;gt; (泛型中间层)"]
+    N3["ChannelingDamageAction (唯一子类, T=ChannelingDamageAction.Data)"]
+    N0 --&gt; N1
+    N0 --&gt; N2
+    N0 --&gt; N3</code></pre>
+<h3 id="damageactiondata-key-0x20">DamageActionData (Key: 0x20+)<a class="headerlink" href="#damageactiondata-key-0x20" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>偏移</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>alwaysNext</td>
+<td>0x20</td>
+<td>bool</td>
+<td>跳过等待，连续执行</td>
+</tr>
+<tr>
+<td>attacker</td>
+<td>0x24</td>
+<td>ActionTargetType</td>
+<td>攻击者选择</td>
+</tr>
+<tr>
+<td>targetSettings</td>
+<td>0x28</td>
+<td>TargetSettings</td>
+<td>目标筛选</td>
+</tr>
+<tr>
+<td>effectSource</td>
+<td>0x30</td>
+<td>TargetSettings</td>
+<td>特效源</td>
+</tr>
+<tr>
+<td>damageUnits</td>
+<td>0x38</td>
+<td>List\&lt;DamageUnit&gt;</td>
+<td>伤害单元列表</td>
+</tr>
+<tr>
+<td>hitEnvironment</td>
+<td>0x40</td>
+<td>bool</td>
+<td>是否计算环境碰撞</td>
+</tr>
+<tr>
+<td>hitEnvData</td>
+<td>0x48</td>
+<td>HitEnvData</td>
+<td>环境碰撞数据</td>
+</tr>
+</tbody>
+</table>
+<h3 id="damageunit-key-0x00">DamageUnit (Key: 0x00+)<a class="headerlink" href="#damageunit-key-0x00" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>偏移</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>damageType</td>
+<td>0x00</td>
+<td>DamageType enum</td>
+<td>伤害类型</td>
+</tr>
+<tr>
+<td>damageAttributeType</td>
+<td>0x04</td>
+<td>int</td>
+<td>伤害属性类型</td>
+</tr>
+<tr>
+<td>onlyEnableForMainChar</td>
+<td>0x08</td>
+<td>bool</td>
+<td>仅主角可用</td>
+</tr>
+<tr>
+<td>damageVisualImportance</td>
+<td>0x0C</td>
+<td>int</td>
+<td>伤害特效权重</td>
+</tr>
+<tr>
+<td>enableDamageVisualCoalition</td>
+<td>0x10</td>
+<td>bool</td>
+<td>启用特效合并</td>
+</tr>
+<tr>
+<td>damageVisualCoalitionGroupKey</td>
+<td>0x18</td>
+<td>string</td>
+<td>特效合并组名</td>
+</tr>
+<tr>
+<td>alwaysStartNewCoalition</td>
+<td>0x20</td>
+<td>bool</td>
+<td>总是新合并组</td>
+</tr>
+<tr>
+<td>alwaysEndCoalition</td>
+<td>0x21</td>
+<td>bool</td>
+<td>总是结束合并组</td>
+</tr>
+<tr>
+<td>enablePoiseBreakTimeDilation</td>
+<td>0x23</td>
+<td>bool</td>
+<td>破韧时停</td>
+</tr>
+<tr>
+<td>hidePoiseUIEffect</td>
+<td>0x24</td>
+<td>bool</td>
+<td>隐藏韧性UI</td>
+</tr>
+<tr>
+<td>hideMainCharHpScreenEffect</td>
+<td>0x25</td>
+<td>bool</td>
+<td>隐藏主控HP特效</td>
+</tr>
+<tr>
+<td><strong>damageDecorateMask</strong></td>
+<td>0x28</td>
+<td>int64</td>
+<td>伤害修饰掩码</td>
+</tr>
+<tr>
+<td>ignoreDamageImmuneLevel</td>
+<td>0x30</td>
+<td>int</td>
+<td>忽略免疫等级</td>
+</tr>
+<tr>
+<td><strong>simpleCalculation</strong></td>
+<td>0x34</td>
+<td>bool</td>
+<td>简化计算模式</td>
+</tr>
+<tr>
+<td><strong>atkScale</strong></td>
+<td>0x38</td>
+<td>BlackboardDouble*</td>
+<td><strong>攻击倍率</strong></td>
+</tr>
+<tr>
+<td><strong>atkCalculation</strong></td>
+<td>0x40</td>
+<td>CalculationBase*</td>
+<td><strong>计算公式</strong></td>
+</tr>
+<tr>
+<td><strong>damageProcessors</strong></td>
+<td>0x50</td>
+<td>List\&lt;DamageProcessorBase&gt;*</td>
+<td><strong>伤害处理器列表</strong></td>
+</tr>
+<tr>
+<td><strong>poiseCalculation</strong></td>
+<td>0x58</td>
+<td>CalculationBase*</td>
+<td>韧性计算公式</td>
+</tr>
+<tr>
+<td>ignorePoiseImmune</td>
+<td>0x60</td>
+<td>bool</td>
+<td>忽略韧性免疫</td>
+</tr>
+<tr>
+<td><strong>reduceDamageForGuard</strong></td>
+<td>0x61</td>
+<td>bool</td>
+<td>防御减免开关</td>
+</tr>
+<tr>
+<td><strong>reduceDamageForGuardRatio</strong></td>
+<td>0x64</td>
+<td>float</td>
+<td>防御减免系数</td>
+</tr>
+<tr>
+<td>playHitEffect</td>
+<td>0x68</td>
+<td>bool</td>
+<td>播放受击特效</td>
+</tr>
+<tr>
+<td>effectData</td>
+<td>0x70</td>
+<td>EffectActionCfg*</td>
+<td>特效配置</td>
+</tr>
+<tr>
+<td>playHitFlashEffect</td>
+<td>0x79</td>
+<td>bool</td>
+<td>播放闪光特效</td>
+</tr>
+<tr>
+<td>hitSoundData</td>
+<td>0x80</td>
+<td>HitSoundData*</td>
+<td>受击音效</td>
+</tr>
+<tr>
+<td>costDataList</td>
+<td>0x90</td>
+<td>List\&lt;CostData&gt;*</td>
+<td>消耗数据</td>
+</tr>
+</tbody>
+</table>
+<h3 id="damagepackdata-256-bytes">DamagePackData (256 bytes, 传输用结构体)<a class="headerlink" href="#damagepackdata-256-bytes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>偏移</th>
+<th>大小</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>m_isValid</td>
+<td>0x00</td>
+<td>1</td>
+<td>有效性标记</td>
+</tr>
+<tr>
+<td>attacker</td>
+<td>0x08</td>
+<td>16</td>
+<td>ObjectPtr\&lt;AbilitySystem&gt;</td>
+</tr>
+<tr>
+<td>defender</td>
+<td>0x18</td>
+<td>16</td>
+<td>ObjectPtr\&lt;AbilitySystem&gt;</td>
+</tr>
+<tr>
+<td>actionEnvironment</td>
+<td>0x28</td>
+<td>8</td>
+<td>IActionEnvironment*</td>
+</tr>
+<tr>
+<td>skillCastInfo</td>
+<td>0x30</td>
+<td>24</td>
+<td>Skill_SkillCastInfo</td>
+</tr>
+<tr>
+<td>calcResult</td>
+<td>0x48</td>
+<td>8</td>
+<td>CalcResult (double)</td>
+</tr>
+<tr>
+<td><strong>damageType</strong></td>
+<td>0x50</td>
+<td>4</td>
+<td>DamageType enum</td>
+</tr>
+<tr>
+<td><strong>damageDecorateMask</strong></td>
+<td>0x58</td>
+<td>8</td>
+<td>int64 修饰掩码</td>
+</tr>
+<tr>
+<td>hitPosition</td>
+<td>0x60</td>
+<td>16</td>
+<td>Nullable\&lt;Vector3&gt;</td>
+</tr>
+<tr>
+<td>hitColliderName</td>
+<td>0x70</td>
+<td>8</td>
+<td>string</td>
+</tr>
+<tr>
+<td><strong>atkScale</strong></td>
+<td>0x78</td>
+<td>4</td>
+<td><strong>float 攻击倍率值</strong></td>
+</tr>
+<tr>
+<td><strong>attackerDamageScaleZones</strong></td>
+<td>0x80</td>
+<td>8</td>
+<td><strong>Double[] 攻击方增伤区</strong></td>
+</tr>
+<tr>
+<td><strong>attackerAttributes</strong></td>
+<td>0x88</td>
+<td>8</td>
+<td><strong>Double[] 攻击方属性快照</strong></td>
+</tr>
+<tr>
+<td><strong>defenderDamageScaleZones</strong></td>
+<td>0x90</td>
+<td>8</td>
+<td><strong>Double[] 防御方增减伤区</strong></td>
+</tr>
+<tr>
+<td><strong>defenderAttributes</strong></td>
+<td>0x98</td>
+<td>8</td>
+<td><strong>Double[] 防御方属性快照</strong></td>
+</tr>
+<tr>
+<td>isBlocked</td>
+<td>0xA0</td>
+<td>1</td>
+<td>是否格挡</td>
+</tr>
+<tr>
+<td>transferredSource</td>
+<td>0xA8</td>
+<td>16</td>
+<td>转移来源 (怪物间伤害转移)</td>
+</tr>
+<tr>
+<td>serverDamageParams</td>
+<td>0xB8</td>
+<td>72</td>
+<td>服务端同步参数</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="normalentity">伤害计算公式 (NormalEntity 路径)<a class="headerlink" href="#normalentity" title="Permanent link">&para;</a></h2>
+<p>NormalEntity 是玩家↔怪物的常规伤害路径，不包含 Tower 和 IndependentHealth。</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["_CalculateDamageResultByType"]
+    N1["IndependentHealth 路径 → _CalculateDamageResultForIndependentHealth"]
+    N2["Tower 路径 → _CalculateDamageResultForTower"]
+    N3["NormalEntity 路径 → _CalculateDamageResultForNormalEntity ← 本文重点"]
+    N0 --&gt; N1
+    N0 --&gt; N2
+    N0 --&gt; N3</code></pre>
+<h3 id="_2">完整公式<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p><code>BattleFormula::CalculateDamage(已确认)</code>，该函数在 <code>DamagePackData::GetFinalAttackValue</code>
+之后额外乘上 DEF、受伤/抗性、弱点、庇护等直接乘子。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>finalAttackValue = calcResult × finalDamageScale
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>finalDamage =
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a> finalAttackValue
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a> × criticalScale
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a> × defResistance
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a> × damageTypeResistance
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a> × weaknessDmgScalar
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a> × shelterDmgScalar
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a> × optionalIgniteDamageScalar
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a> × optionalPhysicalInflictionDamageScalar
+</code></pre></div>
+<p>其中：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>计算路径</th>
+<th>来源</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>finalDamageScale</code></td>
+<td><code>DamagePackData::_GetFinalDamageScale(已确认)</code></td>
+<td>zone 系统</td>
+<td><code>DamageScaleProcessorConfig.allZones</code> 的 attacker/defender zone 总乘积</td>
+</tr>
+<tr>
+<td><code>criticalScale</code></td>
+<td><code>attackerAttributes[10]</code></td>
+<td><code>CalculateDamage</code></td>
+<td>暴击时 <code>1 + CriticalDamageIncrease</code>，未暴击为 <code>1</code></td>
+</tr>
+<tr>
+<td><code>defResistance</code></td>
+<td><code>defenderAttributes[3]</code></td>
+<td><code>_GetDefResistanceValue(已确认)</code></td>
+<td>DEF 专用公式，见 §2.8</td>
+</tr>
+<tr>
+<td><code>damageTypeResistance</code></td>
+<td><code>defenderAttributes[4/5/6/7/48/60] × defenderAttributes[80..85]</code></td>
+<td><code>_GetDamageTypeResistanceValue(已确认)</code></td>
+<td>按伤害类型选择，最后 <code>max(0, value)</code></td>
+</tr>
+<tr>
+<td><code>weaknessDmgScalar</code></td>
+<td><code>attackerAttributes[62]</code></td>
+<td><code>CalculateDamage</code></td>
+<td>直接乘子，不进 zone</td>
+</tr>
+<tr>
+<td><code>shelterDmgScalar</code></td>
+<td><code>defenderAttributes[63]</code></td>
+<td><code>CalculateDamage</code></td>
+<td>直接乘子，不进 zone</td>
+</tr>
+<tr>
+<td><code>optionalIgniteDamageScalar</code></td>
+<td><code>attackerAttributes[49]</code></td>
+<td><code>CalculateDamage</code></td>
+<td><code>damageDecorateMask &amp; 已确认 != 0</code> 时乘</td>
+</tr>
+<tr>
+<td><code>optionalPhysicalInflictionDamageScalar</code></td>
+<td><code>attackerAttributes[25]</code></td>
+<td><code>CalculateDamage</code></td>
+<td><code>damageDecorateMask &amp; 已确认 != 0</code> 时乘</td>
+</tr>
+</tbody>
+</table>
+<p><code>DamageType.Real(1)</code> 会让 <code>defResistance = 1</code>，即跳过 DEF；<code>DamageType.LifeDrain(5)</code>
+在 <code>CalculateDamage</code> 里走特殊分支，不进入这套普通伤害公式。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>attackerAttributes[i] = attacker.Attributes.GetValue((AttributeType)i) // i=0..77+
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>defenderAttributes[i] = defender.Attributes.GetValue((AttributeType)i)
+</code></pre></div>
+<p>每个属性值经过 <code>Attributes::_CalculateFinalAttributeValue(attrType, baseMask, filterMask)</code> 计算：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>finalAttr = base + sum(additions) × product(multipliers) + sum(finalAdditions) × product(finalMultipliers)
+</code></pre></div>
+<p><strong>关键属性索引</strong> (来自 <code>Common.Beyond.AttributeType</code>):</p>
+<table>
+<thead>
+<tr>
+<th>索引</th>
+<th>属性</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Level</td>
+<td>等级</td>
+</tr>
+<tr>
+<td>1</td>
+<td>MaxHp</td>
+<td>最大生命</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td><strong>Atk</strong></td>
+<td><strong>攻击力（基础伤害输入）</strong></td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td><strong>Def</strong></td>
+<td><strong>防御力（减伤输入）</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td>PhysicalDamageTakenScalar</td>
+<td>物理受伤倍率</td>
+</tr>
+<tr>
+<td>9</td>
+<td>CriticalRate</td>
+<td>暴击率</td>
+</tr>
+<tr>
+<td>10</td>
+<td>CriticalDamageIncrease</td>
+<td>暴击伤害加成</td>
+</tr>
+<tr>
+<td>25</td>
+<td>PhysicalInflictionDamageScalar</td>
+<td>特定 decorateMask 下的额外乘子</td>
+</tr>
+<tr>
+<td>17</td>
+<td>NormalAttackDamageIncrease</td>
+<td>普攻增伤</td>
+</tr>
+<tr>
+<td>28</td>
+<td>UltimateSkillDamageIncrease</td>
+<td>终结技增伤</td>
+</tr>
+<tr>
+<td>32</td>
+<td>NormalSkillDamageIncrease</td>
+<td>技能增伤</td>
+</tr>
+<tr>
+<td>33</td>
+<td>ComboSkillDamageIncrease</td>
+<td>连击技增伤</td>
+</tr>
+<tr>
+<td>39</td>
+<td>Str</td>
+<td>力量</td>
+</tr>
+<tr>
+<td>40</td>
+<td>Agi</td>
+<td>敏捷</td>
+</tr>
+<tr>
+<td>48</td>
+<td>NaturalDamageTakenScalar</td>
+<td>自然受伤倍率</td>
+</tr>
+<tr>
+<td>49</td>
+<td>IgniteDamageScalar</td>
+<td>特定 decorateMask 下的额外乘子</td>
+</tr>
+<tr>
+<td>50</td>
+<td>PhysicalDamageIncrease</td>
+<td>物理伤害加成</td>
+</tr>
+<tr>
+<td>51-54</td>
+<td>Fire/Pulse/Cryst/NaturalDamageIncrease</td>
+<td>元素伤害加成</td>
+</tr>
+<tr>
+<td>60</td>
+<td>EtherDamageTakenScalar</td>
+<td>以太受伤倍率</td>
+</tr>
+<tr>
+<td>61</td>
+<td>DamageToBrokenUnitIncrease</td>
+<td>对破韧单位增伤</td>
+</tr>
+<tr>
+<td>62</td>
+<td>WeaknessDmgScalar</td>
+<td>弱点伤害倍率，直接乘最终伤害</td>
+</tr>
+<tr>
+<td>63</td>
+<td>ShelterDmgScalar</td>
+<td>庇护伤害倍率，直接乘最终伤害</td>
+</tr>
+<tr>
+<td>64-69</td>
+<td>*EnhancedDmgIncrease</td>
+<td>增幅伤害加成</td>
+</tr>
+<tr>
+<td>70-75</td>
+<td>*VulnerableDmgIncrease</td>
+<td>脆弱伤害加成</td>
+</tr>
+<tr>
+<td>80-85</td>
+<td>*DmgResistScalar</td>
+<td>类型抗性倍率，直接参与 <code>damageTypeResistance</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="beforecalculate">阶段二：BeforeCalculate 处理器<a class="headerlink" href="#beforecalculate" title="Permanent link">&para;</a></h3>
+<p>在计算 rawDamage 之前，处理器修改 packData 中的属性：</p>
+<table>
+<thead>
+<tr>
+<th>处理器</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AttackerAtkProcessor</strong></td>
+<td><code>attackerAttributes[Atk] *= scale</code> (BlackboardDouble)</td>
+</tr>
+<tr>
+<td><strong>AttackCriticalRateProcessor</strong></td>
+<td>调整暴击率 <code>addition</code></td>
+</tr>
+<tr>
+<td><strong>AttackerCriticalDamageProcessor</strong></td>
+<td>调整暴击伤害 <code>scale</code></td>
+</tr>
+<tr>
+<td><strong>InstantModifyAttribute</strong></td>
+<td>任意属性即时修改</td>
+</tr>
+<tr>
+<td><strong>DamageIndependentHealthProcessor</strong></td>
+<td>IndependentHealth 专用</td>
+</tr>
+</tbody>
+</table>
+<p>因此 DEF 的实战结算不依赖这些 processor，而是在 <code>BattleFormula::_GetDefResistanceValue</code>
+中直接读取防御方属性快照。</p>
+<h3 id="rawdamage">阶段三：主伤害计算 (rawDamage)<a class="headerlink" href="#rawdamage" title="Permanent link">&para;</a></h3>
+<p><code>atkCalculation.Evaluate(attacker, defender, blackboard, context, attackerAttributes, defenderAttributes, argsForServer)</code></p>
+<h4 id="atkscalecalculation">类型一：AtkScaleCalculation（最常用）<a class="headerlink" href="#atkscalecalculation" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>rawDamage = 攻击力 × atkScale
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>其中:
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a> 攻击力 = attackerAttributes[Atk] // 属性索引 2
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a> atkScale = 从技能 BlackboardDouble 解析 // 例如 1.5 = 150%
+</code></pre></div>
+<h4 id="primaryattrcalculation">类型二：PrimaryAttrCalculation<a class="headerlink" href="#primaryattrcalculation" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>attr = GetAttribute(source, attrType)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>rawDamage = applyScale ? attr × valueScale : attr
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>其中:
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a> source = AttackerOrHealer (0) 或 Target (1)
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a> attrType = Main (1) 或 Sub (2) // 主属性或副属性
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a> valueScale 从 BlackboardDouble 解析
+</code></pre></div>
+<h4 id="multiplyattributecalculation">类型三：MultiplyAttributeCalculation<a class="headerlink" href="#multiplyattributecalculation" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>attr = GetAttribute(source, attributeType)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>rawDamage = attr × multiplier + addition
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>其中:
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a> multiplier, addition 从 BlackboardDouble 解析
+</code></pre></div>
+<h4 id="definitevaluecalculation">类型四：DefiniteValueCalculation（固伤）<a class="headerlink" href="#definitevaluecalculation" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>rawDamage = applyScale ? value × valueScale : value
+</code></pre></div>
+<h4 id="breakingattackcalculation">类型五：BreakingAttackCalculation（破防攻击）<a class="headerlink" href="#breakingattackcalculation" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>attr = GetAttribute(source, Atk)
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>rawDamage = attr × atkScale × multiplier
+</code></pre></div>
+<h3 id="getattribute"><code>GetAttribute</code> 实现<a class="headerlink" href="#getattribute" title="Permanent link">&para;</a></h3>
+<p>直接按属性枚举值索引 <code>attackerAttributes[]</code> 或 <code>defenderAttributes[]</code>。</p>
+<h3 id="damagescale-zone">阶段四：DamageScale Zone 系统<a class="headerlink" href="#damagescale-zone" title="Permanent link">&para;</a></h3>
+<h4 id="_3">六区定义<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Zone</th>
+<th>alias</th>
+<th>isMultiply</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ProdCalcZone</strong></td>
+<td>独立增减伤</td>
+<td><strong>true (乘算)</strong></td>
+<td>独立因子逐个相乘 (1+a)×(1+b)×...</td>
+</tr>
+<tr>
+<td><strong>NormalCalcZone</strong></td>
+<td>通用增减伤</td>
+<td>false (加算)</td>
+<td>伤害类型 + 技能类型 + 破韧增伤</td>
+</tr>
+<tr>
+<td><strong>EnhancedDmgIncrease</strong></td>
+<td>增幅增伤</td>
+<td>false (加算)</td>
+<td>增幅反应</td>
+</tr>
+<tr>
+<td><strong>VulnerableDmgIncrease</strong></td>
+<td>脆弱增伤</td>
+<td>false (加算)</td>
+<td>脆弱反应</td>
+</tr>
+<tr>
+<td><strong>AbnormalAndBurstIncrease</strong></td>
+<td>法术爆发与异常增伤</td>
+<td>false (加算)</td>
+<td>异常伤害 + 爆发伤害</td>
+</tr>
+<tr>
+<td><strong>ComboCalcZone</strong></td>
+<td>连击增伤</td>
+<td>false (加算)</td>
+<td>连击技能</td>
+</tr>
+</tbody>
+</table>
+<h4 id="zone">属性→Zone 详细映射<a class="headerlink" href="#zone" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>Zone</th>
+<th>作用对象</th>
+<th>方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>damageTypeDamageIncreaseZoneName</code></td>
+<td><strong>NormalCalcZone</strong></td>
+<td><strong>Attacker</strong></td>
+<td><code>_GetAttackerDamageScaleIncreaseFromDamageType</code> (已确认)</td>
+<td>根据 <code>damageType</code> 选择</td>
+</tr>
+<tr>
+<td><code>skillTypeDamageIncreaseZoneName</code></td>
+<td><strong>NormalCalcZone</strong></td>
+<td><strong>Attacker</strong></td>
+<td><code>_GetAttackerDamageScaleIncreaseFromSkillType</code> (已确认)</td>
+<td>根据 <code>skillCastInfo.skillType</code> 选择</td>
+</tr>
+<tr>
+<td><code>damageToBrokenUnitIncreaseZoneName</code></td>
+<td><strong>NormalCalcZone</strong></td>
+<td><strong>Attacker</strong></td>
+<td><code>_GetAttackerDamageIncreaseToBrokenUnit</code> (已确认)</td>
+<td><code>DamageToBrokenUnitIncrease(61)</code></td>
+</tr>
+<tr>
+<td><code>igniteDamageIncreaseZoneName</code></td>
+<td><strong>AbnormalAndBurstIncrease</strong></td>
+<td><strong>Attacker</strong></td>
+<td><code>_GetAttackerDamageScaleIncreaseFromIgniteType</code> (已确认)</td>
+<td>根据 <code>damageType</code> + <code>damageDecorateMask</code> 选择</td>
+</tr>
+<tr>
+<td><code>damageEnhancedZoneName</code></td>
+<td><strong>EnhancedDmgIncrease</strong></td>
+<td><strong>Attacker</strong></td>
+<td><code>_GetAttackerDamageEnhanced</code> (已确认)</td>
+<td>根据 <code>damageType</code> 选择</td>
+</tr>
+<tr>
+<td><code>damageVulnerableZoneName</code></td>
+<td><strong>VulnerableDmgIncrease</strong></td>
+<td><strong>Defender</strong></td>
+<td><code>_GetDefenderDamageVulnerable</code> (已确认)</td>
+<td>根据 <code>damageType</code> 选择</td>
+</tr>
+</tbody>
+</table>
+<h4 id="attacker-zone">Attacker 侧 Zone 填充详情<a class="headerlink" href="#attacker-zone" title="Permanent link">&para;</a></h4>
+<p><strong>NormalCalcZone (Attacker)</strong> — 三个来源加总：</p>
+<table>
+<thead>
+<tr>
+<th>子来源</th>
+<th>条件</th>
+<th>读取属性</th>
+<th>索引</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>伤害类型增伤</strong></td>
+<td><code>damageType=Physical</code></td>
+<td><code>PhysicalDamageIncrease</code></td>
+<td>50</td>
+</tr>
+<tr>
+<td></td>
+<td><code>damageType=Fire</code></td>
+<td><code>FireDamageIncrease</code></td>
+<td>51</td>
+</tr>
+<tr>
+<td></td>
+<td><code>damageType=Pulse</code></td>
+<td><code>PulseDamageIncrease</code></td>
+<td>52</td>
+</tr>
+<tr>
+<td></td>
+<td><code>damageType=Cryst</code></td>
+<td><code>CrystDamageIncrease</code></td>
+<td>53</td>
+</tr>
+<tr>
+<td></td>
+<td><code>damageType=Natural</code></td>
+<td><code>NaturalDamageIncrease</code></td>
+<td>54</td>
+</tr>
+<tr>
+<td></td>
+<td><code>damageType=Ether</code></td>
+<td><code>EtherDamageIncrease</code></td>
+<td>55</td>
+</tr>
+<tr>
+<td><strong>技能类型增伤</strong></td>
+<td>普攻技能</td>
+<td><code>NormalAttackDamageIncrease</code></td>
+<td>17</td>
+</tr>
+<tr>
+<td></td>
+<td>主动技能</td>
+<td><code>NormalSkillDamageIncrease</code></td>
+<td>32</td>
+</tr>
+<tr>
+<td></td>
+<td>连击技能</td>
+<td><code>ComboSkillDamageIncrease</code></td>
+<td>33</td>
+</tr>
+<tr>
+<td></td>
+<td>终结技能</td>
+<td><code>UltimateSkillDamageIncrease</code></td>
+<td>28</td>
+</tr>
+<tr>
+<td><strong>破韧增伤</strong></td>
+<td>防御方 <code>isZeroPoise=true</code></td>
+<td><code>DamageToBrokenUnitIncrease</code></td>
+<td>61</td>
+</tr>
+</tbody>
+</table>
+<p><strong>AbnormalAndBurstIncrease (Attacker)</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>条件 (damageType + decorateMask)</th>
+<th>读取属性</th>
+<th>索引</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fire + 点燃标记</td>
+<td><code>FireAbnormalDamageIncrease</code></td>
+<td>56</td>
+</tr>
+<tr>
+<td>Pulse + 感电标记</td>
+<td><code>PulseAbnormalDamageIncrease</code></td>
+<td>57</td>
+</tr>
+<tr>
+<td>Cryst + 结晶标记</td>
+<td><code>CrystAbnormalDamageIncrease</code></td>
+<td>58</td>
+</tr>
+<tr>
+<td>Natural + 侵蚀标记</td>
+<td><code>NaturalAbnormalDamageIncrease</code></td>
+<td>59</td>
+</tr>
+<tr>
+<td>Fire + 爆发标记</td>
+<td><code>FireBurstDamageIncrease</code></td>
+<td>35</td>
+</tr>
+<tr>
+<td>Pulse + 爆发标记</td>
+<td><code>PulseBurstDamageIncrease</code></td>
+<td>36</td>
+</tr>
+<tr>
+<td>Cryst + 爆发标记</td>
+<td><code>CrystBurstDamageIncrease</code></td>
+<td>37</td>
+</tr>
+<tr>
+<td>Natural + 爆发标记</td>
+<td><code>NaturalBurstDamageIncrease</code></td>
+<td>38</td>
+</tr>
+</tbody>
+</table>
+<p><strong>EnhancedDmgIncrease (Attacker)</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>条件 (damageType)</th>
+<th>读取属性</th>
+<th>索引</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Physical</td>
+<td><code>PhysicalEnhancedDmgIncrease</code></td>
+<td>64</td>
+</tr>
+<tr>
+<td>Fire</td>
+<td><code>FireEnhancedDmgIncrease</code></td>
+<td>65</td>
+</tr>
+<tr>
+<td>Pulse</td>
+<td><code>PulseEnhancedDmgIncrease</code></td>
+<td>66</td>
+</tr>
+<tr>
+<td>Cryst</td>
+<td><code>CrystEnhancedDmgIncrease</code></td>
+<td>67</td>
+</tr>
+<tr>
+<td>Natural</td>
+<td><code>NaturalEnhancedDmgIncrease</code></td>
+<td>68</td>
+</tr>
+<tr>
+<td>Ether</td>
+<td><code>EtherEnhancedDmgIncrease</code></td>
+<td>69</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ProdCalcZone (Attacker)</strong> — 独立乘算因子：</p>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>技能/Buff 内 <code>DamageScaleProcessor</code></td>
+<td><code>zoneName=ProdCalcZone</code>, <code>side=Attacker</code> 的 processor</td>
+</tr>
+</tbody>
+</table>
+<p>暴击、弱点、庇护不是 <code>ProdCalcZone</code> 的内置来源。它们在
+<code>BattleFormula::CalculateDamage(已确认)</code> 中作为直接乘子处理。
+<strong>ComboCalcZone (Attacker)</strong> — 连击特有：</p>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>连击技能 combo 计数器</td>
+<td>随连击数增加的倍率（来自 <code>skillCastInfo</code>）</td>
+</tr>
+</tbody>
+</table>
+<h4 id="defender-zone">Defender 侧 Zone 填充详情<a class="headerlink" href="#defender-zone" title="Permanent link">&para;</a></h4>
+<p><strong>VulnerableDmgIncrease (Defender)</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>条件 (damageType)</th>
+<th>读取属性</th>
+<th>索引</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Physical</td>
+<td><code>PhysicalVulnerableDmgIncrease</code></td>
+<td>70</td>
+</tr>
+<tr>
+<td>Fire</td>
+<td><code>FireVulnerableDmgIncrease</code></td>
+<td>71</td>
+</tr>
+<tr>
+<td>Pulse</td>
+<td><code>PulseVulnerableDmgIncrease</code></td>
+<td>72</td>
+</tr>
+<tr>
+<td>Cryst</td>
+<td><code>CrystVulnerableDmgIncrease</code></td>
+<td>73</td>
+</tr>
+<tr>
+<td>Natural</td>
+<td><code>NaturalVulnerableDmgIncrease</code></td>
+<td>74</td>
+</tr>
+<tr>
+<td>Ether</td>
+<td><code>EtherVulnerableDmgIncrease</code></td>
+<td>75</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ProdCalcZone (Defender)</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>技能内 <code>DamageScaleProcessor</code></td>
+<td><code>zoneName=ProdCalcZone</code>, <code>side=Defender</code> 的 processor</td>
+</tr>
+</tbody>
+</table>
+<p>抗性和受伤倍率不在 Zone 系统内，而是在
+<code>BattleFormula::_GetDamageTypeResistanceValue(已确认)</code> 中按伤害类型直接取属性相乘。
+<strong>NormalCalcZone / EnhancedDmgIncrease / AbnormalAndBurstIncrease / ComboCalcZone (Defender)</strong>：
+防御方通常不向这些 zone 添加属性值（初始值为 1.0），除非技能/Buff 中包含 <code>DamageScaleProcessor(side=Defender, zoneName=...)</code> 的 processor。</p>
+<h4 id="zone_1">Zone 计算公式<a class="headerlink" href="#zone_1" title="Permanent link">&para;</a></h4>
+<p><strong>加算区 (isMultiply=false)</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>zoneValue = 1 + sum(该 zone 所有 modifier 值)
+</code></pre></div>
+<p><strong>乘算区 (isMultiply=true, 仅 ProdCalcZone)</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>zoneValue = ∏(1 + modifier_i) // 每个 modifier 独立相乘
+</code></pre></div>
+<p><strong>单 zone 最终值</strong>（<code>mergeAttackerAndDefender=false</code>，全部 zone 均为此情况）：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>finalZoneValue = zoneValue_attacker × zoneValue_defender
+</code></pre></div>
+<p><strong>总 zone 倍率</strong>（<code>_GetFinalDamageScale</code> 已确认 确认）：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>finalDamageScale = ∏(for each zone: zoneValue_attacker × zoneValue_defender)
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a> = NormalCalcZone_a × NormalCalcZone_d
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a> × EnhancedDmgIncrease_a × EnhancedDmgIncrease_d
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a> × VulnerableDmgIncrease_a × VulnerableDmgIncrease_d
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a> × AbnormalAndBurstIncrease_a × AbnormalAndBurstIncrease_d
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a> × ComboCalcZone_a × ComboCalcZone_d
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a> × ProdCalcZone_a × ProdCalcZone_d
+</code></pre></div>
+<h4 id="damagescaleprocessor">动态注入：DamageScaleProcessor<a class="headerlink" href="#damagescaleprocessor" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>DamageScaleProcessor {
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a> side: DamageScaleSide (Attacker=0 / Defender=1)
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a> zoneName: string // 目标 zone 名称
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a> addition: BlackboardDouble // 加值 (从 Blackboard 解析)
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>}
+</code></pre></div>
+<p>通过 <code>DamagePackData::ModifyDamageScaleZone(side, zoneName, value)</code> (已确认) 将 <code>addition</code> 值加到对应 side 的对应 zone 数组中。
+<code>DamageScaleProcessor</code> 可在 BeforeCalculate 或 AfterCalculate 阶段生效（取决于 <code>processTiming</code> 设置）。AfterCalculate 阶段注入的值在 rawDamage 计算之后，仅影响最终的 zone 倍率。</p>
+<h3 id="aftercalculate">阶段五：AfterCalculate 处理器<a class="headerlink" href="#aftercalculate" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>处理器</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ModifyCalcResult</strong></td>
+<td><code>result *= baseMultiplier ^ multiplierCnt</code> (仅 Multiply 类型)</td>
+</tr>
+<tr>
+<td><strong>DamageScaleProcessor</strong></td>
+<td>向指定 zone 添加 <code>addition</code> 值</td>
+</tr>
+</tbody>
+</table>
+<h3 id="def-shelterdmgscalar"><code>Def</code> 与 <code>ShelterDmgScalar</code> 的最终乘区<a class="headerlink" href="#def-shelterdmgscalar" title="Permanent link">&para;</a></h3>
+<h4 id="def"><code>Def</code> 的读取来源<a class="headerlink" href="#def" title="Permanent link">&para;</a></h4>
+<p><code>Common.Beyond.AttributeType.Def = 3</code>。<code>DamagePackData</code> 创建时会快照双方属性：</p>
+<p>所以 <code>Def</code> 的结算输入是 <code>DamagePackData.defenderAttributes[3]</code>，也就是创建伤害包那一刻
+防御者的最终属性快照。</p>
+<h4 id="def_1"><code>Def</code> 公式<a class="headerlink" href="#def_1" title="Permanent link">&para;</a></h4>
+<p><code>BattleFormula::_GetDefResistanceValue(已确认)</code> 硬编码读取</p>
+<p>以当前表值 <code>efficiencyOfDEF = 0.01</code> 计算：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>def &gt;= 0 =&gt; defResistance = 1 / (1 + def * 0.01)
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>def &lt; -0.00001 =&gt; defResistance = 2 - pow(0.99, -def)
+</code></pre></div>
+<p>这不是 <code>DamageScaleProcessor</code> zone。它是 <code>BattleFormula</code> 的独立直接乘区：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>finalDamage *= defResistance
+</code></pre></div>
+<p>没有 <code>AttackerPenProcessor</code>、<code>DefenderDefProcessor</code>、<code>BattleFormula.CalculateDamage</code> 或
+<code>_GetDefResistanceValue</code> 补丁。因此当前本地版本以 native 公式为准：没有额外的
+“攻击方穿透先修正 DEF”步骤，<code>defResistance</code> 只由 <code>defenderAttributes[3]</code> 和
+<code>BattleConst.efficiencyOfDEF</code> 决定。</p>
+<h4 id="shelterdmgscalar-shelterdmgtakenscalar"><code>ShelterDmgScalar</code> / <code>ShelterDmgTakenScalar</code><a class="headerlink" href="#shelterdmgscalar-shelterdmgtakenscalar" title="Permanent link">&para;</a></h4>
+<p>代码枚举名是 <code>AttributeType.ShelterDmgScalar = 63</code>；数据或策划语义上可理解为</p>
+<p>归属结论：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>Zone</th>
+<th>作用对象</th>
+<th>方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Def(3)</code></td>
+<td>defender</td>
+<td>数据模板决定</td>
+<td><code>_GetDefResistanceValue</code></td>
+<td><code>defResistance</code> 直接乘区</td>
+</tr>
+<tr>
+<td><code>ShelterDmgScalar(63)</code></td>
+<td>defender</td>
+<td><code>1.0</code></td>
+<td><code>CalculateDamage</code></td>
+<td><code>shelterDmgScalar</code> 直接乘区</td>
+</tr>
+<tr>
+<td><code>WeaknessDmgScalar(62)</code></td>
+<td>attacker</td>
+<td><code>1.0</code></td>
+<td><code>CalculateDamage</code></td>
+<td><code>weaknessDmgScalar</code> 直接乘区</td>
+</tr>
+</tbody>
+</table>
+<p><code>AttributeMetaTable.json</code> 中 <code>62/63</code> 默认值都是 <code>1.0</code>。示例 buff：</p>
+<ul>
+<li>
+<p><code>buff_common_affixes_shelter.json</code> 使用 <code>BaseFinalMultiplier</code> 修改
+ <code>ShelterDmgScalar</code>，黑板参数为 <code>rate</code>。</p>
+</li>
+<li>
+<p><code>buff_common_affixes_weak.json</code> 使用 <code>BaseFinalMultiplier</code> 修改
+ <code>WeaknessDmgScalar</code>，黑板参数为 <code>rate</code>。
+<code>BattleFormula.CalculateDamage</code> 阶段读取 defender 快照属性 <code>63</code> 并直接乘最终伤害。</p>
+</li>
+</ul>
+<hr />
+<h2 id="_processdamage">执行流程 (_ProcessDamage)<a class="headerlink" href="#_processdamage" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    Start["锁定攻击者与受击者"]
+    Pack["构建 DamagePackData"]
+    Snapshot["写入攻防属性快照、伤害类型、装饰标记和乘区数组"]
+    BeforeLoop["BeforeCalculation 处理器列表"]
+    BeforeMore{"还有前置处理器？"}
+    BeforeApply["应用 Buff / 全局伤害修正"]
+    CalcType{"按伤害类型选择计算路径"}
+    Normal["普通实体：解析 atkScale 并计算基础伤害"]
+    Other["其他伤害路径"]
+    AfterLoop["AfterCalculation 处理器列表"]
+    AfterMore{"还有后置处理器？"}
+    AfterApply["应用后置伤害修正"]
+    Formula["BattleFormula.CalculateDamage"]
+    Zones["乘最终伤害乘区"]
+    Critical{"暴击成立？"}
+    CritScale["乘 criticalScale"]
+    Resist["乘防御、伤害类型抗性、弱点/庇护系数"]
+    Poise["并行计算 poise 伤害"]
+    Apply["通过伤害 Modifier 结算护盾、减伤和 HP"]
+    Event["触发 TakeDamage 与 AI 感知事件"]
+    Sync["写入战斗同步数据"]
+
+    Start --&gt; Pack --&gt; Snapshot --&gt; BeforeLoop --&gt; BeforeMore
+    BeforeMore -- "是" --&gt; BeforeApply --&gt; BeforeMore
+    BeforeMore -- "否" --&gt; CalcType
+    CalcType -- "普通实体" --&gt; Normal --&gt; AfterLoop
+    CalcType -- "其他" --&gt; Other --&gt; AfterLoop
+    AfterLoop --&gt; AfterMore
+    AfterMore -- "是" --&gt; AfterApply --&gt; AfterMore
+    AfterMore -- "否" --&gt; Formula --&gt; Zones --&gt; Critical
+    Critical -- "是" --&gt; CritScale --&gt; Resist
+    Critical -- "否" --&gt; Resist
+    Resist --&gt; Poise --&gt; Apply --&gt; Event --&gt; Sync</code></pre>
+<hr />
+<h2 id="_4">怪物间伤害转移<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p><strong>纠正</strong>：游戏中不存在"部位"转移。<code>transferredSource</code> 字段用于<strong>怪物之间的伤害转移</strong>（如 A 怪物死亡后剩余伤害转给 B 怪物）。这由 <code>AbilitySystemForEnemyPart::get_useMainBodyHp</code> 调用证实——这里的 "EnemyPart" 指多阶段战斗中的不同单元，而非身体部位。</p>
+<hr />
+<h2 id="_5">暴击计算<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<p>暴击相关处理器:</p>
+<ul>
+<li><strong>AttackCriticalRateProcessor</strong>: 增加暴击率 (<code>addition</code>)</li>
+<li><strong>AttackerCriticalDamageProcessor</strong>: 暴击伤害倍率 (<code>scale</code>)</li>
+</ul>
+<p>最终暴击判定在 <code>BattleFormula::CalculateDamage(已确认)</code> 内完成：</p>
+<p>暴击不走 <code>ProdCalcZone</code>。<code>AttackCriticalRateProcessor</code> 和
+它们本身不会修改属性。基础暴击率/暴击伤害仍来自 <code>DamagePackData</code> 创建时的属性快照。</p>
+<hr />
+<h2 id="poise">韧性(Poise)并行计算<a class="headerlink" href="#poise" title="Permanent link">&para;</a></h2>
+<p>与伤害计算并行运行（<code>_ProcessDamage</code> 中第 7 步）：</p>
+<ul>
+<li><code>PoisePackData::Create(attacker, defender, damageDecorateMask, actionEnvironment)</code> — 创建韧性包</li>
+<li><code>PoisePackData::ApplyPoiseModifier(BeforeCalculate)</code> — 应用韧性前处理器</li>
+<li><code>BattleFormula::CalculatePoise(poisePackData, reportInfo)</code> — 韧性伤害计算</li>
+<li><code>PoisePackData::ApplyPoiseModifier(AfterCalculate)</code> — 应用韧性后处理器</li>
+<li><code>Modifier::NewPoise(...)</code> — 应用韧性伤害</li>
+<li><code>PoisePackData::ClearInstantAttributeModifier()</code> — 清理即时修改</li>
+</ul>
+<hr />
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

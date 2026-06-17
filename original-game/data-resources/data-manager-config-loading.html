@@ -1,0 +1,1628 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>DataManager 配置读取路径分析 - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#datamanager" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DataManager 配置读取路径分析
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        加载入口
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        三类基础读取算法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="三类基础读取算法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialassets-asset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InitialAssets asset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gameplayconfig-scriptableobject-asset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GameplayConfig ScriptableObject asset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gameplayconfig-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GameplayConfig JSON
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#initial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        特殊 Initial/构造字段
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_loadconstconfigs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _LoadConstConfigs 字段
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_loadjsonconfigs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _LoadJsonConfigs 字段
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="_LoadJsonConfigs 字段">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#datajsongameplayconfignamejson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data/Json/GameplayConfig/{name}.json
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        显式 JSON 路径
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jsoncfg-textassetnewtonsoft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JsonCfg TextAsset/Newtonsoft 路径
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        派生属性和后处理字段
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kvtable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        懒加载 KVTable 字段
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        还原和导出时的注意点
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="datamanager">DataManager 配置读取路径分析<a class="headerlink" href="#datamanager" title="Permanent link">&para;</a></h1>
+<p>分析对象: <code>Beyond.Gameplay.DataManager</code></p>
+<h2 id="_1">加载入口<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p><code>DataManager</code> 的配置加载分三段:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>DataManager::.ctor
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a> 创建 loader、字典和懒加载 KVTable；大多数懒表只构造，不读文件。
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>OnPreInit
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a> 创建/注册 m_kvTables。
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a> 加载 AudioGlobalConfig、WorldInitSetting 两个 InitialAssets 配置。
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>LoadGameConfigs
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a> _LoadConstConfigs()
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a> _LoadJsonConfigs()
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a> _PostProcessConfigs()
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a> _PreloadAllLevelData()
+</code></pre></div>
+<h2 id="_2">三类基础读取算法<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h3 id="initialassets-asset">InitialAssets asset<a class="headerlink" href="#initialassets-asset" title="Permanent link">&para;</a></h3>
+<p>入口:</p>
+<p>路径:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Assets/Beyond/InitialAssets/Settings/{configName}.asset
+</code></pre></div>
+<p>读取方式:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ResourceRouter.GetInitialConfigFullPath(configName)
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>StringPathHash.op_Implicit(path)
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>m_initialAssetLoader.Load&lt;T&gt;(hash)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>handle.Get&lt;T&gt;()
+</code></pre></div>
+<p>这里使用 <code>m_initialAssetLoader</code>，不是 <code>m_mainAssetLoader</code>。</p>
+<h3 id="gameplayconfig-scriptableobject-asset">GameplayConfig ScriptableObject asset<a class="headerlink" href="#gameplayconfig-scriptableobject-asset" title="Permanent link">&para;</a></h3>
+<p>入口:</p>
+<p>路径:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Assets/Beyond/DynamicAssets/GameData/GameplayConfig/{configName}.asset
+</code></pre></div>
+<p>读取方式:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ResourceRouter.GetGameplayConfigFullPath(configName)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>StringPathHash.op_Implicit(path)
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>DataManager.LoadAsset&lt;T&gt;(hash)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a> ResourceManager.CheckExists(hash, RootCategory.Main)
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a> m_mainAssetLoader.Load&lt;T&gt;(hash)
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a> handle.Get&lt;T&gt;()
+</code></pre></div>
+<h3 id="gameplayconfig-json">GameplayConfig JSON<a class="headerlink" href="#gameplayconfig-json" title="Permanent link">&para;</a></h3>
+<p>入口:</p>
+<p>路径分支:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>canUseMemoryPack = true:
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a> Data/Json/GameplayConfig/{configName}.json
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>canUseMemoryPack = false:
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a> Assets/Beyond/DynamicAssets/GameData/GameplayConfig/JsonCfg/{configName}.json
+</code></pre></div>
+<p>读取方式:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>ResourceRouter.GetGameplayJsonConfigPath(configName, canUseMemoryPack)
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>StringPathHash.op_Implicit(path)
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>DataManager.LoadJson&lt;T&gt;(hash, settings=null, canUseMemoryPack, useCache=canUseMemoryPack)
+</code></pre></div>
+<p><code>DataManager.LoadJson&lt;T&gt;</code> 的底层分支:</p>
+<ul>
+<li><code>canUseMemoryPack=true</code>: 走 <code>ResourceManager.DeserializeFromJson&lt;T&gt;(hash, settings)</code>，并按 <code>useCache</code> 使用 JSON/MemoryPack 缓存。</li>
+<li><code>canUseMemoryPack=false</code>: 先 <code>ResourceManager.CheckExists(hash, Main)</code>，再加载 <code>TextAsset</code>，取 <code>TextAsset.text</code>，最后 <code>JsonHelper.TryDeserializeObject&lt;T&gt;</code>，也就是 Newtonsoft JSON 路径。</li>
+</ul>
+<h2 id="initial">特殊 Initial/构造字段<a class="headerlink" href="#initial" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>路径</th>
+<th>读取方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>audioGlobalConfig</code></td>
+<td><code>Assets/Beyond/InitialAssets/Settings/AudioGlobalConfig.asset</code></td>
+<td><code>OnPreInit</code> 调 <code>_LoadSingleInitialConfig&lt;AudioGlobalConfig&gt;("AudioGlobalConfig")</code></td>
+</tr>
+<tr>
+<td><code>worldInitSetting</code></td>
+<td><code>Assets/Beyond/InitialAssets/Settings/WorldInitSetting.asset</code></td>
+<td><code>OnPreInit</code> 调 <code>_LoadSingleInitialConfig&lt;WorldInitSetting&gt;("WorldInitSetting")</code></td>
+</tr>
+<tr>
+<td><code>cameraShakeConfigTable</code></td>
+<td><code>Assets/Beyond/DynamicAssets/GameData/Common/CameraShake/{key}.asset</code></td>
+<td>构造时创建 <code>CameraShakeConfigTable</code>；按 key 懒加载 <code>CameraShakeConfig</code> asset 并缓存</td>
+</tr>
+<tr>
+<td><code>movementEnv</code></td>
+<td>见下方两条 <code>MovementSetting</code></td>
+<td>构造时创建，<code>_LoadConstConfigs</code> 调 <code>MovementEnv.LoadSettings(...)</code></td>
+</tr>
+<tr>
+<td><code>movementSetting</code></td>
+<td>无独立路径</td>
+<td>属性直接返回 <code>movementEnv.currentSetting</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>MovementEnv.LoadSettings</code> 额外读取两个 <code>MovementSetting</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Assets/Beyond/DynamicAssets/GameData/GameplayConfig/MovementSetting/MovementSetting_Default.asset
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>Assets/Beyond/DynamicAssets/GameData/GameplayConfig/MovementSetting/MovementSetting_Aglina.asset
+</code></pre></div>
+<p>后续 <code>MovementSettingModifier</code> 也是按名字通过 <code>_LoadSingleConfig&lt;MovementSettingModifier&gt;</code> 走同一 GameplayConfig asset 规则。</p>
+<h2 id="_loadconstconfigs"><code>_LoadConstConfigs</code> 字段<a class="headerlink" href="#_loadconstconfigs" title="Permanent link">&para;</a></h2>
+<p>以下字段都走 <code>_LoadSingleConfig&lt;T&gt;</code>，路径统一为:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Assets/Beyond/DynamicAssets/GameData/GameplayConfig/{配置名}.asset
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>配置名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>worldSetting</code></td>
+<td><code>WorldSetting</code></td>
+</tr>
+<tr>
+<td><code>formationSetting</code></td>
+<td><code>FormationSetting</code></td>
+</tr>
+<tr>
+<td><code>bodyTypeConfigTable</code></td>
+<td><code>BodyTypeConfigTable</code></td>
+</tr>
+<tr>
+<td><code>gameplayCameraSetting</code></td>
+<td><code>GameplayCameraSetting</code></td>
+</tr>
+<tr>
+<td><code>airBorneConfig</code></td>
+<td><code>AirborneConfig</code></td>
+</tr>
+<tr>
+<td><code>factorySetting</code></td>
+<td><code>FactorySetting</code></td>
+</tr>
+<tr>
+<td><code>gameplayTagConfigSet</code></td>
+<td><code>GameplayTagConfigSet</code></td>
+</tr>
+<tr>
+<td><code>gameplayTagPredefined</code></td>
+<td><code>GameplayTagPredefined</code></td>
+</tr>
+<tr>
+<td><code>cinemachineBlenderSettings</code></td>
+<td><code>CameraBlendSettings</code></td>
+</tr>
+<tr>
+<td><code>markTargetConfig</code></td>
+<td><code>MarkTargetConfig</code></td>
+</tr>
+<tr>
+<td><code>commonEffectConfig</code></td>
+<td><code>CommonEffectConfig</code></td>
+</tr>
+<tr>
+<td><code>effectSettingFactory</code></td>
+<td><code>EffectSettingFactory</code></td>
+</tr>
+<tr>
+<td><code>effectSettingBattle</code></td>
+<td><code>EffectSettingBattle</code></td>
+</tr>
+<tr>
+<td><code>cgConfig</code></td>
+<td><code>CGConfig</code></td>
+</tr>
+<tr>
+<td><code>minePrototypeTable</code></td>
+<td><code>MinePrototypeTable</code></td>
+</tr>
+<tr>
+<td><code>gameObjectTemplateConfig</code></td>
+<td><code>GameObjectTemplateConfig</code></td>
+</tr>
+<tr>
+<td><code>hitStopConfig</code></td>
+<td><code>HitStopConfig</code></td>
+</tr>
+<tr>
+<td><code>cameraModeConfig</code></td>
+<td><code>CameraModeConfig</code></td>
+</tr>
+<tr>
+<td><code>characterDisplayConfig</code></td>
+<td><code>CharacterDisplayConfig</code></td>
+</tr>
+<tr>
+<td><code>characterHeightConfig</code></td>
+<td><code>CharacterHeightConfig</code></td>
+</tr>
+<tr>
+<td><code>weaponWallDisplayConfig</code></td>
+<td><code>WeaponWallDisplayConfig</code></td>
+</tr>
+<tr>
+<td><code>weaponExhibitConfig</code></td>
+<td><code>WeaponExhibitConfig</code></td>
+</tr>
+<tr>
+<td><code>weaponDecoEffectConfig</code></td>
+<td><code>WeaponDecoEffectConfig</code></td>
+</tr>
+<tr>
+<td><code>poiseBreakConfig</code></td>
+<td><code>PoiseBreakConfig</code></td>
+</tr>
+<tr>
+<td><code>footStepConfig</code></td>
+<td><code>FootStepConfig</code></td>
+</tr>
+<tr>
+<td><code>playerCommandConfig</code></td>
+<td><code>PlayerCommandConfig</code></td>
+</tr>
+<tr>
+<td><code>weaponCommonConfig</code></td>
+<td><code>WeaponCommonConfig</code></td>
+</tr>
+<tr>
+<td><code>globalBuffTable</code></td>
+<td><code>GlobalBuffTable</code></td>
+</tr>
+<tr>
+<td><code>abilityEntityTable</code></td>
+<td><code>AbilityEntityTable</code></td>
+</tr>
+<tr>
+<td><code>projectileTable</code></td>
+<td><code>ProjectileTable</code></td>
+</tr>
+<tr>
+<td><code>focusPointSetting</code></td>
+<td><code>FocusPointSetting</code></td>
+</tr>
+<tr>
+<td><code>erosionEffectConfig</code></td>
+<td><code>ErosionEffectConfig</code></td>
+</tr>
+<tr>
+<td><code>dropEffectConfig</code></td>
+<td><code>DropEffectConfig</code></td>
+</tr>
+<tr>
+<td><code>gameplayMiscSetting</code></td>
+<td><code>GameplayMiscSetting</code></td>
+</tr>
+<tr>
+<td><code>gameplayHurtSetting</code></td>
+<td><code>GameplayHurtSetting</code></td>
+</tr>
+<tr>
+<td><code>aiGlobalSetting</code></td>
+<td><code>AIGlobalSetting</code></td>
+</tr>
+<tr>
+<td><code>animationSetting</code></td>
+<td><code>AnimationSetting</code></td>
+</tr>
+<tr>
+<td><code>avatarMaskConfig</code></td>
+<td><code>AvatarMaskConfig</code></td>
+</tr>
+<tr>
+<td><code>curveEvaluateSetting</code></td>
+<td><code>CurveEvaluateSetting</code></td>
+</tr>
+<tr>
+<td><code>skillSetting</code></td>
+<td><code>SkillSetting</code></td>
+</tr>
+<tr>
+<td><code>teleportPosSelectSetting</code></td>
+<td><code>TeleportPosSelectSetting</code></td>
+</tr>
+<tr>
+<td><code>modelGroups</code></td>
+<td><code>ModelGroups</code></td>
+</tr>
+<tr>
+<td><code>damageScaleProcessorConfig</code></td>
+<td><code>DamageScaleProcessorConfig</code></td>
+</tr>
+<tr>
+<td><code>forgeIronConfig</code></td>
+<td><code>ForgeIronConfig</code></td>
+</tr>
+<tr>
+<td><code>charStateTransTable</code></td>
+<td><code>CharacterStateTransitionTable</code></td>
+</tr>
+<tr>
+<td><code>charAttractAnimConfig</code></td>
+<td><code>CharAttractAnimConfig</code></td>
+</tr>
+<tr>
+<td><code>timeDilationConfig</code></td>
+<td><code>TimeDilationConfig</code></td>
+</tr>
+<tr>
+<td><code>waterInteractSettings</code></td>
+<td><code>WaterInteractSettings</code></td>
+</tr>
+<tr>
+<td><code>interactiveBehitConfig</code></td>
+<td><code>InteractiveBehitPerformSetting</code></td>
+</tr>
+<tr>
+<td><code>interactiveCurveMoveConfig</code></td>
+<td><code>InteractiveCurveMoveConfig</code></td>
+</tr>
+<tr>
+<td><code>interactiveAudioSetting</code></td>
+<td><code>InteractiveAudioSetting</code></td>
+</tr>
+<tr>
+<td><code>treasureHuntConfig</code></td>
+<td><code>TreasureHuntConfig</code></td>
+</tr>
+<tr>
+<td><code>towerDefenseCommonConfig</code></td>
+<td><code>TowerDefenseCommonConfig</code></td>
+</tr>
+<tr>
+<td><code>battleMusicConfig</code></td>
+<td><code>BattleMusicConfig</code></td>
+</tr>
+<tr>
+<td><code>uiLevelMapConfig</code></td>
+<td><code>UILevelMapConfig</code></td>
+</tr>
+<tr>
+<td><code>wikiModelConfig</code></td>
+<td><code>WikiModelConfig</code></td>
+</tr>
+<tr>
+<td><code>itemFlyingAroundConfig</code></td>
+<td><code>ItemFlyingAroundConfig</code></td>
+</tr>
+<tr>
+<td><code>repatriateConfig</code></td>
+<td><code>RepatriateConfig</code></td>
+</tr>
+<tr>
+<td><code>battlePreloadTable</code></td>
+<td><code>BattlePreloadTable</code></td>
+</tr>
+<tr>
+<td><code>battleCommandMappingConfig</code></td>
+<td><code>BattleCommandMappingConfig</code></td>
+</tr>
+<tr>
+<td><code>commonSkillConfig</code></td>
+<td><code>CommonSkillConfig</code></td>
+</tr>
+<tr>
+<td><code>forbidByGameplayTagConfig</code></td>
+<td><code>ForbidByGameplayTagConfig</code></td>
+</tr>
+<tr>
+<td><code>waterDroneConfig</code></td>
+<td><code>WaterDroneConfig</code></td>
+</tr>
+<tr>
+<td><code>waterGunCoolerConfig</code></td>
+<td><code>WaterGunCoolerConfig</code></td>
+</tr>
+<tr>
+<td><code>interactiveMiscConfig</code></td>
+<td><code>InteractiveMiscConfig</code></td>
+</tr>
+<tr>
+<td><code>interactiveHintConfig</code></td>
+<td><code>InteractiveHintConfig</code></td>
+</tr>
+<tr>
+<td><code>interactiveGameplayLockConfig</code></td>
+<td><code>InteractiveGameplayLockConfig</code></td>
+</tr>
+<tr>
+<td><code>lsmSuperPressureBoardGroupConfig</code></td>
+<td><code>LSMSuperPressureBoardGroupConfig</code></td>
+</tr>
+<tr>
+<td><code>sludgeWaterDroneConfig</code></td>
+<td><code>SludgeWaterDroneConfig</code></td>
+</tr>
+<tr>
+<td><code>dynamicSceneTreeFallConfig</code></td>
+<td><code>DynamicSceneTreeFallConfig</code></td>
+</tr>
+<tr>
+<td><code>facRegionUpgradeCameraConfig</code></td>
+<td><code>FacRegionUpgradeCameraConfig</code></td>
+</tr>
+<tr>
+<td><code>facRegionUpgradeEffectConfig</code></td>
+<td><code>FacRegionUpgradeEffectConfig</code></td>
+</tr>
+<tr>
+<td><code>mapRegionConfig</code></td>
+<td><code>MapRegionConfig</code></td>
+</tr>
+<tr>
+<td><code>gameSettingSubQualityConfig</code></td>
+<td><code>GameSettingSubQualityConfig</code></td>
+</tr>
+<tr>
+<td><code>sludgeGameplayConfig</code></td>
+<td><code>SludgeGameplayConfig</code></td>
+</tr>
+<tr>
+<td><code>spaceshipCameraConfig</code></td>
+<td><code>SpaceshipCameraConfig</code></td>
+</tr>
+<tr>
+<td><code>battleRecorderConfig</code></td>
+<td><code>BattleRecorderConfig</code></td>
+</tr>
+<tr>
+<td><code>audioBranchConfig</code></td>
+<td><code>AudioBranchConfig</code></td>
+</tr>
+<tr>
+<td><code>waterVolumeTransfererEffectConfig</code></td>
+<td><code>WaterVolumeTransfererEffectConfig</code></td>
+</tr>
+<tr>
+<td><code>interactiveStainConfig</code></td>
+<td><code>InteractiveStainConfig</code></td>
+</tr>
+</tbody>
+</table>
+<p>注意: <code>mapRegionConfig</code> 在这里是 <code>MapRegionConfig.asset</code>，不是 <code>Data/Json/GameplayConfig/MapRegionTable.json</code>。</p>
+<h2 id="_loadjsonconfigs"><code>_LoadJsonConfigs</code> 字段<a class="headerlink" href="#_loadjsonconfigs" title="Permanent link">&para;</a></h2>
+<h3 id="datajsongameplayconfignamejson"><code>Data/Json/GameplayConfig/{name}.json</code><a class="headerlink" href="#datajsongameplayconfignamejson" title="Permanent link">&para;</a></h3>
+<p>这些字段走 <code>_LoadJsonConfigByName&lt;T&gt;(name, true)</code>，即 MemoryPack JSON 路径，<code>useCache=true</code>:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>JSON 名</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>levelBasicInfoTable</code></td>
+<td><code>LevelBasicInfoTable</code></td>
+<td><code>Data/Json/GameplayConfig/LevelBasicInfoTable.json</code></td>
+</tr>
+<tr>
+<td><code>gameModeTable</code></td>
+<td><code>GameModeTable</code></td>
+<td><code>Data/Json/GameplayConfig/GameModeTable.json</code></td>
+</tr>
+<tr>
+<td><code>teleportPerformTable</code></td>
+<td><code>TeleportPerformTable</code></td>
+<td><code>Data/Json/GameplayConfig/TeleportPerformTable.json</code></td>
+</tr>
+<tr>
+<td><code>mapIdTable</code></td>
+<td><code>MapIdTable</code></td>
+<td><code>Data/Json/GameplayConfig/MapIdTable.json</code></td>
+</tr>
+<tr>
+<td><code>mapBriefInfoTable</code></td>
+<td><code>MapBriefInfoTable</code></td>
+<td><code>Data/Json/GameplayConfig/MapBriefInfoTable.json</code></td>
+</tr>
+<tr>
+<td><code>dialogIdTable</code></td>
+<td><code>DialogIdTable</code></td>
+<td><code>Data/Json/GameplayConfig/DialogIdTable.json</code></td>
+</tr>
+<tr>
+<td><code>levelScriptTaskExtraInfoTable</code></td>
+<td><code>ScriptTaskExtraInfoTable</code></td>
+<td><code>Data/Json/GameplayConfig/ScriptTaskExtraInfoTable.json</code></td>
+</tr>
+<tr>
+<td><code>subGameInstDataTable</code></td>
+<td><code>SubGameInstanceDataTable</code></td>
+<td><code>Data/Json/GameplayConfig/SubGameInstanceDataTable.json</code></td>
+</tr>
+<tr>
+<td><code>focusModeInstDataTable</code></td>
+<td><code>FocusModeInstanceTable</code></td>
+<td><code>Data/Json/GameplayConfig/FocusModeInstanceTable.json</code></td>
+</tr>
+<tr>
+<td><code>npcRuntimeProxyDataTable</code></td>
+<td><code>NpcProxyTable</code></td>
+<td><code>Data/Json/GameplayConfig/NpcProxyTable.json</code></td>
+</tr>
+<tr>
+<td><code>npcRuntimeProxyExDataTable</code></td>
+<td><code>NpcProxyExDataTable</code></td>
+<td><code>Data/Json/GameplayConfig/NpcProxyExDataTable.json</code></td>
+</tr>
+<tr>
+<td><code>atmosphericNpcSwitcherDataTable</code></td>
+<td><code>AtmosphericNpcSwitcherDataTable</code></td>
+<td><code>Data/Json/GameplayConfig/AtmosphericNpcSwitcherDataTable.json</code></td>
+</tr>
+<tr>
+<td><code>activeAtmosphericActiveNpcSwitcherDataTable</code></td>
+<td><code>AtmosphericNpcActiveSwitcherDataTable</code></td>
+<td><code>Data/Json/GameplayConfig/AtmosphericNpcActiveSwitcherDataTable.json</code></td>
+</tr>
+<tr>
+<td><code>npcAtmosphericClusterDataTable</code></td>
+<td><code>AtmosphericNpcClusterDataTable</code></td>
+<td><code>Data/Json/GameplayConfig/AtmosphericNpcClusterDataTable.json</code></td>
+</tr>
+<tr>
+<td><code>worldEntityRegistry</code></td>
+<td><code>WorldEntityRegistry</code></td>
+<td><code>Data/Json/GameplayConfig/WorldEntityRegistry.json</code></td>
+</tr>
+<tr>
+<td><code>missionAreaTable</code></td>
+<td><code>MissionAreaTable</code></td>
+<td><code>Data/Json/GameplayConfig/MissionAreaTable.json</code></td>
+</tr>
+<tr>
+<td><code>mapMarkDataTable</code></td>
+<td><code>LevelMapMark</code></td>
+<td><code>Data/Json/GameplayConfig/LevelMapMark.json</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>
+</code></pre></div>
+<h3 id="json">显式 JSON 路径<a class="headerlink" href="#json" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>路径</th>
+<th>读取方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>modelTable</code></td>
+<td><code>Data/Json/NonGeneratedConfigs/ModelTable.json</code></td>
+<td><code>LoadJson&lt;ModelTable&gt;(..., canUseMemoryPack=true, useCache=true)</code></td>
+</tr>
+<tr>
+<td><code>modelRadiusTable</code></td>
+<td><code>Data/Json/GameplayConfig/ModelRadiusTable.json</code></td>
+<td><code>LoadJson&lt;ModelRadiusTable&gt;(..., canUseMemoryPack=true, useCache=false)</code></td>
+</tr>
+<tr>
+<td><code>bambooRaftTaskTable</code></td>
+<td><code>Data/Json/NonGeneratedConfigs/BambooRaftTaskTable.json</code></td>
+<td><code>LoadJson&lt;BambooRaftTaskTable&gt;(..., canUseMemoryPack=true, useCache=false)</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="jsoncfg-textassetnewtonsoft"><code>JsonCfg</code> TextAsset/Newtonsoft 路径<a class="headerlink" href="#jsoncfg-textassetnewtonsoft" title="Permanent link">&para;</a></h3>
+<p>这些字段走 <code>_LoadJsonConfigByName&lt;T&gt;(name, false)</code>，即主包 <code>TextAsset</code> + Newtonsoft:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>relativeCameraConfigTable</code></td>
+<td><code>Assets/Beyond/DynamicAssets/GameData/GameplayConfig/JsonCfg/RelativeCameraTable.json</code></td>
+</tr>
+<tr>
+<td><code>upgradePerformDataTable</code></td>
+<td><code>Assets/Beyond/DynamicAssets/GameData/GameplayConfig/JsonCfg/UpgradePerformDataTable.json</code></td>
+</tr>
+<tr>
+<td><code>entityShortIdTable</code></td>
+<td><code>Assets/Beyond/DynamicAssets/GameData/GameplayConfig/JsonCfg/LevelShortIdTable.json</code></td>
+</tr>
+<tr>
+<td><code>builtinBlueprintTable</code></td>
+<td><code>Assets/Beyond/DynamicAssets/GameData/GameplayConfig/JsonCfg/BuiltinBlueprintTable.json</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>_LoadJsonConfigs</code> 末尾还会对 <code>interactiveTemplateIdTable</code> 调一次 <code>ReloadTable()</code>，它的路径见懒加载表章节。</p>
+<h2 id="_3">派生属性和后处理字段<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p>这些属性/字段不是从独立文件直接读取:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>modelData</code></td>
+<td><code>modelTable.data</code></td>
+</tr>
+<tr>
+<td><code>modelRadiusData</code></td>
+<td><code>modelRadiusTable.data</code></td>
+</tr>
+<tr>
+<td><code>bambooRaftTaskData</code></td>
+<td><code>bambooRaftTaskTable</code> 内部数据字典</td>
+</tr>
+<tr>
+<td><code>interactiveModelData</code></td>
+<td><code>modelTable.extraData_interactive</code></td>
+</tr>
+<tr>
+<td><code>relativeCameraConfigs</code></td>
+<td><code>relativeCameraConfigTable.configs</code></td>
+</tr>
+<tr>
+<td><code>upgradePerformDatas</code></td>
+<td><code>upgradePerformDataTable.performDatas</code></td>
+</tr>
+<tr>
+<td><code>levelIdStrToInt</code></td>
+<td><code>_PostProcessConfigs</code> 根据已加载的关卡/地图 ID 数据构建</td>
+</tr>
+<tr>
+<td><code>levelIdIntToStr</code></td>
+<td><code>_PostProcessConfigs</code> 根据已加载的关卡/地图 ID 数据构建</td>
+</tr>
+</tbody>
+</table>
+<p><code>SpecialLevelToMapTable.TryGetData</code> 不是 JSON 文件读取；它转向 <code>Beyond.Cfg.GameData.specialLevelToMapTable</code> 这类运行时 Spark/表格数据，再把结果缓存到自己的 KV 表里。</p>
+<h2 id="kvtable">懒加载 KVTable 字段<a class="headerlink" href="#kvtable" title="Permanent link">&para;</a></h2>
+<p>这些表通常在构造函数里创建、<code>OnPreInit</code> 注册到 <code>m_kvTables</code>，读取发生在 <code>TryGetData</code>/<code>ReloadTable</code>/预加载时。通用流程是:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>先查 KVTable 内部缓存
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>缓存未命中时按 key 拼路径
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>StringPathHash.op_Implicit(path)
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>LoadAsset&lt;T&gt; 或 LoadJson&lt;T&gt;
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>成功后 Add 到 KVTable 缓存
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>路径/规则</th>
+<th>读取方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>interactiveTemplateIdTable</code></td>
+<td><code>Data/Json/Interactive/InteractiveTable.json</code></td>
+<td><code>ReloadTable()</code> 读取 <code>InteractiveTable</code>，建立 template id/path 和父子 template 映射</td>
+</tr>
+<tr>
+<td><code>interactiveMeshTable</code></td>
+<td><code>Assets/Beyond/DynamicAssets/Gameplay/Interactives/MeshPrefabs/{key}</code></td>
+<td>按 key 加载 <code>GameObject</code> 主包 asset</td>
+</tr>
+<tr>
+<td><code>interactiveModelTable</code></td>
+<td><code>Assets/Beyond/DynamicAssets/Gameplay/Interactives/PostModels/{key}</code></td>
+<td>按 key 加载 <code>GameObject</code> 主包 asset</td>
+</tr>
+<tr>
+<td><code>interactiveSafeZoneSdfTable</code></td>
+<td><code>Assets/Beyond/DynamicAssets/Gameplay/Interactives/Generated/SafeZone/{key}</code></td>
+<td>按 key 加载 <code>Texture2D</code> 主包 asset</td>
+</tr>
+<tr>
+<td><code>cameraControlStateTable</code></td>
+<td><code>Assets/Beyond/DynamicAssets/Gameplay/Cameras/ControlStates/{key}</code></td>
+<td>按 key 加载 <code>CameraControlStateCustomConfig</code> asset</td>
+</tr>
+<tr>
+<td><code>mapConfigTable</code></td>
+<td><code>Data/Json/MapConfig/{mapIdStr}.json</code></td>
+<td><code>ResourceRouter.GetMapJsonConfigFullPath</code> 后 <code>LoadJson&lt;MapConfig&gt;</code></td>
+</tr>
+<tr>
+<td><code>levelConfigTable</code></td>
+<td><code>Data/Json/LevelConfig/{levelId}.json</code></td>
+<td><code>LoadJson&lt;LevelConfig&gt;</code></td>
+</tr>
+<tr>
+<td><code>specialLevelToMapTable</code></td>
+<td>无独立 JSON 路径</td>
+<td>从 <code>Beyond.Cfg.GameData.specialLevelToMapTable</code> 查表后缓存</td>
+</tr>
+<tr>
+<td><code>spawnerConfigTable</code></td>
+<td>普通: <code>Data/Json/SpawnerConfig/{configId}.json</code>；<code>sc_</code> 开头: <code>Data/Json/SpawnerConfig/{levelId}/{configId}.json</code></td>
+<td><code>TryGetData</code> 从 <code>configId</code> 解析 level 目录，<code>LoadJson&lt;SpawnerConfigData&gt;</code></td>
+</tr>
+<tr>
+<td><code>blockDataTable</code></td>
+<td><code>Assets/Beyond/DynamicAssets/GameData/Minigame/Puzzle/Block/{blockId}.json</code></td>
+<td><code>ResourceRouter.GetBlockDataFullPath</code> 后 <code>LoadJson&lt;BlockData&gt;</code>，TextAsset/Newtonsoft</td>
+</tr>
+<tr>
+<td><code>chessboardDataTable</code></td>
+<td><code>Assets/Beyond/DynamicAssets/GameData/Minigame/Puzzle/Chessboard/{chessboardId}.json</code></td>
+<td><code>ResourceRouter.GetChessboardDataFullPath</code> 后 <code>LoadJson&lt;ChessboardData&gt;</code>，TextAsset/Newtonsoft</td>
+</tr>
+<tr>
+<td><code>modelViewStateControllersDataTable</code></td>
+<td><code>Data/Json/Interactive/ModelViewStateControllerData/{modelId}.json</code></td>
+<td><code>LoadJson&lt;MVSCModelViewStateControllerData&gt;</code></td>
+</tr>
+<tr>
+<td><code>levelMountPointTable</code></td>
+<td><code>Data/Json/LevelMountPoint/{levelId}.json</code></td>
+<td><code>GetLevelMountPointFullPath</code> 后 <code>LoadJson&lt;LevelMountPointRoot&gt;</code>，带自定义 <code>JsonSerializerSettings</code></td>
+</tr>
+<tr>
+<td><code>interactiveTemplateIdGroupTable</code></td>
+<td><code>Assets/Beyond/DynamicAssets/GameData/GameplayConfig/InteractiveTemplateIdGroupConfig.asset</code></td>
+<td>首次查询时 <code>_LoadSingleConfig&lt;InteractiveTemplateIdGroupConfig&gt;</code>，再读 <code>groupDict[id]</code></td>
+</tr>
+<tr>
+<td><code>missionRuntimeAssetTable</code></td>
+<td><code>Data/Json/MissionRuntimeAsset/{missionId}.json</code></td>
+<td><code>GetMissionRuntimeAssetJsonFullPath</code> 后 <code>LoadJson&lt;MissionRuntimeAsset&gt;</code>，并返回 <code>loadFromCache/loadFromDev</code></td>
+</tr>
+<tr>
+<td><code>missionRuntimeMetaTable</code></td>
+<td><code>Data/Json/MissionRuntimeAsset/{missionId}_meta.json</code></td>
+<td><code>GetMissionMetaJsonFullPath</code> 后 <code>LoadJson&lt;MissionRuntimeMetaAsset&gt;</code>，并返回 <code>loadFromDev</code></td>
+</tr>
+<tr>
+<td><code>matrixShockWaveBeatConfigTable</code></td>
+<td><code>Data/Json/GameplayConfig/MatrixShockWaveBeatConfigTable.json</code></td>
+<td><code>TryGetMatrixShockWaveBeatConfig</code> 触发读取/查找</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">还原和导出时的注意点<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>AbilityEntityTable</code>、<code>GlobalBuffTable</code>、<code>ProjectileTable</code> 等 ScriptableObject 表不是 JSON，路径在 Unity asset bundle 里，必须按 Unity asset 反序列化或运行时导出。</li>
+<li><code>Data/Json/GameplayConfig/*.json</code> 这一类大多可以复用现有 MemoryPack JSON 读取逻辑。</li>
+<li><code>JsonCfg/*.json</code>、MiniGame Puzzle 的 block/chessboard JSON 走 TextAsset + Newtonsoft，不能简单套 MemoryPack schema。</li>
+<li><code>DataManager</code> 中不少字段是派生字典或 KVTable 缓存；导出时不要把属性 getter 当作独立资源路径。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

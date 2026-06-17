@@ -1,0 +1,4085 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Beyond.Gameplay.Core Action 类型分析 - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#beyondgameplaycore-action" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Beyond.Gameplay.Core Action 类型分析
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-伤害与攻击" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        伤害与攻击
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="伤害与攻击">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#damage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Damage — 伤害
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setalloweddamagedecomask-mask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SetAllowedDamageDecoMask — 设置允许伤害装饰 Mask
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#launchprojectile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LaunchProjectile — 发射投射物
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#channelingdamage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ChannelingDamage — 引导伤害
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spellinfliction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SpellInfliction — 法术施加 (敌人)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spellinflictiononchar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SpellInflictionOnChar — 法术施加 (角色)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#createadditionalbattleshape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CreateAdditionalBattleShape — 创建额外战斗形状
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#waterdronehit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WaterDroneHit — 水无人机打击
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-角色位移" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        角色位移
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="角色位移">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#moveto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MoveTo — 移动到
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#movetotarget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MoveToTarget — 移动到目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#movetodirection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MoveToDirection — 按方向移动
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#movetoslot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MoveToSlot — 移动到槽位
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#movegait" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MoveGait — 移动步态
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changemovegaitmultiplier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ChangeMoveGaitMultiplier — 改变移动步态倍率
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkmovespeed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CheckMoveSpeed — 检查移动速度
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jumpto-jumptotarget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JumpTo / JumpToTarget — 跳跃
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teleport-teleportposselect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Teleport / TeleportPosSelect — 传送
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trytoteleportsquad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TryToTeleportSquad — 尝试传送小队
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#snaptotargetwithrange" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SnapToTargetWithRange — 吸附到目标范围内
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#selfrotate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SelfRotate — 自旋转
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lookat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LookAt — 注视
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customrootmotion-disablerootmotion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CustomRootMotion / DisableRootMotion — 根运动控制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#receivemoveinput" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ReceiveMoveInput — 接收移动输入
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#skillaimove-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SkillAIMove — 技能AI移动
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#charalertjump" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CharAlertJump — 角色警戒跳跃
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-击飞与控制" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        击飞与控制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="击飞与控制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#blowoffenemyactions-sealed-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BlowOffEnemyActions (sealed class)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BlowOffEnemyActions (sealed class)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#blowoffenemy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BlowOffEnemy — 击飞敌人
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#crush" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Crush — 粉碎击倒
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fracture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fracture — 破碎/骨折
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blowoff-blowoffcharacter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BlowOff / BlowOffCharacter — 击飞
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#airborne" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Airborne — 浮空
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#knockdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KnockDown — 击倒
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pushback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PushBack — 推开
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pull" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pull — 拉拽
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#launchupward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LaunchUpward — 向上发射
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#takedown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TakeDown — 击倒/擒拿
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slow — 减速
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interrupt-interruptcurskill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interrupt / InterruptCurSkill — 打断
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adddynamicccs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AddDynamicCcs — 添加动态控制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inheritccs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InheritCCS — 继承控制状态
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#elitebackswingbehit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EliteBackSwingBeHit — 精英后摇被击
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-索敌与目标选择" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        索敌与目标选择
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="索敌与目标选择">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#findtarget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FindTarget — 索敌
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuousfindtarget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ContinuousFindTarget — 持续索敌
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#converttotargetcontext" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ConvertToTargetContext — 转换为目标上下文
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mergetarget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MergeTarget — 合并目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#targetpostprocessor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TargetPostProcessor — 目标后处理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#savetargetdistance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SaveTargetDistance — 保存目标距离
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#savetwodirectionangle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SaveTwoDirectionAngle — 保存两方向角度
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#effectfindtarget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EffectFindTarget — 效果索敌
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-时停与时间控制" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        时停与时间控制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="时停与时间控制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#timedilation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TimeDilation — 时间膨胀/时停
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hitstop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HitStop — 打击停顿
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ultimatetime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UltimateTime — 大招时停
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pausecomboskilltime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PauseComboSkillTime — 暂停连招技能时间
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setignoreglobaltimescale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SetIgnoreGlobalTimeScale — 设置忽略全局时间缩放
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tickinterval-tick" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TickInterval — Tick间隔
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-条件判断与流程控制" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        条件判断与流程控制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="条件判断与流程控制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ifelse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IfElse — 条件分支
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#switch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Switch — 开关分支
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#foreach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ForEach — 遍历循环
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#random" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Random — 随机
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#togglable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Togglable — 可切换
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eventlistener" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EventListener — 事件监听
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jumpto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JumpTo — 跳转
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finishowner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FinishOwner — 结束自身
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#createtimedmarker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CreateTimedMarker — 创建定时标记
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditions-sealed-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditions (sealed class) — 条件判断体系
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-buff-操作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buff 操作
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Buff 操作">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#createbuff-buff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CreateBuff — 创建 Buff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finishbuff-finishbuffadvanced-finishbuffbytag-buff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FinishBuff / FinishBuffAdvanced / FinishBuffByTag — 结束 Buff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dispelaction-buff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DispelAction — 驱散 Buff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extendbuff-buff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ExtendBuff — 延长 Buff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inheritbuff-buff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InheritBuff — 继承 Buff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aura — 光环
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addtag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AddTag — 添加标签
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gettargetbuffbbadvanced-buff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GetTargetBuffBBAdvanced — 获取目标 Buff 黑板数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#savebuffstacknumadvanced-buff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SaveBuffStackNumAdvanced — 保存 Buff 堆叠数
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#savebuffstacknumbytag-buff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SaveBuffStackNumByTag — 按标签保存 Buff 堆叠数
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-治疗与防御" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        治疗与防御
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="治疗与防御">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#heal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Heal — 治疗
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#applyarmor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ApplyArmor — 应用护甲
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setsuperarmor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SetSuperArmor — 设置霸体
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setweakness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SetWeakness — 设置弱点
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recoverpoise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RecoverPoise — 恢复韧性
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-技能与资源" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技能与资源
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="技能与资源">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#combo-combocache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Combo / ComboCache — 连招
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#allownextskill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AllowNextSkill — 允许下一个技能
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changeskill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ChangeSkill — 改变技能
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporaryunlock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TemporaryUnlock — 临时解锁
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blockmoveinterruptskill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BlockMoveInterruptSkill — 阻止移动打断技能
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#obtaincost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ObtainCost — 获取消耗
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#obtainuspinnormalskill-usp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ObtainUspInNormalSkill — 在普通技能中获得 USP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gainbreakingattackatb-atb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GainBreakingAttackAtb — 获得破防攻击 ATB
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setskillcdatonce-cd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SetSkillCdAtOnce — 立即设置技能 CD
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changegeneralabilitybutton" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ChangeGeneralAbilityButton — 切换通用能力按钮
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setgeneralabilitycd-cd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SetGeneralAbilityCd — 设置通用能力 CD
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markcaninterrupt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MarkCanInterrupt — 标记可打断
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markcandash-dash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MarkCanDash — 标记当前技能允许 Dash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#channeling-channelingcasting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Channeling / ChannelingCasting — 引导
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-ai-与指令" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI 与指令
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AI 与指令">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#commandtocharacters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CommandToCharacters — 向角色发指令
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#broadcastalerttocharacters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BroadcastAlertToCharacters — 广播警戒
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addaimarker-removeaimarker-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AddAIMarker / RemoveAIMarker — AI 标记
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getaitransdata-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GetAITransData — 获取 AI 传送数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#savevaluefromaiblackboard-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SaveValueFromAIBlackboard — 从 AI 黑板保存值
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-计算与黑板" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        计算与黑板
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="计算与黑板">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modifydynamicblackboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ModifyDynamicBlackboard — 修改动态黑板
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#storeattributevalue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StoreAttributeValue — 存储属性值
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simplecalcbb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SimpleCalcBB — 简单计算黑板
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#curveevaluatefloat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CurveEvaluateFloat — 曲线求值
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comparefloat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CompareFloat — 比较浮点数
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dicefloat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DiceFloat — 骰子浮点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-其他游戏逻辑" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        其他游戏逻辑
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="其他游戏逻辑">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spawnabilityentity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SpawnAbilityEntity — 生成技能实体
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spawnenemy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SpawnEnemy — 生成敌人
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setabilityentitytomainchar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SetAbilityEntityToMainChar — 设置技能实体到主角
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#breakinteractive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BreakInteractive — 破坏交互物
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#throwpickupitemstart-throwpickupitem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ThrowPickupItemStart / ThrowPickupItem — 投掷拾取物品
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sendbattlesignaltolevel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SendBattleSignalToLevel — 发送战斗信号到关卡
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#switchmode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SwitchMode — 切换模式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adddynamicnavmeshobstacle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AddDynamicNavmeshObstacle — 添加动态导航网格障碍
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#physicscast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PhysicsCast — 物理投射
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finishangryonend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FinishAngryOnEnd — 结束愤怒
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-已排除的-action-列表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已排除的 Action 列表
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="已排除的 Action 列表">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        动画类 (已排除)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        效果类 (已排除)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        相机/镜头类 (已排除)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UI 类 (已排除)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        音效/语音类 (已排除)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        调试类 (已排除)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附录: Action 继承体系
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="beyondgameplaycore-action">Beyond.Gameplay.Core Action 类型分析<a class="headerlink" href="#beyondgameplaycore-action" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>筛选: 排除动画播放、效果创建、相机/镜头、UI、音效、调试等类型
+保留: 角色位移、索敌、伤害、击飞/控制、时停、条件判断、Buff、治疗、资源等游戏逻辑 Action</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-伤害与攻击">伤害与攻击</a></li>
+<li><a href="#2-角色位移">角色位移</a></li>
+<li><a href="#3-击飞与控制">击飞与控制</a></li>
+<li><a href="#4-索敌与目标选择">索敌与目标选择</a></li>
+<li><a href="#5-时停与时间控制">时停与时间控制</a></li>
+<li><a href="#6-条件判断与流程控制">条件判断与流程控制</a></li>
+<li><a href="#7-buff-操作">Buff 操作</a></li>
+<li><a href="#8-治疗与防御">治疗与防御</a></li>
+<li><a href="#9-技能与资源">技能与资源</a></li>
+<li><a href="#10-ai-与指令">AI 与指令</a></li>
+<li><a href="#11-计算与黑板">计算与黑板</a></li>
+<li><a href="#12-其他游戏逻辑">其他游戏逻辑</a></li>
+<li><a href="#13-已排除的-action-列表">已排除的 Action 列表</a></li>
+</ol>
+<hr />
+<h2 id="1-伤害与攻击">伤害与攻击<a class="headerlink" href="#1-伤害与攻击" title="Permanent link">&para;</a></h2>
+<h3 id="damage">Damage — 伤害<a class="headerlink" href="#damage" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>C#: Beyond.Gameplay.Core.DamageAction+DamageActionData
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>alwaysNext</code></td>
+<td>bool</td>
+<td>始终执行下一个 Action</td>
+</tr>
+<tr>
+<td><code>attacker</code></td>
+<td>ActionTargetType</td>
+<td>攻击方</td>
+</tr>
+<tr>
+<td><code>targetSettings</code></td>
+<td>TargetSettings</td>
+<td>目标设置</td>
+</tr>
+<tr>
+<td><code>effectSource</code></td>
+<td>TargetSettings</td>
+<td>效果来源 (用于播放受击特效的实体)</td>
+</tr>
+<tr>
+<td><code>damageUnits</code></td>
+<td>List\&lt;DamageUnit&gt;</td>
+<td>伤害段列表 (支持多段伤害)</td>
+</tr>
+<tr>
+<td><code>hitEnvironment</code></td>
+<td>bool</td>
+<td>是否启用环境打击</td>
+</tr>
+<tr>
+<td><code>hitEnvData</code></td>
+<td>HitEnvData</td>
+<td>环境打击数据</td>
+</tr>
+</tbody>
+</table>
+<p>每段 <code>DamageUnit</code> 包含伤害公式、属性类型、伤害修饰器等。支持 <code>_CalculateDamageResultByType</code> 分类型计算 (普通实体/独立生命/塔)。</p>
+<h3 id="setalloweddamagedecomask-mask">SetAllowedDamageDecoMask — 设置允许伤害装饰 Mask<a class="headerlink" href="#setalloweddamagedecomask-mask" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>C#: Beyond.Gameplay.Core.SetAllowedDamageDecoMask+Data
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>target</code></td>
+<td>TargetSettings</td>
+<td>设置目标</td>
+</tr>
+<tr>
+<td><code>mask</code></td>
+<td>DamageDecorateMask</td>
+<td>动作期间允许通过的伤害装饰 mask</td>
+</tr>
+</tbody>
+</table>
+<h3 id="launchprojectile">LaunchProjectile — 发射投射物<a class="headerlink" href="#launchprojectile" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>C#: Beyond.Gameplay.Core.LaunchProjectile+Data
+</code></pre></div>
+<p>发射一个投射物实体，投射物碰撞后触发后续 Action。</p>
+<h3 id="channelingdamage">ChannelingDamage — 引导伤害<a class="headerlink" href="#channelingdamage" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>C#: Beyond.Gameplay.Core.ChannelingDamageAction+Data
+</code></pre></div>
+<p>引导期间持续造成伤害，与 Channeling 配合使用。</p>
+<h3 id="spellinfliction">SpellInfliction — 法术施加 (敌人)<a class="headerlink" href="#spellinfliction" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>C#: Beyond.Gameplay.Core.SpellInfliction+Data
+</code></pre></div>
+<p>对敌人施加元素法术效果 (点燃/冻结/感电等)。</p>
+<h3 id="spellinflictiononchar">SpellInflictionOnChar — 法术施加 (角色)<a class="headerlink" href="#spellinflictiononchar" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>C#: Beyond.Gameplay.Core.SpellInflictionOnChar+Data
+</code></pre></div>
+<p>对角色施加元素法术效果。</p>
+<h3 id="createadditionalbattleshape">CreateAdditionalBattleShape — 创建额外战斗形状<a class="headerlink" href="#createadditionalbattleshape" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>C#: Beyond.Gameplay.Core.CreateAdditionalBattleShape+Data
+</code></pre></div>
+<p>动态创建战斗判定区域 (如圆形/扇形/矩形 AOE)。</p>
+<h3 id="waterdronehit">WaterDroneHit — 水无人机打击<a class="headerlink" href="#waterdronehit" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>C#: Beyond.Gameplay.WaterDroneHitAction+Data
+</code></pre></div>
+<p>水无人机特殊攻击判定。</p>
+<hr />
+<h2 id="2-角色位移">角色位移<a class="headerlink" href="#2-角色位移" title="Permanent link">&para;</a></h2>
+<h3 id="moveto">MoveTo — 移动到<a class="headerlink" href="#moveto" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>C#: Beyond.Gameplay.Core.MoveToAction+Data
+</code></pre></div>
+<h3 id="movetotarget">MoveToTarget — 移动到目标<a class="headerlink" href="#movetotarget" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>C#: Beyond.Gameplay.Core.MoveToTargetAction+Data
+</code></pre></div>
+<p>控制角色追踪并移动到目标实体。</p>
+<h3 id="movetodirection">MoveToDirection — 按方向移动<a class="headerlink" href="#movetodirection" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>C#: Beyond.Gameplay.Core.MoveToDirectionAction+Data
+</code></pre></div>
+<p>控制角色沿指定方向移动。</p>
+<h3 id="movetoslot">MoveToSlot — 移动到槽位<a class="headerlink" href="#movetoslot" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>C#: Beyond.Gameplay.Core.MoveToSlotAction+Data
+</code></pre></div>
+<h3 id="movegait">MoveGait — 移动步态<a class="headerlink" href="#movegait" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>C#: Beyond.Gameplay.Core.MoveGaitAction+Data
+</code></pre></div>
+<p>设置角色移动步态 (走路/跑步/冲刺等)。</p>
+<h3 id="changemovegaitmultiplier">ChangeMoveGaitMultiplier — 改变移动步态倍率<a class="headerlink" href="#changemovegaitmultiplier" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>C#: Beyond.Gameplay.Core.ChangeMoveGaitMultiplier+Data
+</code></pre></div>
+<p>调整移动步态的速度倍率。</p>
+<h3 id="checkmovespeed">CheckMoveSpeed — 检查移动速度<a class="headerlink" href="#checkmovespeed" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>C#: Beyond.Gameplay.Core.CheckMoveSpeed+Data
+</code></pre></div>
+<p>条件判断: 检查角色当前移动速度是否满足条件。</p>
+<h3 id="jumpto-jumptotarget">JumpTo / JumpToTarget — 跳跃<a class="headerlink" href="#jumpto-jumptotarget" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>C#: Beyond.Gameplay.Core.JumpToAction+Data
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>C#: Beyond.Gameplay.Core.JumpToTargetAction+Data
+</code></pre></div>
+<h3 id="teleport-teleportposselect">Teleport / TeleportPosSelect — 传送<a class="headerlink" href="#teleport-teleportposselect" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>C#: Beyond.Gameplay.Core.TeleportAction+Data
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>C#: Beyond.Gameplay.Core.TeleportPosSelectAction+Data
+</code></pre></div>
+<h3 id="trytoteleportsquad">TryToTeleportSquad — 尝试传送小队<a class="headerlink" href="#trytoteleportsquad" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>C#: Beyond.Gameplay.Core.TryToTeleportSquadAction+Data
+</code></pre></div>
+<h3 id="snaptotargetwithrange">SnapToTargetWithRange — 吸附到目标范围内<a class="headerlink" href="#snaptotargetwithrange" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>C#: Beyond.Gameplay.Core.SnapToTargetWithRangeAction+Data
+</code></pre></div>
+<p>将角色吸附到目标的指定距离范围内。</p>
+<h3 id="selfrotate">SelfRotate — 自旋转<a class="headerlink" href="#selfrotate" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>C#: Beyond.Gameplay.Core.SelfRotateAction+Data
+</code></pre></div>
+<p>控制角色自身旋转到指定方向。</p>
+<h3 id="lookat">LookAt — 注视<a class="headerlink" href="#lookat" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>C#: Beyond.Gameplay.Core.LookAtAction+LookAtActionData
+</code></pre></div>
+<p>让角色注视目标实体。</p>
+<h3 id="customrootmotion-disablerootmotion">CustomRootMotion / DisableRootMotion — 根运动控制<a class="headerlink" href="#customrootmotion-disablerootmotion" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>C#: Beyond.Gameplay.Core.CustomRootMotionAction+Data
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>C#: Beyond.Gameplay.Core.DisableRootMotionAction+Data
+</code></pre></div>
+<ul>
+<li><code>CustomRootMotion</code>: 应用自定义根运动</li>
+<li><code>DisableRootMotion</code>: 禁用动画根运动 (让角色不被动画驱动位移)</li>
+</ul>
+<h3 id="receivemoveinput">ReceiveMoveInput — 接收移动输入<a class="headerlink" href="#receivemoveinput" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>C#: Beyond.Gameplay.Core.ReceiveMoveInputAction+Data
+</code></pre></div>
+<p>启用/禁用角色接收玩家移动输入。</p>
+<h3 id="skillaimove-ai">SkillAIMove — 技能AI移动<a class="headerlink" href="#skillaimove-ai" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>C#: Beyond.Gameplay.Core.SkillAIMoveAction+Data
+</code></pre></div>
+<p>AI 控制的技能位移 (用于敌人技能)。</p>
+<h3 id="charalertjump">CharAlertJump — 角色警戒跳跃<a class="headerlink" href="#charalertjump" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>C#: Beyond.Gameplay.Core.CharAlertJumpAction+CharAlertJumpActionData
+</code></pre></div>
+<p>角色进入警戒状态时的跳跃行为 (用于敌人AI)。</p>
+<hr />
+<ul>
+<li><code>SwitchAction</code>：按 <code>choice</code> 解析黑板值，匹配 <code>options[].value</code> 后执行对应 <code>actionData</code>。<code>alwaysNext=false</code> 时，如果没有命中 option，或命中的子序列返回失败，会停止父序列后续 action；<code>alwaysNext=true</code> 时保持继续执行。</li>
+<li><code>ForEachAction</code>：按 <code>target</code> 解析目标列表，逐个把 <code>targetEntity</code> 切换为当前目标并执行子 <code>action</code>，用于 target group 多目标分发。</li>
+<li><code>RandomAction</code>：按 <code>randomType</code> 在 <code>minValue/maxValue</code> 范围内生成 <code>Int</code> 或 <code>Float</code>，并写入 <code>targetBlackboardKey</code>；支持 <code>EntityBB_</code> 动态路由。</li>
+</ul>
+<hr />
+<h2 id="3-击飞与控制">击飞与控制<a class="headerlink" href="#3-击飞与控制" title="Permanent link">&para;</a></h2>
+<h3 id="blowoffenemyactions-sealed-class">BlowOffEnemyActions (sealed class)<a class="headerlink" href="#blowoffenemyactions-sealed-class" title="Permanent link">&para;</a></h3>
+<h4 id="blowoffenemy">BlowOffEnemy — 击飞敌人<a class="headerlink" href="#blowoffenemy" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>C#: Beyond.Gameplay.Core.BlowOffEnemyAction+Data
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attackerTargetSettings</code></td>
+<td>TargetSettings</td>
+<td>攻击方设置</td>
+</tr>
+<tr>
+<td><code>targetSettings</code></td>
+<td>TargetSettings</td>
+<td>目标设置</td>
+</tr>
+<tr>
+<td><code>blowOffDistance</code></td>
+<td>BlackboardDouble</td>
+<td>击飞距离</td>
+</tr>
+<tr>
+<td><code>distanceRandomRange</code></td>
+<td>BlackboardDouble</td>
+<td>距离随机范围</td>
+</tr>
+<tr>
+<td><code>overwriteHeight</code></td>
+<td>bool</td>
+<td>覆盖高度</td>
+</tr>
+<tr>
+<td><code>blowOffHeight</code></td>
+<td>BlackboardDouble</td>
+<td>击飞高度</td>
+</tr>
+<tr>
+<td><code>directionSettings</code></td>
+<td>DirectionSettings</td>
+<td>击飞方向设置</td>
+</tr>
+<tr>
+<td><code>totalTime</code></td>
+<td>BlackboardDouble</td>
+<td>总击飞时间</td>
+</tr>
+<tr>
+<td><code>isExtra</code></td>
+<td>bool</td>
+<td>是否额外击飞</td>
+</tr>
+<tr>
+<td><code>deadOption</code></td>
+<td>ControlledStateDeadOption</td>
+<td>对死亡目标的行为</td>
+</tr>
+</tbody>
+</table>
+<h4 id="crush">Crush — 粉碎击倒<a class="headerlink" href="#crush" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>C#: Beyond.Gameplay.Core.CrushAction+Data
+</code></pre></div>
+<p>继承击飞的所有字段，额外：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>damageMultiplier</code></td>
+<td>BlackboardDouble</td>
+<td>粉碎伤害倍率</td>
+</tr>
+<tr>
+<td><code>immobilizedTime</code></td>
+<td>float</td>
+<td>倒地硬直时间</td>
+</tr>
+</tbody>
+</table>
+<h4 id="fracture">Fracture — 破碎/骨折<a class="headerlink" href="#fracture" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>C#: Beyond.Gameplay.Core.FractureAction+Data
+</code></pre></div>
+<p>继承击飞的所有字段，额外：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>immobilizedTime</code></td>
+<td>float</td>
+<td>硬直时间</td>
+</tr>
+</tbody>
+</table>
+<h3 id="blowoff-blowoffcharacter">BlowOff / BlowOffCharacter — 击飞<a class="headerlink" href="#blowoff-blowoffcharacter" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>C#: Beyond.Gameplay.Core.BlowOffAction+Data
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>C#: Beyond.Gameplay.Core.BlowOffCharacterAction+Data
+</code></pre></div>
+<ul>
+<li><code>BlowOffCharacter</code>: 专门击飞角色</li>
+</ul>
+<h3 id="airborne">Airborne — 浮空<a class="headerlink" href="#airborne" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>C#: Beyond.Gameplay.Core.AirborneAction+AirborneActionData
+</code></pre></div>
+<p>将目标打入浮空状态。</p>
+<h3 id="knockdown">KnockDown — 击倒<a class="headerlink" href="#knockdown" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>C#: Beyond.Gameplay.Core.KnockDownAction+Data
+</code></pre></div>
+<p>将目标击倒在地。</p>
+<h3 id="pushback">PushBack — 推开<a class="headerlink" href="#pushback" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>C#: Beyond.Gameplay.Core.PushBackAction+Data
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attackerTargetSettings</code></td>
+<td>TargetSettings</td>
+<td>攻击方</td>
+</tr>
+<tr>
+<td><code>sourcePointSettings</code></td>
+<td>TargetSettings</td>
+<td>推力源点</td>
+</tr>
+<tr>
+<td><code>targetSettings</code></td>
+<td>TargetSettings</td>
+<td>目标</td>
+</tr>
+<tr>
+<td><code>pushBackDirection</code></td>
+<td>DirectionType</td>
+<td>推开方向</td>
+</tr>
+<tr>
+<td><code>pushBackDistance</code></td>
+<td>BlackboardDouble</td>
+<td>推开距离</td>
+</tr>
+<tr>
+<td><code>distanceCurveEnabled</code></td>
+<td>bool</td>
+<td>启用距离曲线</td>
+</tr>
+<tr>
+<td><code>distanceCurve</code></td>
+<td>AnimationCurve</td>
+<td>距离变化曲线</td>
+</tr>
+<tr>
+<td><code>pushBackTime</code></td>
+<td>BlackboardDouble</td>
+<td>推开持续时间</td>
+</tr>
+<tr>
+<td><code>unmovableTime</code></td>
+<td>BlackboardDouble</td>
+<td>不可移动时间 (硬直)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pull">Pull — 拉拽<a class="headerlink" href="#pull" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>C#: Beyond.Gameplay.Core.PullAction+Data
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>targetSettings</code></td>
+<td>TargetSettings</td>
+<td>目标</td>
+</tr>
+<tr>
+<td><code>pullSpeed</code></td>
+<td>float</td>
+<td>拉拽速度</td>
+</tr>
+<tr>
+<td><code>isInfinity</code></td>
+<td>bool</td>
+<td>无限拉拽</td>
+</tr>
+<tr>
+<td><code>pullDuration</code></td>
+<td>float</td>
+<td>拉拽持续时间</td>
+</tr>
+<tr>
+<td><code>stopTolerance</code></td>
+<td>float</td>
+<td>停止容差</td>
+</tr>
+<tr>
+<td><code>unmovable</code></td>
+<td>bool</td>
+<td>不可移动</td>
+</tr>
+<tr>
+<td><code>destination</code></td>
+<td>TargetSettings</td>
+<td>拉拽终点</td>
+</tr>
+<tr>
+<td><code>pullTargetType</code></td>
+<td>PullTargetType</td>
+<td>目标类型 (Enemy/Character)</td>
+</tr>
+<tr>
+<td><code>attenuationBySuperArmor</code></td>
+<td>bool</td>
+<td>霸体衰减</td>
+</tr>
+<tr>
+<td><code>attenuationValues</code></td>
+<td>List\&lt;PullAttenuationValueConfig&gt;</td>
+<td>衰减值配置</td>
+</tr>
+</tbody>
+</table>
+<h3 id="launchupward">LaunchUpward — 向上发射<a class="headerlink" href="#launchupward" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>C#: Beyond.Gameplay.Core.LaunchUpwardAction+Data
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>source</code></td>
+<td>TargetSettings</td>
+<td>发射来源</td>
+</tr>
+<tr>
+<td><code>target</code></td>
+<td>TargetSettings</td>
+<td>目标</td>
+</tr>
+<tr>
+<td><code>teammateBigStagger</code></td>
+<td>bool</td>
+<td>队友大硬直</td>
+</tr>
+<tr>
+<td><code>floatingDuration</code></td>
+<td>BlackboardDouble</td>
+<td>浮空持续时间</td>
+</tr>
+<tr>
+<td><code>floatingHeight</code></td>
+<td>BlackboardDouble</td>
+<td>浮空高度</td>
+</tr>
+<tr>
+<td><code>speedFactorMultiplier</code></td>
+<td>float</td>
+<td>速度系数</td>
+</tr>
+<tr>
+<td><code>faceDirection</code></td>
+<td>DirectionSettings</td>
+<td>朝向</td>
+</tr>
+<tr>
+<td><code>immobilizedTime</code></td>
+<td>float</td>
+<td>硬直时间</td>
+</tr>
+</tbody>
+</table>
+<h3 id="takedown">TakeDown — 击倒/擒拿<a class="headerlink" href="#takedown" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>C#: Beyond.Gameplay.Core.TakeDownAction+Data
+</code></pre></div>
+<p>将敌人击倒并控制住。</p>
+<h3 id="slow">Slow — 减速<a class="headerlink" href="#slow" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>C#: Beyond.Gameplay.Core.SlowAction+Data
+</code></pre></div>
+<p>对目标施加减速效果。</p>
+<h3 id="interrupt-interruptcurskill">Interrupt / InterruptCurSkill — 打断<a class="headerlink" href="#interrupt-interruptcurskill" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>C#: Beyond.Gameplay.Core.InterruptAction+Data
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>C#: Beyond.Gameplay.Core.AbilityActions.InterruptCurSkillAction+Data
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段 (Interrupt)</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attacker</code></td>
+<td>TargetSettings</td>
+<td>攻击方</td>
+</tr>
+<tr>
+<td><code>defender</code></td>
+<td>TargetSettings</td>
+<td>防御方</td>
+</tr>
+<tr>
+<td><code>overrideSuperArmorLimit</code></td>
+<td>int</td>
+<td>覆盖霸体限制</td>
+</tr>
+<tr>
+<td><code>immobilizedTime</code></td>
+<td>float</td>
+<td>打断后硬直时间</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>Interrupt</code>: 打断目标当前技能</li>
+<li><code>InterruptCurSkill</code>: 打断当前自身技能</li>
+</ul>
+<h3 id="adddynamicccs">AddDynamicCcs — 添加动态控制<a class="headerlink" href="#adddynamicccs" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>C#: Beyond.Gameplay.Core.AddDynamicCcsAction+AddDynamicCcsActionData
+</code></pre></div>
+<p>动态添加群体控制效果 (Crowd Control Stack)。</p>
+<h3 id="inheritccs">InheritCCS — 继承控制状态<a class="headerlink" href="#inheritccs" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>C#: Beyond.Gameplay.Core.InheritCCSAction+Data
+</code></pre></div>
+<p>从来源实体继承群体控制状态栈。</p>
+<h3 id="elitebackswingbehit">EliteBackSwingBeHit — 精英后摇被击<a class="headerlink" href="#elitebackswingbehit" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>C#: Beyond.Gameplay.Core.EliteBackSwingBeHit+Data
+</code></pre></div>
+<p>精英敌人在后摇期间被击中时的特殊反应。</p>
+<hr />
+<h2 id="4-索敌与目标选择">索敌与目标选择<a class="headerlink" href="#4-索敌与目标选择" title="Permanent link">&para;</a></h2>
+<h3 id="findtarget">FindTarget — 索敌<a class="headerlink" href="#findtarget" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>C#: Beyond.Gameplay.Core.FindTargetAction+FindTargetActionData
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>targetGroupKey</code></td>
+<td>string</td>
+<td>目标组键 (用于后续 Action 引用)</td>
+</tr>
+<tr>
+<td><code>center</code></td>
+<td>ActionTargetType</td>
+<td>搜索中心</td>
+</tr>
+<tr>
+<td><code>centerContextKey</code></td>
+<td>string</td>
+<td>中心上下文键</td>
+</tr>
+<tr>
+<td><code>useCenterEntityMountPoint</code></td>
+<td>bool</td>
+<td>使用实体挂点作为中心</td>
+</tr>
+<tr>
+<td><code>centerMountPoint</code></td>
+<td>MountPoint</td>
+<td>挂点类型</td>
+</tr>
+<tr>
+<td><code>centerToGround</code></td>
+<td>bool</td>
+<td>中心投影到地面</td>
+</tr>
+<tr>
+<td><code>selectorOwner</code></td>
+<td>ActionTargetType</td>
+<td>选择器所有者</td>
+</tr>
+<tr>
+<td><code>selectorData</code></td>
+<td>SelectorData</td>
+<td>选择器数据 (形状/条件/过滤)</td>
+</tr>
+<tr>
+<td><code>selectorDirection</code></td>
+<td>DirectionType</td>
+<td>选择器方向</td>
+</tr>
+<tr>
+<td><code>target</code></td>
+<td>ActionTargetType</td>
+<td>输出目标类型</td>
+</tr>
+<tr>
+<td><code>contextKey</code></td>
+<td>string</td>
+<td>输出上下文键</td>
+</tr>
+<tr>
+<td><code>useAdvancedDirectionSetting</code></td>
+<td>bool</td>
+<td>使用高级方向设置</td>
+</tr>
+<tr>
+<td><code>advancedSelectorDirection</code></td>
+<td>DirectionSettings</td>
+<td>高级方向设置</td>
+</tr>
+</tbody>
+</table>
+<h3 id="continuousfindtarget">ContinuousFindTarget — 持续索敌<a class="headerlink" href="#continuousfindtarget" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>C#: Beyond.Gameplay.Core.ContinuousFindTargetAction+Data
+</code></pre></div>
+<p>持续更新搜索目标 (用于引导类技能)。</p>
+<h3 id="converttotargetcontext">ConvertToTargetContext — 转换为目标上下文<a class="headerlink" href="#converttotargetcontext" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>C#: Beyond.Gameplay.Core.ConvertToTargetContext+Data
+</code></pre></div>
+<p>将实体引用转换为目标上下文格式，供后续 Action 使用。</p>
+<h3 id="mergetarget">MergeTarget — 合并目标<a class="headerlink" href="#mergetarget" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>C#: Beyond.Gameplay.Core.MergeTargetAction+Data
+</code></pre></div>
+<p>合并多个目标上下文为一个目标列表。</p>
+<h3 id="targetpostprocessor">TargetPostProcessor — 目标后处理<a class="headerlink" href="#targetpostprocessor" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>C#: Beyond.Gameplay.Core.TargetPostProcessorAction+Data
+</code></pre></div>
+<p>对搜索结果进行后处理 (排序/过滤/限制数量)。</p>
+<h3 id="savetargetdistance">SaveTargetDistance — 保存目标距离<a class="headerlink" href="#savetargetdistance" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>C#: Beyond.Gameplay.Core.SaveTargetDistanceAction+Data
+</code></pre></div>
+<p>计算并保存两个目标之间的距离到黑板。</p>
+<h3 id="savetwodirectionangle">SaveTwoDirectionAngle — 保存两方向角度<a class="headerlink" href="#savetwodirectionangle" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>C#: Beyond.Gameplay.Core.SaveTwoDirectionAngle+Data
+</code></pre></div>
+<p>计算两个方向之间的角度并保存到黑板。</p>
+<h3 id="effectfindtarget">EffectFindTarget — 效果索敌<a class="headerlink" href="#effectfindtarget" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>C#: Beyond.Gameplay.Core.EffectFindTargetAction+Data
+</code></pre></div>
+<p>在效果系统中查找目标 (用于受击特效定位等)。虽然带 "Effect" 名字，但本质是索敌逻辑。</p>
+<hr />
+<h2 id="5-时停与时间控制">时停与时间控制<a class="headerlink" href="#5-时停与时间控制" title="Permanent link">&para;</a></h2>
+<h3 id="timedilation">TimeDilation — 时间膨胀/时停<a class="headerlink" href="#timedilation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>C#: Beyond.Gameplay.Core.TimeDilationAction+Data
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>layer</code></td>
+<td>TimeDilationTarget</td>
+<td>影响层级 (Attacker/Target/Both/Global)</td>
+</tr>
+<tr>
+<td><code>slot</code></td>
+<td>GameplayTag</td>
+<td>时间槽位标签</td>
+</tr>
+<tr>
+<td><code>timeDilationPriority</code></td>
+<td>GameplayTag</td>
+<td>时停优先级 (高优先级覆盖低)</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>BlackboardDouble</td>
+<td>持续时间</td>
+</tr>
+<tr>
+<td><code>useCurveKey</code></td>
+<td>bool</td>
+<td>使用曲线键</td>
+</tr>
+<tr>
+<td><code>curveKey</code></td>
+<td>string</td>
+<td>曲线键 (从 CurveConfig 读取)</td>
+</tr>
+<tr>
+<td><code>timeScaleCurve</code></td>
+<td>AnimationCurve</td>
+<td>时间缩放曲线 (直接定义)</td>
+</tr>
+<tr>
+<td><code>finishByAction</code></td>
+<td>bool</td>
+<td>被后续 Action 结束</td>
+</tr>
+<tr>
+<td><code>ignoreTargets</code></td>
+<td>List\&lt;TargetSettings&gt;</td>
+<td>忽略的目标</td>
+</tr>
+<tr>
+<td><code>effectTargets</code></td>
+<td>List\&lt;TargetSettings&gt;</td>
+<td>需要播放效果的目标</td>
+</tr>
+<tr>
+<td><code>useTimeScaleForSkillCdTick</code></td>
+<td>bool</td>
+<td>是否影响技能CD计时</td>
+</tr>
+<tr>
+<td><code>influenceSkillCdTime</code></td>
+<td>BlackboardDouble</td>
+<td>影响的技能CD时间</td>
+</tr>
+</tbody>
+</table>
+<h3 id="hitstop">HitStop — 打击停顿<a class="headerlink" href="#hitstop" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>C#: Beyond.Gameplay.Core.HitStopAction+Data
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>affectType</code></td>
+<td>AffectType</td>
+<td>影响类型 (OnlyAttacker/OnlyTarget/Both)</td>
+</tr>
+<tr>
+<td><code>curveKey</code></td>
+<td>string</td>
+<td>时间曲线键</td>
+</tr>
+<tr>
+<td><code>useDirectCurve</code></td>
+<td>bool</td>
+<td>使用直接曲线</td>
+</tr>
+<tr>
+<td><code>directCurve</code></td>
+<td>AnimationCurve</td>
+<td>直接定义的曲线</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>float</td>
+<td>停顿持续时间</td>
+</tr>
+<tr>
+<td><code>timeDilationPriority</code></td>
+<td>GameplayTag</td>
+<td>停顿优先级</td>
+</tr>
+<tr>
+<td><code>attacker</code></td>
+<td>TargetSettings</td>
+<td>攻击方 (停顿方)</td>
+</tr>
+<tr>
+<td><code>target</code></td>
+<td>TargetSettings</td>
+<td>目标方 (停顿方)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ultimatetime">UltimateTime — 大招时停<a class="headerlink" href="#ultimatetime" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>C#: Beyond.Gameplay.Core.UltimateTimeAction+Data
+</code></pre></div>
+<p>释放大招时的全局时停效果 (通常比普通 HitStop 更长，影响范围更广)。</p>
+<h3 id="pausecomboskilltime">PauseComboSkillTime — 暂停连招技能时间<a class="headerlink" href="#pausecomboskilltime" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>C#: Beyond.Gameplay.Core.PauseComboSkillTime+Data
+</code></pre></div>
+<p>在连招切换期间暂停技能时间窗口。</p>
+<h3 id="setignoreglobaltimescale">SetIgnoreGlobalTimeScale — 设置忽略全局时间缩放<a class="headerlink" href="#setignoreglobaltimescale" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>C#: Beyond.Gameplay.Core.SetIgnoreGlobalTimeScaleAction+Data
+</code></pre></div>
+<p>让特定实体忽略全局时间缩放 (不被打断/时停影响)。</p>
+<h3 id="tickinterval-tick">TickInterval — Tick间隔<a class="headerlink" href="#tickinterval-tick" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>C#: Beyond.Gameplay.Core.TickIntervalAction+Data
+</code></pre></div>
+<p>控制 Action 序列的 tick 间隔 (类似 WaitAction)。</p>
+<h2 id="6-条件判断与流程控制">条件判断与流程控制<a class="headerlink" href="#6-条件判断与流程控制" title="Permanent link">&para;</a></h2>
+<h3 id="ifelse">IfElse — 条件分支<a class="headerlink" href="#ifelse" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>C#: Beyond.Gameplay.Core.IfElseAction+IfElseActionData
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conditionAction</code></td>
+<td>SequenceActionData</td>
+<td>条件判断序列 (返回来决定分支)</td>
+</tr>
+<tr>
+<td><code>succeedActions</code></td>
+<td>SequenceActionData</td>
+<td>条件为真时执行的序列</td>
+</tr>
+<tr>
+<td><code>failActions</code></td>
+<td>SequenceActionData</td>
+<td>条件为假时执行的序列</td>
+</tr>
+<tr>
+<td><code>alwaysNext</code></td>
+<td>bool</td>
+<td>始终继续执行后续 Action</td>
+</tr>
+</tbody>
+</table>
+<h3 id="switch">Switch — 开关分支<a class="headerlink" href="#switch" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a>C#: Beyond.Gameplay.Core.SwitchAction+Data
+</code></pre></div>
+<p>多路分支选择，根据条件值跳转到不同的 Action 序列。</p>
+<h3 id="foreach">ForEach — 遍历循环<a class="headerlink" href="#foreach" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a>C#: Beyond.Gameplay.Core.ForEachAction+Data
+</code></pre></div>
+<p>遍历目标列表，对每个目标执行子 Action 序列。</p>
+<h3 id="random">Random — 随机<a class="headerlink" href="#random" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>C#: Beyond.Gameplay.Core.RandomAction+Data
+</code></pre></div>
+<p>随机选择一个子 Action 执行 (可配置权重)。</p>
+<h3 id="togglable">Togglable — 可切换<a class="headerlink" href="#togglable" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a>C#: Beyond.Gameplay.Core.TogglableAction+Data
+</code></pre></div>
+<p>条件控制的开关: 条件为真时激活，为假时关闭。</p>
+<h3 id="eventlistener">EventListener — 事件监听<a class="headerlink" href="#eventlistener" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a>C#: Beyond.Gameplay.Core.EventListenerAction+Data
+</code></pre></div>
+<h3 id="jumpto">JumpTo — 跳转<a class="headerlink" href="#jumpto" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a>C#: Beyond.Gameplay.Core.JumpToAction+Data
+</code></pre></div>
+<p>无条件跳转到指定 Action 标签 (goto)。</p>
+<h3 id="finishowner">FinishOwner — 结束自身<a class="headerlink" href="#finishowner" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a>C#: Beyond.Gameplay.Core.FinishOwnerAction+Data
+</code></pre></div>
+<h3 id="createtimedmarker">CreateTimedMarker — 创建定时标记<a class="headerlink" href="#createtimedmarker" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a>C#: Beyond.Gameplay.Core.CreateTimedMarker+Data
+</code></pre></div>
+<p>在时间线上创建标记，供后续条件判断使用。</p>
+<h3 id="conditions-sealed-class">Conditions (sealed class) — 条件判断体系<a class="headerlink" href="#conditions-sealed-class" title="Permanent link">&para;</a></h3>
+<p>所有条件判断 Action 的共同基类。</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Data type</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OrCondition</code></td>
+<td><code>Conditions.OrConditionAction+Data</code></td>
+<td>或条件: 多个子条件任一满足</td>
+</tr>
+<tr>
+<td><code>CheckTargetsEqual</code></td>
+<td><code>Conditions.CheckTargetsEqual+Data</code></td>
+<td>检查两个目标是否相同</td>
+</tr>
+<tr>
+<td><code>CheckAllowNormalSkillHighlight</code></td>
+<td><code>Conditions.CheckAllowNormalSkillHighlight+Data</code></td>
+<td>检查是否允许普攻高亮</td>
+</tr>
+<tr>
+<td><code>CheckHp</code></td>
+<td><code>Conditions.CheckHp+Data</code></td>
+<td>检查 HP 百分比/绝对值</td>
+</tr>
+<tr>
+<td><code>CheckEntityNum</code></td>
+<td><code>Conditions.CheckEntityNum+Data</code></td>
+<td>检查实体数量</td>
+</tr>
+<tr>
+<td><code>CheckMainCharacterCondition</code></td>
+<td><code>Conditions.CheckMainCharacterCondition+Data</code></td>
+<td>检查主角状态</td>
+</tr>
+<tr>
+<td><code>CheckTwoDirectionAngle</code></td>
+<td><code>Conditions.CheckTwoDirectionAngle+Data</code></td>
+<td>检查两方向夹角</td>
+</tr>
+<tr>
+<td><code>CheckObjectTypeMatch</code></td>
+<td><code>Conditions.CheckObjectTypeMatch+Data</code></td>
+<td>检查对象类型匹配</td>
+</tr>
+<tr>
+<td><code>CheckBuffStackNum</code></td>
+<td><code>Conditions.CheckBuffStackNum+Data</code></td>
+<td>检查 Buff 堆叠层数</td>
+</tr>
+<tr>
+<td><code>CheckTimedMarkerCondition</code></td>
+<td><code>Conditions.CheckTimedMarkerCondition+Data</code></td>
+<td>检查定时标记状态</td>
+</tr>
+<tr>
+<td><code>CheckTagMatch</code></td>
+<td><code>Conditions.CheckTagMatch+Data</code></td>
+<td>检查 GameplayTag 匹配</td>
+</tr>
+<tr>
+<td><code>Probablity</code></td>
+<td><code>Conditions.Probablity+Data</code></td>
+<td>概率条件 (随机判定)</td>
+</tr>
+<tr>
+<td><code>CheckSquadInFight</code></td>
+<td><code>Conditions.CheckSquadInFight+Data</code></td>
+<td>检查小队是否在战斗中</td>
+</tr>
+<tr>
+<td><code>CheckDistanceCondition</code></td>
+<td><code>Conditions.CheckDistanceCondition+Data</code></td>
+<td>检查距离条件</td>
+</tr>
+<tr>
+<td><code>CheckBuffStackNumAdvanced</code></td>
+<td><code>Conditions.CheckBuffStackNumAdvanced+Data</code></td>
+<td>检查 Buff 堆叠数 (高级版)</td>
+</tr>
+<tr>
+<td><code>IgnoreModelIntervalCheck</code></td>
+<td><code>Conditions.IgnoreModelIntervalCheck+Data</code></td>
+<td>忽略模型间隔检查</td>
+</tr>
+<tr>
+<td><code>CheckSkillType</code></td>
+<td><code>Conditions.CheckSkillType+Data</code></td>
+<td>检查技能类型</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-buff-操作">Buff 操作<a class="headerlink" href="#7-buff-操作" title="Permanent link">&para;</a></h2>
+<h3 id="createbuff-buff">CreateBuff — 创建 Buff<a class="headerlink" href="#createbuff-buff" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a>C#: Beyond.Gameplay.Core.CreateBuffAction+Data
+</code></pre></div>
+<p>在目标上创建 Buff 实例。内部调用 <code>_AddBuffInternal</code> → <code>BuffContainer::CreateBuff</code>。</p>
+<h3 id="finishbuff-finishbuffadvanced-finishbuffbytag-buff">FinishBuff / FinishBuffAdvanced / FinishBuffByTag — 结束 Buff<a class="headerlink" href="#finishbuff-finishbuffadvanced-finishbuffbytag-buff" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a>C#: Beyond.Gameplay.Core.AbilityActions.FinishBuffAction+Data
+<a id="__codelineno-64-2" name="__codelineno-64-2" href="#__codelineno-64-2"></a>C#: Beyond.Gameplay.Core.FinishBuffAdvanced+Data
+<a id="__codelineno-64-3" name="__codelineno-64-3" href="#__codelineno-64-3"></a>C#: Beyond.Gameplay.Core.FinishBuffByTag+Data
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段 (FinishBuffAdvanced)</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>buffOwner</code></td>
+<td>TargetSettings</td>
+<td>Buff 所有者</td>
+</tr>
+<tr>
+<td><code>buffSettings</code></td>
+<td>BuffFindSettings</td>
+<td>Buff 查找设置</td>
+</tr>
+<tr>
+<td><code>finishAll</code></td>
+<td>bool</td>
+<td>是否结束所有匹配的 Buff</td>
+</tr>
+<tr>
+<td><code>finishLayerCnt</code></td>
+<td>BlackboardDouble</td>
+<td>结束层数</td>
+</tr>
+<tr>
+<td><code>limitSource</code></td>
+<td>bool</td>
+<td>限制来源</td>
+</tr>
+<tr>
+<td><code>buffSource</code></td>
+<td>TargetSettings</td>
+<td>Buff 来源 (与 limitSource 配合)</td>
+</tr>
+<tr>
+<td><code>isFinishedEarly</code></td>
+<td>bool</td>
+<td>是否提前结束</td>
+</tr>
+<tr>
+<td><code>finishSource</code></td>
+<td>TargetSettings</td>
+<td>结束来源</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>FinishBuff</code>: 基础版，按 buffId 结束</li>
+<li><code>FinishBuffAdvanced</code>: 高级版，支持更多查找和过滤条件</li>
+<li><code>FinishBuffByTag</code>: 按 GameplayTag 结束 Buff</li>
+</ul>
+<h3 id="dispelaction-buff">DispelAction — 驱散 Buff<a class="headerlink" href="#dispelaction-buff" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a>C#: Beyond.Gameplay.Core.DispelAction+Data
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dispelSource</code></td>
+<td>TargetSettings</td>
+<td>驱散来源</td>
+</tr>
+<tr>
+<td><code>dispelTargets</code></td>
+<td>TargetSettings</td>
+<td>被驱散目标</td>
+</tr>
+<tr>
+<td><code>dispelLevel</code></td>
+<td>DispelLevel</td>
+<td>驱散等级</td>
+</tr>
+<tr>
+<td><code>checkTag</code></td>
+<td>bool</td>
+<td>是否按标签过滤</td>
+</tr>
+<tr>
+<td><code>tagQuery</code></td>
+<td>GameplayTagQuery</td>
+<td>Buff 标签过滤条件</td>
+</tr>
+</tbody>
+</table>
+<h3 id="extendbuff-buff">ExtendBuff — 延长 Buff<a class="headerlink" href="#extendbuff-buff" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-66-1" name="__codelineno-66-1" href="#__codelineno-66-1"></a>C#: Beyond.Gameplay.Core.ExtendBuffAction+Data
+</code></pre></div>
+<p>延长目标 Buff 的持续时间 (对应 BuffStackingGroup 的 Extend 策略)。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>buffOwner</code></td>
+<td>TargetSettings</td>
+<td>持有待延长 Buff 的实体</td>
+</tr>
+<tr>
+<td><code>buffSettings</code></td>
+<td>BuffFindSettings</td>
+<td>Buff 查找条件</td>
+</tr>
+</tbody>
+</table>
+<h3 id="inheritbuff-buff">InheritBuff — 继承 Buff<a class="headerlink" href="#inheritbuff-buff" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a>C#: Beyond.Gameplay.Core.InheritBuffAction+Data
+</code></pre></div>
+<p>从来源实体继承指定的 Buff 到目标实体。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>buffOwner</code></td>
+<td>TargetSettings</td>
+<td>接收/持有继承 Buff 的实体</td>
+</tr>
+<tr>
+<td><code>targetBuffId</code></td>
+<td>string</td>
+<td>要继承/创建的 Buff id</td>
+</tr>
+<tr>
+<td><code>inheritSkillIdList</code></td>
+<td>List<string></td>
+<td>允许继承的来源技能 id；为空则不限制</td>
+</tr>
+<tr>
+<td><code>finishByAction</code></td>
+<td>bool</td>
+<td>是否在 action 生命周期结束时结束该 Buff</td>
+</tr>
+</tbody>
+</table>
+<h3 id="aura">Aura — 光环<a class="headerlink" href="#aura" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-68-1" name="__codelineno-68-1" href="#__codelineno-68-1"></a>C#: Beyond.Gameplay.Core.AuraAction+Data
+</code></pre></div>
+<h3 id="addtag">AddTag — 添加标签<a class="headerlink" href="#addtag" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-69-1" name="__codelineno-69-1" href="#__codelineno-69-1"></a>C#: Beyond.Gameplay.Core.AddTagAction+Data
+</code></pre></div>
+<p>向目标实体的 MultiTagHandle 添加 GameplayTag。</p>
+<h3 id="gettargetbuffbbadvanced-buff">GetTargetBuffBBAdvanced — 获取目标 Buff 黑板数据<a class="headerlink" href="#gettargetbuffbbadvanced-buff" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-70-1" name="__codelineno-70-1" href="#__codelineno-70-1"></a>C#: Beyond.Gameplay.Core.GetTargetBuffBBAdvanced+Data
+</code></pre></div>
+<p>从目标的 Buff 中读取数据写入黑板。</p>
+<h3 id="savebuffstacknumadvanced-buff">SaveBuffStackNumAdvanced — 保存 Buff 堆叠数<a class="headerlink" href="#savebuffstacknumadvanced-buff" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-71-1" name="__codelineno-71-1" href="#__codelineno-71-1"></a>C#: Beyond.Gameplay.Core.SaveBuffStackNumAdvanced+Data
+</code></pre></div>
+<p>将 Buff 的当前堆叠层数保存到黑板。</p>
+<h3 id="savebuffstacknumbytag-buff">SaveBuffStackNumByTag — 按标签保存 Buff 堆叠数<a class="headerlink" href="#savebuffstacknumbytag-buff" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-72-1" name="__codelineno-72-1" href="#__codelineno-72-1"></a>C#: Beyond.Gameplay.Core.SaveBuffStackNumByTag+Data
+</code></pre></div>
+<p>按 GameplayTag 查找 Buff 并保存其堆叠层数。</p>
+<hr />
+<h2 id="8-治疗与防御">治疗与防御<a class="headerlink" href="#8-治疗与防御" title="Permanent link">&para;</a></h2>
+<h3 id="heal">Heal — 治疗<a class="headerlink" href="#heal" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-73-1" name="__codelineno-73-1" href="#__codelineno-73-1"></a>C#: Beyond.Gameplay.Core.HealAction+Data
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>alwaysNext</code></td>
+<td>bool</td>
+<td>始终执行下一个 Action</td>
+</tr>
+<tr>
+<td><code>healType</code></td>
+<td>HealType</td>
+<td>治疗类型</td>
+</tr>
+<tr>
+<td><code>healer</code></td>
+<td>ActionTargetType</td>
+<td>治疗者</td>
+</tr>
+<tr>
+<td><code>target</code></td>
+<td>TargetSettings</td>
+<td>治疗目标</td>
+</tr>
+<tr>
+<td><code>healCalculation</code></td>
+<td>CalculationBase</td>
+<td>治疗量计算公式</td>
+</tr>
+<tr>
+<td><code>showHealText</code></td>
+<td>bool</td>
+<td>是否显示治疗数字</td>
+</tr>
+<tr>
+<td><code>playHealEffect</code></td>
+<td>bool</td>
+<td>是否播放治疗特效</td>
+</tr>
+<tr>
+<td><code>useHealTags</code></td>
+<td>bool</td>
+<td>使用治疗标签</td>
+</tr>
+<tr>
+<td><code>healTags</code></td>
+<td>GameplayTagList</td>
+<td>治疗标签列表</td>
+</tr>
+</tbody>
+</table>
+<h3 id="applyarmor">ApplyArmor — 应用护甲<a class="headerlink" href="#applyarmor" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-74-1" name="__codelineno-74-1" href="#__codelineno-74-1"></a>C#: Beyond.Gameplay.Core.ApplyArmor+Data
+</code></pre></div>
+<p>给目标添加护甲 (额外的生命/护盾值)。</p>
+<h3 id="setsuperarmor">SetSuperArmor — 设置霸体<a class="headerlink" href="#setsuperarmor" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-75-1" name="__codelineno-75-1" href="#__codelineno-75-1"></a>C#: Beyond.Gameplay.Core.SetSuperArmorAction+Data
+</code></pre></div>
+<p>设置目标的霸体等级，影响其能否被控制/打断。</p>
+<h3 id="setweakness">SetWeakness — 设置弱点<a class="headerlink" href="#setweakness" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-76-1" name="__codelineno-76-1" href="#__codelineno-76-1"></a>C#: Beyond.Gameplay.Core.SetWeaknessAction+Data
+</code></pre></div>
+<p>设置目标的弱点属性。</p>
+<h3 id="recoverpoise">RecoverPoise — 恢复韧性<a class="headerlink" href="#recoverpoise" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-77-1" name="__codelineno-77-1" href="#__codelineno-77-1"></a>C#: Beyond.Gameplay.Core.RecoverPoiseAction+Data
+</code></pre></div>
+<p>恢复目标的韧性值 (Break/Stagger 系统)。</p>
+<hr />
+<h2 id="9-技能与资源">技能与资源<a class="headerlink" href="#9-技能与资源" title="Permanent link">&para;</a></h2>
+<h3 id="combo-combocache">Combo / ComboCache — 连招<a class="headerlink" href="#combo-combocache" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-78-1" name="__codelineno-78-1" href="#__codelineno-78-1"></a>C#: Beyond.Gameplay.Core.ComboAction+Data
+<a id="__codelineno-78-2" name="__codelineno-78-2" href="#__codelineno-78-2"></a>C#: Beyond.Gameplay.Core.ComboCacheAction+Data
+</code></pre></div>
+<ul>
+<li><code>Combo</code>: 执行连招 (技能取消 → 下一技能)</li>
+<li><code>ComboCache</code>: 缓存连招输入 (在技能窗口内接收的连招指令)</li>
+</ul>
+<h3 id="allownextskill">AllowNextSkill — 允许下一个技能<a class="headerlink" href="#allownextskill" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-79-1" name="__codelineno-79-1" href="#__codelineno-79-1"></a>C#: Beyond.Gameplay.Core.AllowNextSkillAction+Data
+</code></pre></div>
+<p>开启连招窗口，允许接收下一个技能输入。</p>
+<h3 id="changeskill">ChangeSkill — 改变技能<a class="headerlink" href="#changeskill" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-80-1" name="__codelineno-80-1" href="#__codelineno-80-1"></a>C#: Beyond.Gameplay.Core.ChangeSkillAction+Data
+</code></pre></div>
+<p>动态替换当前技能配置。</p>
+<h3 id="temporaryunlock">TemporaryUnlock — 临时解锁<a class="headerlink" href="#temporaryunlock" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-81-1" name="__codelineno-81-1" href="#__codelineno-81-1"></a>C#: Beyond.Gameplay.Core.TemporaryUnlockAction+Data
+</code></pre></div>
+<p>临时脱离当前强锁目标/锁定目标限制，不是技能解锁。
+字段:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>compareTarget</code></td>
+<td>bool</td>
+<td>为 true 时，只有当前强锁目标与 <code>targetSettings</code> 解析出的目标相同才执行临时脱锁</td>
+</tr>
+<tr>
+<td><code>targetSettings</code></td>
+<td>TargetSettings</td>
+<td>期望脱锁目标</td>
+</tr>
+<tr>
+<td><code>disableLockAimPriority</code></td>
+<td>float</td>
+<td>写入相机/锁定控制状态的优先级</td>
+</tr>
+</tbody>
+</table>
+<p>原生行为:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["ExecuteInternal"]
+    N1["按 targetSettings 解析 desiredTarget"]
+    N2["BattleManager.SetTemporaryUnlocking(desiredTarget) 返回 key"]
+    N3["_DisableLockAim(disableLockAimPriority)"]
+    N4["OnEnd"]
+    N5["BattleManager.RemoveTemporaryUnlocking(key)"]
+    N6["_RecoverLockAim()"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6</code></pre>
+<h3 id="blockmoveinterruptskill">BlockMoveInterruptSkill — 阻止移动打断技能<a class="headerlink" href="#blockmoveinterruptskill" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-82-1" name="__codelineno-82-1" href="#__codelineno-82-1"></a>C#: Beyond.Gameplay.Core.BlockMoveInterruptSkill+Data
+</code></pre></div>
+<p>防止玩家移动输入打断当前技能。</p>
+<h3 id="obtaincost">ObtainCost — 获取消耗<a class="headerlink" href="#obtaincost" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-83-1" name="__codelineno-83-1" href="#__codelineno-83-1"></a>C#: Beyond.Gameplay.Core.ObtainCostAction+Data
+</code></pre></div>
+<p>获取技能消耗的资源值 (SP/ATB等)。</p>
+<h3 id="obtainuspinnormalskill-usp">ObtainUspInNormalSkill — 在普通技能中获得 USP<a class="headerlink" href="#obtainuspinnormalskill-usp" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-84-1" name="__codelineno-84-1" href="#__codelineno-84-1"></a>C#: Beyond.Gameplay.Core.ObtainUspInNormalSkill+Data
+</code></pre></div>
+<p>在普通技能执行期间获取终极技能点。</p>
+<h3 id="gainbreakingattackatb-atb">GainBreakingAttackAtb — 获得破防攻击 ATB<a class="headerlink" href="#gainbreakingattackatb-atb" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-85-1" name="__codelineno-85-1" href="#__codelineno-85-1"></a>C#: Beyond.Gameplay.Core.GainBreakingAttackAtb+Data
+</code></pre></div>
+<p>获得破防攻击的行动值。</p>
+<h3 id="setskillcdatonce-cd">SetSkillCdAtOnce — 立即设置技能 CD<a class="headerlink" href="#setskillcdatonce-cd" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-86-1" name="__codelineno-86-1" href="#__codelineno-86-1"></a>C#: Beyond.Gameplay.Core.SetSkillCdAtOnce+Data
+</code></pre></div>
+<p>立即将技能冷却设置为指定值 (重置/减少/增加 CD)。</p>
+<h3 id="changegeneralabilitybutton">ChangeGeneralAbilityButton — 切换通用能力按钮<a class="headerlink" href="#changegeneralabilitybutton" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-87-1" name="__codelineno-87-1" href="#__codelineno-87-1"></a>C#: Beyond.Gameplay.Core.ChangeGeneralAbilityButton+Data
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>buffId</code></td>
+<td>BuffId</td>
+<td>绑定到通用能力按钮的 buff / ability id</td>
+</tr>
+<tr>
+<td><code>iconOverrideId</code></td>
+<td>string</td>
+<td>覆盖图标 id</td>
+</tr>
+</tbody>
+</table>
+<h3 id="setgeneralabilitycd-cd">SetGeneralAbilityCd — 设置通用能力 CD<a class="headerlink" href="#setgeneralabilitycd-cd" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-88-1" name="__codelineno-88-1" href="#__codelineno-88-1"></a>C#: Beyond.Gameplay.Core.SetGeneralAbilityCd+Data
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cdTime</code></td>
+<td>BlackboardDouble</td>
+<td>通用能力 CD 秒数</td>
+</tr>
+<tr>
+<td><code>needTriggerCdOnUse</code></td>
+<td>bool</td>
+<td>使用时是否触发 CD</td>
+</tr>
+</tbody>
+</table>
+<h3 id="markcaninterrupt">MarkCanInterrupt — 标记可打断<a class="headerlink" href="#markcaninterrupt" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-89-1" name="__codelineno-89-1" href="#__codelineno-89-1"></a>C#: Beyond.Gameplay.Core.MarkCanInterrupt+Data
+</code></pre></div>
+<p>标记当前技能状态为可被 (移动/其他技能) 打断。</p>
+<h3 id="markcandash-dash">MarkCanDash — 标记当前技能允许 Dash<a class="headerlink" href="#markcandash-dash" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-90-1" name="__codelineno-90-1" href="#__codelineno-90-1"></a>C#: Beyond.Gameplay.Core.MarkCanDash+Data
+</code></pre></div>
+<p>复核 <code>MarkCanDash.ExecuteInternal -&gt; Skill.MarkCanDash</code>：该 action 只把当前技能的 <code>m_markCanDash</code> 置为 true。<code>Skill.canDash</code> 的 native 逻辑是 <code>Skill.canInterrupt || m_markCanDash</code>，因此在技能尚未到可打断窗口时，<code>MarkCanDash</code> 也可以让 <code>CenterSkillState.CheckConsumePlayerCommand(Dash)</code> 不再消费 Dash 命令。</p>
+<h3 id="channeling-channelingcasting">Channeling / ChannelingCasting — 引导<a class="headerlink" href="#channeling-channelingcasting" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-91-1" name="__codelineno-91-1" href="#__codelineno-91-1"></a>C#: Beyond.Gameplay.Core.ChannelingAction+Data
+<a id="__codelineno-91-2" name="__codelineno-91-2" href="#__codelineno-91-2"></a>C#: Beyond.Gameplay.Core.ChannelingCastingAction+Data
+</code></pre></div>
+<ul>
+<li><code>Channeling</code>: 开始引导状态</li>
+<li><code>ChannelingCasting</code>: 引导施法 (引导 + 施放)</li>
+</ul>
+<hr />
+<h2 id="10-ai-与指令">AI 与指令<a class="headerlink" href="#10-ai-与指令" title="Permanent link">&para;</a></h2>
+<h3 id="commandtocharacters">CommandToCharacters — 向角色发指令<a class="headerlink" href="#commandtocharacters" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-92-1" name="__codelineno-92-1" href="#__codelineno-92-1"></a>C#: Beyond.Gameplay.Core.CommandToCharactersAction+CommandToCharactersActionData
+</code></pre></div>
+<p>向队伍中的角色发送行为指令 (如集火/跟随/撤退)。</p>
+<h3 id="broadcastalerttocharacters">BroadcastAlertToCharacters — 广播警戒<a class="headerlink" href="#broadcastalerttocharacters" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-93-1" name="__codelineno-93-1" href="#__codelineno-93-1"></a>C#: Beyond.Gameplay.Core.BroadcastAlertToCharactersAction+...Data
+</code></pre></div>
+<p>向全队广播警戒信号，触发角色进入战斗状态。</p>
+<h3 id="addaimarker-removeaimarker-ai">AddAIMarker / RemoveAIMarker — AI 标记<a class="headerlink" href="#addaimarker-removeaimarker-ai" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-94-1" name="__codelineno-94-1" href="#__codelineno-94-1"></a>C#: Beyond.Gameplay.Core.AddAIMarkerAction+Data
+<a id="__codelineno-94-2" name="__codelineno-94-2" href="#__codelineno-94-2"></a>C#: Beyond.Gameplay.Core.RemoveAIMarkerAction+Data
+</code></pre></div>
+<ul>
+<li><code>AddAIMarker</code>: 在地图上放置 AI 标记 (巡逻点/防守点等)</li>
+<li><code>RemoveAIMarker</code>: 移除 AI 标记</li>
+</ul>
+<h3 id="getaitransdata-ai">GetAITransData — 获取 AI 传送数据<a class="headerlink" href="#getaitransdata-ai" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-95-1" name="__codelineno-95-1" href="#__codelineno-95-1"></a>C#: Beyond.Gameplay.Core.GetAITransDataAction+Data
+</code></pre></div>
+<p>获取 AI 传送/转换所需的数据。</p>
+<h3 id="savevaluefromaiblackboard-ai">SaveValueFromAIBlackboard — 从 AI 黑板保存值<a class="headerlink" href="#savevaluefromaiblackboard-ai" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-96-1" name="__codelineno-96-1" href="#__codelineno-96-1"></a>C#: Beyond.Gameplay.Core.SaveValueFromAIBlackboard+Data
+</code></pre></div>
+<p>从 AI 专用黑板中读取值并写入通用黑板。</p>
+<hr />
+<h2 id="11-计算与黑板">计算与黑板<a class="headerlink" href="#11-计算与黑板" title="Permanent link">&para;</a></h2>
+<h3 id="modifydynamicblackboard">ModifyDynamicBlackboard — 修改动态黑板<a class="headerlink" href="#modifydynamicblackboard" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-97-1" name="__codelineno-97-1" href="#__codelineno-97-1"></a>C#: Beyond.Gameplay.Core.ModifyDynamicBlackboard+Data
+</code></pre></div>
+<p>运行时修改黑板中的变量值。</p>
+<h3 id="storeattributevalue">StoreAttributeValue — 存储属性值<a class="headerlink" href="#storeattributevalue" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-98-1" name="__codelineno-98-1" href="#__codelineno-98-1"></a>C#: Beyond.Gameplay.Core.StoreAttributeValue+Data
+</code></pre></div>
+<p>从实体的属性系统中读取属性值并存储到黑板。</p>
+<h3 id="simplecalcbb">SimpleCalcBB — 简单计算黑板<a class="headerlink" href="#simplecalcbb" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-99-1" name="__codelineno-99-1" href="#__codelineno-99-1"></a>C#: Beyond.Gameplay.Core.SimpleCalcBBAction+Data
+</code></pre></div>
+<p>对黑板中的数值进行简单运算 (加减乘除等)。</p>
+<h3 id="curveevaluatefloat">CurveEvaluateFloat — 曲线求值<a class="headerlink" href="#curveevaluatefloat" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-100-1" name="__codelineno-100-1" href="#__codelineno-100-1"></a>C#: Beyond.Gameplay.Core.CurveEvaluateFloat+Data
+</code></pre></div>
+<p>在 AnimationCurve 上按时间求值，将结果写入黑板。</p>
+<h3 id="comparefloat">CompareFloat — 比较浮点数<a class="headerlink" href="#comparefloat" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-101-1" name="__codelineno-101-1" href="#__codelineno-101-1"></a>C#: Beyond.Gameplay.Core.CompareFloat+Data
+</code></pre></div>
+<p>比较两个浮点值 (从黑板读取)，输出比较结果。</p>
+<h3 id="dicefloat">DiceFloat — 骰子浮点<a class="headerlink" href="#dicefloat" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-102-1" name="__codelineno-102-1" href="#__codelineno-102-1"></a>C#: Beyond.Gameplay.Core.DiceFloat+Data
+</code></pre></div>
+<p>生成随机浮点数并写入黑板。</p>
+<hr />
+<h2 id="12-其他游戏逻辑">其他游戏逻辑<a class="headerlink" href="#12-其他游戏逻辑" title="Permanent link">&para;</a></h2>
+<h3 id="spawnabilityentity">SpawnAbilityEntity — 生成技能实体<a class="headerlink" href="#spawnabilityentity" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-103-1" name="__codelineno-103-1" href="#__codelineno-103-1"></a>C#: Beyond.Gameplay.Core.SpawnAbilityEntity+Data
+</code></pre></div>
+<p>生成技能相关的临时实体 (如召唤物、范围指示器等)。</p>
+<h3 id="spawnenemy">SpawnEnemy — 生成敌人<a class="headerlink" href="#spawnenemy" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-104-1" name="__codelineno-104-1" href="#__codelineno-104-1"></a>C#: Beyond.Gameplay.Core.SpawnEnemyAction+Data
+</code></pre></div>
+<p>在战斗中动态生成敌人。</p>
+<h3 id="setabilityentitytomainchar">SetAbilityEntityToMainChar — 设置技能实体到主角<a class="headerlink" href="#setabilityentitytomainchar" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-105-1" name="__codelineno-105-1" href="#__codelineno-105-1"></a>C#: Beyond.Gameplay.Core.SetAbilityEntityToMainChar+Data
+</code></pre></div>
+<p>将生成的技能实体绑定到主角身上。</p>
+<h3 id="breakinteractive">BreakInteractive — 破坏交互物<a class="headerlink" href="#breakinteractive" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-106-1" name="__codelineno-106-1" href="#__codelineno-106-1"></a>C#: Beyond.Gameplay.Core.AbilityActions.BreakInteractiveAction+Data
+</code></pre></div>
+<p>破坏场景中的可交互物体 (木箱/障碍物等)。</p>
+<h3 id="throwpickupitemstart-throwpickupitem">ThrowPickupItemStart / ThrowPickupItem — 投掷拾取物品<a class="headerlink" href="#throwpickupitemstart-throwpickupitem" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-107-1" name="__codelineno-107-1" href="#__codelineno-107-1"></a>C#: Beyond.Gameplay.Core.ThrowPickupItemStartAction+Data
+<a id="__codelineno-107-2" name="__codelineno-107-2" href="#__codelineno-107-2"></a>C#: Beyond.Gameplay.Core.ThrowPickupItemAction+Data
+</code></pre></div>
+<ul>
+<li><code>ThrowPickupItemStart</code>: 开始拾取物品准备投掷</li>
+<li><code>ThrowPickupItem</code>: 执行投掷</li>
+</ul>
+<h3 id="sendbattlesignaltolevel">SendBattleSignalToLevel — 发送战斗信号到关卡<a class="headerlink" href="#sendbattlesignaltolevel" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-108-1" name="__codelineno-108-1" href="#__codelineno-108-1"></a>C#: Beyond.Gameplay.Core.SendBattleSignalToLevel+Data
+</code></pre></div>
+<p>向关卡脚本发送战斗事件信号。
+复核 <code>SendBattleSignalToLevel.ExecuteInternal</code> 后确认真实逻辑很薄：创建 <code>EventParams</code>，把 sender 设置为 action owner entity，从 action blackboard 解析 <code>signalId</code> 和 <code>doubleValue</code>，分别写入参数 <code>signal_id</code> 与 <code>float_value</code>，最后调用 <code>LevelEventManager.RaiseLevelEvent(ON_BATTLE_SIGNAL, params)</code>。该 action 总是返回成功，不直接影响伤害、buff 或角色状态。</p>
+<h3 id="switchmode">SwitchMode — 切换模式<a class="headerlink" href="#switchmode" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-109-1" name="__codelineno-109-1" href="#__codelineno-109-1"></a>C#: Beyond.Gameplay.Core.SwitchModeAction+Data
+</code></pre></div>
+<p>切换角色或游戏模式 (如进入/退出瞄准模式等)。</p>
+<h3 id="adddynamicnavmeshobstacle">AddDynamicNavmeshObstacle — 添加动态导航网格障碍<a class="headerlink" href="#adddynamicnavmeshobstacle" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-110-1" name="__codelineno-110-1" href="#__codelineno-110-1"></a>C#: Beyond.Gameplay.Core.AddDynamicNavmeshObstacle+Data
+</code></pre></div>
+<p>动态修改 NavMesh (如放下障碍物阻止寻路)。</p>
+<h3 id="physicscast">PhysicsCast — 物理投射<a class="headerlink" href="#physicscast" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-111-1" name="__codelineno-111-1" href="#__codelineno-111-1"></a>C#: Beyond.Gameplay.Core.PhysicsCastAction+PhysicsCastActionData
+</code></pre></div>
+<p>执行物理射线/形状投射，用于检测环境和实体。</p>
+<h3 id="finishangryonend">FinishAngryOnEnd — 结束愤怒<a class="headerlink" href="#finishangryonend" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-112-1" name="__codelineno-112-1" href="#__codelineno-112-1"></a>C#: Beyond.Gameplay.Core.FinishAngryOnEnd+Data
+</code></pre></div>
+<p>在技能结束时清除目标的愤怒/仇恨状态。</p>
+<hr />
+<h2 id="13-已排除的-action-列表">已排除的 Action 列表<a class="headerlink" href="#13-已排除的-action-列表" title="Permanent link">&para;</a></h2>
+<p>以下 Action 类型因为属于动画播放、效果创建、相机镜头、UI 显示、音效或调试类而被筛选出去:</p>
+<h3 id="_2">动画类 (已排除)<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Data type</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PlayAnimation</code></td>
+<td><code>PlayAnimationAction+PlayAnimationActionData</code></td>
+<td>播放角色动画</td>
+</tr>
+<tr>
+<td><code>PlayAnimationWithStepData</code></td>
+<td><code>PlayAnimationWithStep+PlayAnimationWithStepData</code></td>
+<td>播放分步动画</td>
+</tr>
+<tr>
+<td><code>PlayPerfectDodgeAnim</code></td>
+<td><code>PlayPerfectDodgeAnim+Data</code></td>
+<td>播放完美闪避动画</td>
+</tr>
+<tr>
+<td><code>PlayNormalDashAnim</code></td>
+<td><code>PlayNormalDashAnimAction+Data</code></td>
+<td>播放普通冲刺动画</td>
+</tr>
+<tr>
+<td><code>EnemyHurtAnim</code></td>
+<td><code>EnemyHurtAnimAction+Data</code></td>
+<td>敌人受伤动画</td>
+</tr>
+<tr>
+<td><code>CharHurtAnim</code></td>
+<td><code>CharHurtAnimAction+Data</code></td>
+<td>角色受伤动画</td>
+</tr>
+<tr>
+<td><code>CharWeaponAnimation</code></td>
+<td><code>CharWeaponAnimationAction+...Data</code></td>
+<td>角色武器动画</td>
+</tr>
+<tr>
+<td><code>AnimEventReceiver</code></td>
+<td><code>AnimEventReceiver+Data</code></td>
+<td>动画事件接收器</td>
+</tr>
+<tr>
+<td><code>SetAnimatorParam</code></td>
+<td><code>SetAnimatorParamAction+Data</code></td>
+<td>设置动画参数</td>
+</tr>
+<tr>
+<td><code>AnimatorAimOffset</code></td>
+<td><code>AnimatorAimOffsetAction+...Data</code></td>
+<td>动画瞄准偏移</td>
+</tr>
+<tr>
+<td><code>ContinuousSetAnimTimeScale</code></td>
+<td><code>ContinuousSetAnimTimeScale+Data</code></td>
+<td>持续设置动画时间缩放</td>
+</tr>
+<tr>
+<td><code>FacBuildingPlayAnimation</code></td>
+<td><code>FacBuildingPlayAnimationAction+Data</code></td>
+<td>设施建筑播放动画</td>
+</tr>
+<tr>
+<td><code>ChangeSpecificLayer</code></td>
+<td><code>ChangeSpecificLayerAction+Data</code></td>
+<td>改变动画层</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">效果类 (已排除)<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Data type</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Effect</code></td>
+<td><code>EffectAction+EffectActionData</code></td>
+<td>创建视觉效果</td>
+</tr>
+<tr>
+<td><code>EffectControl</code></td>
+<td><code>EffectControlAction+EffectControlActionData</code></td>
+<td>控制效果播放</td>
+</tr>
+<tr>
+<td><code>RayCastEffect</code></td>
+<td><code>RayCastEffectAction+RayCastEffectActionData</code></td>
+<td>射线效果</td>
+</tr>
+<tr>
+<td><code>EffectFindTarget</code></td>
+<td><code>EffectFindTargetAction+Data</code></td>
+<td>效果索敌 (视情况可用)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">相机/镜头类 (已排除)<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Data type</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CameraImpulse</code></td>
+<td><code>CameraImpulseAction+CameraImpulseActionData</code></td>
+<td>相机脉冲/震动</td>
+</tr>
+<tr>
+<td><code>CameraRotation</code></td>
+<td><code>CameraRotateAction+CameraRotationActionData</code></td>
+<td>相机旋转</td>
+</tr>
+<tr>
+<td><code>SaveCameraAngle</code></td>
+<td><code>SaveCameraAngle+Data</code></td>
+<td>保存相机角度</td>
+</tr>
+<tr>
+<td><code>OverrideCameraFollow</code></td>
+<td><code>OverrideCameraFollowAction+...Data</code></td>
+<td>覆盖相机跟随</td>
+</tr>
+<tr>
+<td><code>AddCameraControlState</code></td>
+<td><code>AddCameraControlStateAction+...Data</code></td>
+<td>添加相机控制状态</td>
+</tr>
+<tr>
+<td><code>LockCameraAim</code></td>
+<td><code>LockCameraAimAction+LockCameraAimActionData</code></td>
+<td>锁定相机瞄准</td>
+</tr>
+<tr>
+<td><code>ModifyCameraLockPoint</code></td>
+<td><code>ModifyCameraLockPointAction+Data</code></td>
+<td>修改相机锁定点</td>
+</tr>
+<tr>
+<td><code>AnimatedCamera</code></td>
+<td><code>AnimatedCameraAction+AnimatedCameraActionData</code></td>
+<td>动画驱动相机</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ui">UI 类 (已排除)<a class="headerlink" href="#ui" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Data type</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HideUI</code></td>
+<td><code>HideUIAction+Data</code></td>
+<td>隐藏 UI</td>
+</tr>
+<tr>
+<td><code>ShowComboSkillUI</code></td>
+<td><code>ShowComboSkillUI+Data</code></td>
+<td>显示连招技能 UI</td>
+</tr>
+<tr>
+<td><code>UltimateShow</code></td>
+<td><code>UltimateShowAction+Data</code></td>
+<td>大招展示 (CG/特写)</td>
+</tr>
+<tr>
+<td><code>CharWeaponVisible</code></td>
+<td><code>CharWeaponVisibleAction+...Data</code></td>
+<td>角色武器可见性</td>
+</tr>
+<tr>
+<td><code>ToggleMesh</code></td>
+<td><code>ToggleMeshAction+ToggleMeshActionData</code></td>
+<td>切换网格显示</td>
+</tr>
+<tr>
+<td><code>EnableParts</code></td>
+<td><code>EnablePartsAction+Data</code></td>
+<td>启用/禁用模型部件</td>
+</tr>
+<tr>
+<td><code>ShowHideActorData</code></td>
+<td><code>ShowHideActorAction+ShowHideActorData</code></td>
+<td>显示/隐藏 Actor</td>
+</tr>
+<tr>
+<td><code>ModifyWeaponMountPoint</code></td>
+<td><code>ModifyWeaponMountPoint+Data</code></td>
+<td>修改武器挂点</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_5">音效/语音类 (已排除)<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Data type</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PlaySound</code></td>
+<td><code>PlaySoundAction+PlaySoundActionData</code></td>
+<td>播放音效</td>
+</tr>
+<tr>
+<td><code>VoiceTrigger</code></td>
+<td><code>VoiceTriggerAction+VoiceTriggerActionData</code></td>
+<td>触发角色语音</td>
+</tr>
+<tr>
+<td><code>VoiceInterrupt</code></td>
+<td><code>VoiceInterruptAction+VoiceInterruptActionData</code></td>
+<td>打断语音</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_6">调试类 (已排除)<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Data type</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DebugPrint</code></td>
+<td><code>DebugPrintAction+Data</code></td>
+<td>调试日志输出</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="action">附录: Action 继承体系<a class="headerlink" href="#action" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    N0["AbilityActionData (基类: isEnable, priorityLevel, priorityOffset, serverActionIndex)"]
+    N1["Damage, Heal ← 伤害/治疗"]
+    N2["FindTarget, ContinuousFindTarget ← 索敌"]
+    N3["MoveTo, MoveToTarget, Teleport, ... ← 位移"]
+    N4["PushBack, Pull, Airborne, KnockDown ← 控制"]
+    N5["TimeDilation, HitStop, UltimateTime ← 时停"]
+    N6["IfElse, Switch, ForEach, Random ← 流程控制"]
+    N7["CreateBuff, FinishBuff, Aura, ... ← Buff"]
+    N8["..."]
+    N9["BlowOffEnemyActions (sealed class — 击飞子类)"]
+    N10["BlowOffEnemy"]
+    N11["Crush (额外: damageMultiplier, immobilizedTime)"]
+    N12["Fracture (额外: immobilizedTime)"]
+    N13["Conditions (sealed class — 条件判断子类)"]
+    N14["OrCondition, CheckHp, CheckDistanceCondition, ..."]
+    N15["Probablity, CheckTagMatch, CheckSkillType, ..."]
+    N16["Unknown (fallback for unrecognized Action types)"]
+    N0 --&gt; N1
+    N0 --&gt; N2
+    N0 --&gt; N3
+    N0 --&gt; N4
+    N0 --&gt; N5
+    N0 --&gt; N6
+    N0 --&gt; N7
+    N0 --&gt; N8
+    N0 --&gt; N9
+    N9 --&gt; N10
+    N9 --&gt; N11
+    N9 --&gt; N12
+    N0 --&gt; N13
+    N13 --&gt; N14
+    N13 --&gt; N15
+    N0 --&gt; N16</code></pre>
+<blockquote>
+<p>所有 Action 均实现 <code>SequenceActionData</code> 的序列化接口，在 JSON 中以 <code>actionData</code> 数组形式配置。</p>
+</blockquote>
+<hr />
+<blockquote>
+<p>最后更新: 2026-05-22</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

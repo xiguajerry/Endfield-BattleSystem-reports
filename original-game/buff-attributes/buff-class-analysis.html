@@ -1,0 +1,4187 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Beyond::Gameplay::Core::Buff 类族分析报告 - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#beyondgameplaycorebuff" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Beyond::Gameplay::Core::Buff 类族分析报告
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目录
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-类族全景图" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类族全景图
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-buffcontainer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BuffContainer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BuffContainer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        概述
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        字段
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法清单
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="方法清单">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        构造与生命周期
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#buff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buff 创建与移除
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        查询
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        其他
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#createbuff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CreateBuff 流程概要
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ontick" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OnTick 流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recyclebuff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RecycleBuff 流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emptybuffcontainer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EmptyBuffContainer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-buff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buff
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Buff">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        概述
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结构体字段布局
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法清单
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="方法清单">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getter-setter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        属性 Getter / Setter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        生命周期
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        增强系统
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        修饰器系统
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        行为系统
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        标签 / 护盾 / 服务器
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_triggerinternal-tick" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _TriggerInternal — 内部 Tick 触发
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_enhance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _Enhance — 增强流水线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decreaseenhancecnt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DecreaseEnhanceCnt — 反增强流水线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法规模统计
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-buffstackinggroup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BuffStackingGroup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BuffStackingGroup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        概述
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结构体字段布局
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-堆叠系统" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        堆叠系统
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="堆叠系统">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#buffstackingsettings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BuffStackingSettings 属性分析
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BuffStackingSettings 属性分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结构布局
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stackingtype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StackingType 枚举与属性矩阵
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-stackbuff-完整汇编解码" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StackBuff 完整汇编解码
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="StackBuff 完整汇编解码">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        函数签名
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        公共前导逻辑
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-0-unlimited" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 0 — Unlimited
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-1-highpriority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 1 — HighPriority
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-2-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 2 — Stack
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-3-enhance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 3 — Enhance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-4-refresh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 4 — 刷新 (Refresh)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-5-extend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 5 — 延展 (Extend)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-6-modify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 6 — Modify
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-7-unique" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 7 — Unique
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-8-enhanceandrefresh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 8 — EnhanceAndRefresh
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-9-overwriteduration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 9 — OverwriteDuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-10-enhanceandoverwriteduration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 10 — EnhanceAndOverwriteDuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-11-highprioritywithmaxstack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 11 — HighPriorityWithMaxStack
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Case 分布汇总
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        三种持续时间策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-_refreshstackeffects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _RefreshStackEffects
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="_RefreshStackEffects">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        伪代码
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refresh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Refresh 调用链
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-markfinish--buff-结束流程" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MarkFinish — Buff 结束流程
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MarkFinish — Buff 结束流程">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基本信息
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        执行流程 (10 步)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        调用来源
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finishreason" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FinishReason 枚举
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-_addbuffinternal--核心入口" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _AddBuffInternal — 核心入口
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="_AddBuffInternal — 核心入口">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基本信息
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        调用关系
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-action-系统" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 系统
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Action 系统">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        事件触发链路
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-数据类与枚举" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据类与枚举
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="数据类与枚举">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#buffdata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BuffData
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addbuffoption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AddBuffOption
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finishbuffoption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FinishBuffOption
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#buffevent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buff::Event
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bufflifetype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buff::LifeType
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bufffinishreason" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buff::FinishReason
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#buffstackingsettingsidentifiertype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BuffStackingSettings::IdentifierType
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#globalbuffevent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GlobalBuff::Event
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-globalbuff-体系" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GlobalBuff 体系
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GlobalBuff 体系">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#buff_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        双层 Buff 架构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#globalbuff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GlobalBuff 结构布局
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#globalbuff_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GlobalBuff 生命周期
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#globalbuff_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GlobalBuff 方法清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#globalbuffstackinggroup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GlobalBuffStackingGroup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m_bufflistmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m_buffListMap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#buffinput" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BuffInput 结构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#buff-vs-globalbuff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buff vs GlobalBuff 对照
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-数据流总览" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据流总览
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="数据流总览">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#buff_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buff 创建流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#buff-tick" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buff Tick 流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#buff_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buff 移除流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#globalbuff_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GlobalBuff 创建流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键设计模式
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实体关系图
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="beyondgameplaycorebuff">Beyond::Gameplay::Core::Buff 类族分析报告<a class="headerlink" href="#beyondgameplaycorebuff" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>命名空间: <code>Beyond.Gameplay.Core</code></p>
+</blockquote>
+<hr />
+<h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-类族全景图">类族全景图</a></li>
+<li><a href="#2-buffcontainer">BuffContainer</a></li>
+<li><a href="#3-buff">Buff</a></li>
+<li><a href="#4-buffstackinggroup">BuffStackingGroup</a></li>
+<li><a href="#5-堆叠系统">堆叠系统</a></li>
+<li><a href="#6-markfinish--buff-结束流程">MarkFinish — Buff 结束流程</a></li>
+<li><a href="#7-_addbuffinternal--核心入口">_AddBuffInternal — 核心入口</a></li>
+<li><a href="#8-action-系统">Action 系统</a></li>
+<li><a href="#9-数据类与枚举">数据类与枚举</a></li>
+<li><a href="#10-globalbuff-体系">GlobalBuff 体系</a></li>
+<li><a href="#11-数据流总览">数据流总览</a></li>
+</ol>
+<hr />
+<h2 id="1-类族全景图">类族全景图<a class="headerlink" href="#1-类族全景图" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    Core["Beyond::Gameplay::Core"]
+
+    Core --&gt; Buff["Buff&lt;br/&gt;buff 实例 / 核心"]
+    Buff --&gt; BuffContainer["BuffContainer&lt;br/&gt;管理实体上的所有 buff"]
+    BuffContainer --&gt; EmptyBuffContainer["EmptyBuffContainer&lt;br/&gt;继承 BuffContainer，所有操作 no-op"]
+    Buff --&gt; BuffStackingGroup["BuffStackingGroup&lt;br/&gt;同类 buff 的叠加管理"]
+    Buff --&gt; DoubleBufferedBuffList["DoubleBufferedBuffList&lt;br/&gt;线程安全迭代"]
+    Buff --&gt; AddBuffOption["AddBuffOption&lt;br/&gt;添加 buff 的选项参数"]
+    Buff --&gt; FinishBuffOption["FinishBuffOption&lt;br/&gt;移除 buff 的选项参数"]
+    Buff --&gt; Event["Event&lt;br/&gt;Buff 事件枚举"]
+    Buff --&gt; LifeType["LifeType&lt;br/&gt;Buff 生命周期类型枚举"]
+    Buff --&gt; FinishReason["FinishReason&lt;br/&gt;Buff 结束原因枚举"]
+    Buff --&gt; BuffStackingSettings["BuffStackingSettings&lt;br/&gt;堆叠设置"]
+    BuffStackingSettings --&gt; IdentifierType["IdentifierType&lt;br/&gt;堆叠标识类型"]
+    BuffStackingSettings --&gt; StackingType["StackingType&lt;br/&gt;堆叠方式"]
+    Buff --&gt; BuffFindSettings["BuffFindSettings&lt;br/&gt;Buff 查找设置"]
+    BuffFindSettings --&gt; CheckType["CheckType&lt;br/&gt;检查类型"]
+    Buff --&gt; BuffIconConfig["BuffIconConfig&lt;br/&gt;Buff 图标配置"]
+    BuffIconConfig --&gt; BuffIconStyle["BuffIconStyle&lt;br/&gt;图标样式"]
+    BuffIconConfig --&gt; OrderPriority["OrderPriority&lt;br/&gt;排序优先级"]
+    Buff --&gt; BuffIconDurationSourceType["BuffIconDurationSourceType&lt;br/&gt;图标持续时间来源类型"]
+
+    Core --&gt; GlobalBuff["GlobalBuff&lt;br/&gt;影响整个战斗"]
+    GlobalBuff --&gt; GlobalBuffStackingGroup["GlobalBuffStackingGroup&lt;br/&gt;全局 buff 堆叠组"]
+    GlobalBuff --&gt; GlobalBuffData["GlobalBuffData&lt;br/&gt;全局 Buff 配置数据"]
+    GlobalBuff --&gt; GlobalBuffStackingSettings["GlobalBuffStackingSettings"]
+
+    Core --&gt; BattleManager["BattleManager"]
+    BattleManager --&gt; ServerGlobalBuff["ServerGlobalBuff&lt;br/&gt;服务器全局 buff"]
+    BattleManager --&gt; BattleRecorder["BattleRecorder"]
+    BattleRecorder --&gt; BuffDetail["BuffDetail&lt;br/&gt;Buff 记录详情"]
+    BattleRecorder --&gt; GlobalBuffDetail["GlobalBuffDetail&lt;br/&gt;全局 buff 记录详情"]
+
+    Core --&gt; BuffData["BuffData&lt;br/&gt;从配置表加载"]
+    Core --&gt; BuffActionMap["BuffActionMap&lt;br/&gt;Buff 行为映射"]
+    Core --&gt; GlobalBuffActionMap["GlobalBuffActionMap&lt;br/&gt;全局 Buff 行为映射"]
+    Core --&gt; CreateGlobalBuffAction["CreateGlobalBuffAction&lt;br/&gt;创建全局 buff 行为"]
+    Core --&gt; GlobalBuffInput["GlobalBuffInput&lt;br/&gt;全局 buff 输入参数"]</code></pre>
+<hr />
+<h2 id="2-buffcontainer">BuffContainer<a class="headerlink" href="#2-buffcontainer" title="Permanent link">&para;</a></h2>
+<h3 id="_2">概述<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p><code>BuffContainer</code> 是挂载在实体 <code>AbilitySystem</code> 上的 buff 管理器，负责该实体上所有 buff 的创建、移除、查询和 tick。</p>
+<h3 id="_3">字段<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x10</code></td>
+<td><code>m_buffs</code></td>
+<td><code>DoubleBufferedBuffList</code></td>
+<td>双缓冲 buff 列表</td>
+</tr>
+<tr>
+<td><code>0x18</code></td>
+<td><code>m_stackingGroups</code></td>
+<td><code>Dictionary&lt;String, BuffStackingGroup&gt;</code></td>
+<td>buffId 到堆叠组</td>
+</tr>
+<tr>
+<td><code>0x20</code></td>
+<td><code>m_buffChangeCharHpBarVfx</code></td>
+<td><code>List&lt;ObjectPtr&lt;Buff&gt;&gt;</code></td>
+<td>HP 条 VFX 变化的 buff 列表</td>
+</tr>
+<tr>
+<td><code>0x28</code></td>
+<td><code>m_owner</code></td>
+<td><code>AbilitySystem*</code></td>
+<td>所属实体的 AbilitySystem</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">方法清单<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<h4 id="_5">构造与生命周期<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>规模</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ctor(AbilitySystem)</code></td>
+<td><code>已确认</code></td>
+<td>—</td>
+<td>初始化所有字段</td>
+</tr>
+<tr>
+<td><code>.cctor()</code></td>
+<td><code>已确认</code></td>
+<td>—</td>
+<td>静态构造函数</td>
+</tr>
+<tr>
+<td><code>Release()</code></td>
+<td><code>已确认</code></td>
+<td>0x43</td>
+<td>释放容器</td>
+</tr>
+<tr>
+<td><code>Clear()</code></td>
+<td><code>已确认</code></td>
+<td>0x3eb</td>
+<td>清除所有 buff</td>
+</tr>
+<tr>
+<td><code>NewBuff()</code></td>
+<td><code>已确认</code></td>
+<td>0x6c</td>
+<td>从对象池分配新 Buff 实例</td>
+</tr>
+</tbody>
+</table>
+<h4 id="buff">Buff 创建与移除<a class="headerlink" href="#buff" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>规模</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CreateBuff(AbilitySystem, BuffData, AddBuffOption&amp;, Buff&amp;)</code></td>
+<td><code>已确认</code></td>
+<td><strong>0x2cdc</strong></td>
+<td>核心方法 — 创建并添加一个 buff</td>
+</tr>
+<tr>
+<td><code>FinishBuff(String, FinishBuffOption&amp;, ServerActionParams)</code></td>
+<td><code>已确认</code></td>
+<td>0x981</td>
+<td>按 buffId 结束 buff</td>
+</tr>
+<tr>
+<td><code>FinishBuff(Buff, ServerActionParams)</code></td>
+<td><code>已确认</code></td>
+<td>0x27e</td>
+<td>结束指定 buff 实例</td>
+</tr>
+<tr>
+<td><code>FinishBuffByTag(GameplayTagQuery, FinishBuffOption&amp;, ServerActionParams)</code></td>
+<td><code>已确认</code></td>
+<td>0x425</td>
+<td>按标签结束 buff</td>
+</tr>
+<tr>
+<td><code>FinishServerBuff(Int64)</code></td>
+<td><code>已确认</code></td>
+<td>0x25d</td>
+<td>结束服务器端 buff</td>
+</tr>
+<tr>
+<td><code>FinishBuffOnRepatriate()</code></td>
+<td><code>已确认</code></td>
+<td>0x266</td>
+<td>遣返时结束 buff</td>
+</tr>
+<tr>
+<td><code>FinishAIMarkerBuff(String)</code></td>
+<td><code>已确认</code></td>
+<td>0x2dc</td>
+<td>结束 AI 标记 buff</td>
+</tr>
+<tr>
+<td><code>DispelBuff(AbilitySystem, DispelLevel, Nullable&lt;GameplayTagQuery&gt;)</code></td>
+<td><code>已确认</code></td>
+<td>0x336</td>
+<td>驱散 buff</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_6">查询<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>规模</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ContainsBuff(String)</code></td>
+<td><code>已确认</code></td>
+<td>0x1a6</td>
+<td>是否包含指定 ID 的 buff</td>
+</tr>
+<tr>
+<td><code>GetBuffById(List&lt;String&gt;, List&lt;ObjectPtr&lt;Buff&gt;&gt;)</code></td>
+<td><code>已确认</code></td>
+<td>0x220</td>
+<td>按 ID 列表获取 buff</td>
+</tr>
+<tr>
+<td><code>GetBuffByTag(GameplayTagQuery, List&lt;ObjectPtr&lt;Buff&gt;&gt;)</code></td>
+<td><code>已确认</code></td>
+<td>0x223</td>
+<td>按标签获取 buff</td>
+</tr>
+<tr>
+<td><code>GetBuffCountById(String, Nullable&lt;UInt32&gt;)</code></td>
+<td><code>已确认</code></td>
+<td>0x3a7</td>
+<td>按 ID 统计 buff 数量</td>
+</tr>
+<tr>
+<td><code>GetBuffCountByTag(GameplayTagQuery, Nullable&lt;UInt32&gt;)</code></td>
+<td><code>已确认</code></td>
+<td>0x23d</td>
+<td>按标签统计 buff 数量</td>
+</tr>
+<tr>
+<td><code>GetBuffIdCountByTag(GameplayTagQuery, Nullable&lt;UInt32&gt;)</code></td>
+<td><code>已确认</code></td>
+<td>0x30a</td>
+<td>按标签统计不同 buff ID 数</td>
+</tr>
+<tr>
+<td><code>GetBuffEnumerable()</code></td>
+<td><code>已确认</code></td>
+<td>0x27</td>
+<td>获取所有 buff 的可枚举器</td>
+</tr>
+<tr>
+<td><code>GetAllBuff_Dispose()</code></td>
+<td><code>已确认</code></td>
+<td>0xa8</td>
+<td>遍历完 buff 后释放</td>
+</tr>
+<tr>
+<td><code>GetCanInheritBySkillBuff(String, String)</code></td>
+<td><code>已确认</code></td>
+<td>0x23d</td>
+<td>获取可被技能继承的 buff</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_7">其他<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>规模</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IgniteBuff(...)</code></td>
+<td><code>已确认</code></td>
+<td>0x1f6</td>
+<td>点燃 (触发) buff 效果</td>
+</tr>
+<tr>
+<td><code>OnTick(float, float)</code></td>
+<td><code>已确认</code></td>
+<td>0x3ac</td>
+<td>每帧更新所有 buff</td>
+</tr>
+<tr>
+<td><code>RecycleBuff()</code></td>
+<td><code>已确认</code></td>
+<td>0x7ca</td>
+<td>回收已标记清除的 buff 到对象池</td>
+</tr>
+<tr>
+<td><code>OnBuffChangeCharHpBarVfx(...)</code></td>
+<td><code>已确认</code></td>
+<td>0x1bf</td>
+<td>buff 变化时更新 HP 条 VFX</td>
+</tr>
+<tr>
+<td><code>RefreshBuffPriority(Buff)</code></td>
+<td><code>已确认</code></td>
+<td>0xc5</td>
+<td>刷新 buff 优先级</td>
+</tr>
+<tr>
+<td><code>RemoveBuffFromStackingGroup(Buff)</code></td>
+<td><code>已确认</code></td>
+<td>0xc5</td>
+<td>从堆叠组移除 buff</td>
+</tr>
+<tr>
+<td><code>RefreshStackingGroup(String)</code></td>
+<td><code>已确认</code></td>
+<td>0x8e</td>
+<td>刷新堆叠组</td>
+</tr>
+<tr>
+<td><code>TryGetMaxChannelingCastingBuffRemainingTime(Buff&amp;)</code></td>
+<td><code>已确认</code></td>
+<td>0x223</td>
+<td>获取最长吟唱剩余时间</td>
+</tr>
+<tr>
+<td><code>TryGetMaxFrozenBuffRemainingTime(Buff&amp;)</code></td>
+<td><code>已确认</code></td>
+<td>0x223</td>
+<td>获取最长冻结剩余时间</td>
+</tr>
+<tr>
+<td><code>TryGetMaxStunBuffRemainingTime(Buff&amp;)</code></td>
+<td><code>已确认</code></td>
+<td>0x221</td>
+<td>获取最长眩晕剩余时间</td>
+</tr>
+</tbody>
+</table>
+<h3 id="createbuff">CreateBuff 流程概要<a class="headerlink" href="#createbuff" title="Permanent link">&para;</a></h3>
+<p><code>CreateBuff</code> 是最核心的方法 (0x2cdc 字节), 大致流程:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>CreateBuff(buffSource, buffData, addBuffOption, oriBuffInst):
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a> 2. 校验 buffSource entity 和 team 有效性
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a> 3. 获取 BuffStackingGroup (按 buffData.buffId)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a> 4. 处理堆叠逻辑:
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a> - 检查堆叠限制 (maxStackCount)
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a> - RemoveStackEffects 如需要
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a> - StackBuff / RefreshPriority
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a> 5. 使用 NewBuff 从对象池获取 Buff 实例 / 或复用现有实例
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a> 6. 初始化 Buff 实例:
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a> - SetBuffParent
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a> - 加载 Actions / Modifiers / ShieldInsts
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a> - 设置 priority, filerTypeMask, attributeMask
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a> 7. 添加到 m_buffs (DoubleBufferedBuffList)
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a> 8. 触发 Event::OnAdd 事件
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a> 9. 上传到服务器 (如需要)
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a> 10. 返回 ObjectPtr&lt;Buff&gt;
+</code></pre></div>
+<h3 id="ontick">OnTick 流程<a class="headerlink" href="#ontick" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>void OnTick(float deltaTime, float allScaledDeltaTime):
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a> if (m_buffs == null): throw // [this+0x10]
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a> enumerator = m_buffs.GetEnumerator()
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a> while (enumerator.MoveNext()):
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a> current = enumerator.get_Current() // ObjectPtr&lt;Buff&gt;
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a> if (!current.isValid()): continue
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a> buff = current.Lock()
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a> buff.OnTick(deltaTime, allScaledDeltaTime)
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a> enumerator.Dispose()
+</code></pre></div>
+<p><strong>关键设计</strong>:</p>
+<ul>
+<li>使用 <code>DoubleBufferedBuffList</code> 的版本号机制保证 tick 期间安全添加/移除 buff</li>
+<li>每个 buff 接收两个 delta：<code>deltaTime</code>(实际) 和 <code>allScaledDeltaTime</code>(缩放后)</li>
+</ul>
+<h3 id="recyclebuff">RecycleBuff 流程<a class="headerlink" href="#recyclebuff" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>void RecycleBuff():
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a> // 阶段 1: 清理队长/队员变更导致的过期 buff
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a> foreach slot in squadManager.currentSquad.slots:
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a> // 检查并清理不属于当前队伍的 buff
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a> // 阶段 2: 遍历 m_buffs, 回收已标记结束的 buff
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a> foreach buff in m_buffs:
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a> if (buff.isFinished or buff.isExpired):
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a> ① m_buffs.Remove(buff)
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a> ② m_stackingGroups.TryGetValue(stackingKey, out group)
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a> group.RemoveBuff(buff)
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a> ③ buff.Release(recycle: true)
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a> ④ m_owner.TriggerEvent(Event::OnRemove)
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a> ⑤ BuffPool.Recycle(buff) // 回收到对象池
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a> // 阶段 3: 清理无效元素
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a> m_buffs.ClearInvalidElementsIfNotLoop()
+</code></pre></div>
+<h3 id="emptybuffcontainer">EmptyBuffContainer<a class="headerlink" href="#emptybuffcontainer" title="Permanent link">&para;</a></h3>
+<p><code>EmptyBuffContainer</code> 是 <code>BuffContainer</code> 的子类，所有操作都是 no-op。用于没有 buff 系统的实体 (如建筑物、子弹等)。</p>
+<hr />
+<h2 id="3-buff">Buff<a class="headerlink" href="#3-buff" title="Permanent link">&para;</a></h2>
+<h3 id="_8">概述<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<p><code>Buff</code> 是单个 buff 实例，包含来源信息、持续时间、行为(action)列表、修饰器(modifier)列表等。使用对象池 (<code>BuffPool</code>) 管理生命周期。</p>
+<h3 id="_9">结构体字段布局<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Size</th>
+<th>类型 / 字段</th>
+<th>来源 / 用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x10</code></td>
+<td>8</td>
+<td><code>BuffContainer*</code></td>
+<td><code>Buff::_RefreshStackingGroup</code></td>
+</tr>
+<tr>
+<td><code>0x18</code></td>
+<td>8</td>
+<td><code>BuffData*</code></td>
+<td><code>_AddModifier</code></td>
+</tr>
+<tr>
+<td><code>0x20</code></td>
+<td>4</td>
+<td><code>float totalLifeTime</code></td>
+<td>Overwrite 分支写入</td>
+</tr>
+<tr>
+<td><code>0x24</code></td>
+<td>1</td>
+<td><code>byte lifeType</code></td>
+<td><code>LifeType</code> 枚举</td>
+</tr>
+<tr>
+<td><code>0x28</code></td>
+<td>1</td>
+<td><code>bool flag</code></td>
+<td><code>_TriggerInternal</code>、<code>_AddModifier</code></td>
+</tr>
+<tr>
+<td><code>0x30</code></td>
+<td>8</td>
+<td><code>PrecisePeriodicTimer*</code></td>
+<td><code>_TriggerInternal</code></td>
+</tr>
+<tr>
+<td><code>0x50</code></td>
+<td>8</td>
+<td><code>Entity*</code></td>
+<td>parent entity，<code>_AddModifier</code></td>
+</tr>
+<tr>
+<td><code>0x88</code></td>
+<td>8</td>
+<td><code>List&lt;ShieldInst&gt;*</code></td>
+<td><code>_AddModifier</code></td>
+</tr>
+<tr>
+<td><code>0xA0</code></td>
+<td>4</td>
+<td><code>float remainingLifeTime</code></td>
+<td>Refresh / Extend 分支读取</td>
+</tr>
+<tr>
+<td><code>0xB0</code></td>
+<td>1</td>
+<td><code>byte enableState</code></td>
+<td><code>0</code> 表示 enabled，<code>StackBuff</code> case 1</td>
+</tr>
+<tr>
+<td><code>0xB1</code></td>
+<td>1</td>
+<td><code>bool isActionValid</code></td>
+<td><code>0</code> 表示 valid，<code>StackBuff</code> case 1</td>
+</tr>
+<tr>
+<td><code>0xB3</code></td>
+<td>1</td>
+<td><code>bool modifiersLoaded</code></td>
+<td><code>_AddModifier</code></td>
+</tr>
+<tr>
+<td><code>0xB8</code></td>
+<td>16</td>
+<td><code>Nullable&lt;ulong&gt; serverBuffId</code></td>
+<td><code>get_buffInstId</code>、<code>get_isServerBuff</code></td>
+</tr>
+<tr>
+<td><code>0xC8</code></td>
+<td>8</td>
+<td><code>ulong buffInstId</code></td>
+<td><code>get_buffInstId</code> fallback</td>
+</tr>
+<tr>
+<td><code>0xD0</code></td>
+<td>-</td>
+<td><code>MultiTagHandle</code></td>
+<td><code>_AddModifier</code> 中传给 <code>Entity::AddTag</code></td>
+</tr>
+<tr>
+<td><code>0xF9</code></td>
+<td>1</td>
+<td><code>bool isExtra</code></td>
+<td><code>get_isExtra</code></td>
+</tr>
+<tr>
+<td><code>0x100</code></td>
+<td>24</td>
+<td><code>SkillCastInfo</code></td>
+<td><code>get/set_skillCastInfo</code></td>
+</tr>
+<tr>
+<td><code>0x138</code></td>
+<td>4</td>
+<td><code>int filerTypeMask</code></td>
+<td><code>set_filerTypeMask</code></td>
+</tr>
+<tr>
+<td><code>0x148</code></td>
+<td>16</td>
+<td><code>AttributeMask</code></td>
+<td><code>get/set_attributeMask</code></td>
+</tr>
+<tr>
+<td><code>0x170</code></td>
+<td>16</td>
+<td><code>ObjectPtr&lt;AbilitySystem&gt; source</code></td>
+<td><code>_AddModifier</code> 内部使用</td>
+</tr>
+<tr>
+<td><code>0x180</code></td>
+<td>16</td>
+<td><code>ObjectPtr&lt;AbilitySystem&gt; source</code></td>
+<td><code>get_source</code> / <code>set_source</code></td>
+</tr>
+<tr>
+<td><code>0x198</code></td>
+<td>4</td>
+<td><code>int executingState</code></td>
+<td><code>set_executingState</code></td>
+</tr>
+<tr>
+<td><code>0x19C</code></td>
+<td>4</td>
+<td><code>int curFrame</code></td>
+<td><code>set_curFrame</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">方法清单<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<h4 id="getter-setter">属性 Getter / Setter<a class="headerlink" href="#getter-setter" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>get_instId()</code></td>
+<td><code>已确认</code></td>
+<td>获取实例 ID</td>
+</tr>
+<tr>
+<td><code>get_buffInstId()</code></td>
+<td><code>已确认</code></td>
+<td>获取 buff 实例 ID (serverBuffId ?? buffInstId)</td>
+</tr>
+<tr>
+<td><code>get_isExtra()</code></td>
+<td><code>已确认</code></td>
+<td>是否为额外 buff</td>
+</tr>
+<tr>
+<td><code>get_isServerBuff()</code></td>
+<td><code>已确认</code></td>
+<td>是否为服务器 buff</td>
+</tr>
+<tr>
+<td><code>get_isActionValid()</code></td>
+<td><code>已确认</code></td>
+<td>行为是否有效</td>
+</tr>
+<tr>
+<td><code>get_passedTime()</code></td>
+<td><code>已确认</code></td>
+<td>获取已流逝时间 (= totalLifeTime - remaining)</td>
+</tr>
+<tr>
+<td><code>get_source()</code></td>
+<td><code>已确认</code></td>
+<td>获取 buff 来源 (+0x180)</td>
+</tr>
+<tr>
+<td><code>get_attributeMask()</code></td>
+<td><code>已确认</code></td>
+<td>获取属性掩码</td>
+</tr>
+<tr>
+<td><code>get_childrenBuff()</code></td>
+<td><code>已确认</code></td>
+<td>获取子 buff 列表</td>
+</tr>
+<tr>
+<td><code>get_maxStackCount()</code></td>
+<td><code>已确认</code></td>
+<td>获取最大堆叠数</td>
+</tr>
+<tr>
+<td><code>get_skillCastInfo()</code></td>
+<td><code>已确认</code></td>
+<td>获取技能施放信息</td>
+</tr>
+<tr>
+<td><code>set_isEnabled(bool)</code></td>
+<td><code>已确认</code></td>
+<td>设置启用状态</td>
+</tr>
+<tr>
+<td><code>set_source(ObjectPtr&lt;AbilitySystem&gt;)</code></td>
+<td><code>已确认</code></td>
+<td>设置 buff 来源</td>
+</tr>
+<tr>
+<td><code>set_attributeMask(AttributeMask)</code></td>
+<td><code>已确认</code></td>
+<td>设置属性掩码</td>
+</tr>
+<tr>
+<td><code>set_skillCastInfo(SkillCastInfo)</code></td>
+<td><code>已确认</code></td>
+<td>设置技能施放信息</td>
+</tr>
+<tr>
+<td><code>set_curFrame(int)</code></td>
+<td><code>已确认</code></td>
+<td>设置当前帧</td>
+</tr>
+<tr>
+<td><code>set_executingState(ActionEnvironmentState)</code></td>
+<td><code>已确认</code></td>
+<td>设置执行状态</td>
+</tr>
+<tr>
+<td><code>set_filerTypeMask(FilerTypeMask)</code></td>
+<td><code>已确认</code></td>
+<td>设置过滤器类型掩码</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_11">生命周期<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>规模</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MarkFinish(bool, ServerActionParams, FinishReason, ObjectPtr&lt;AbilitySystem&gt;&amp;, SkillCastInfo&amp;)</code></td>
+<td><code>已确认</code></td>
+<td><strong>0x2994</strong></td>
+<td>标记 buff 结束 — 详见 <a href="#6-markfinish--buff-结束流程">§6</a></td>
+</tr>
+<tr>
+<td><code>OnAllocate()</code></td>
+<td><code>已确认</code></td>
+<td>0xcc</td>
+<td>从对象池分配时回调</td>
+</tr>
+<tr>
+<td><code>_TriggerInternal(float)</code></td>
+<td><code>已确认</code></td>
+<td>0xa5</td>
+<td>内部 tick 触发器</td>
+</tr>
+<tr>
+<td><code>SetBuffParent(IBuffRoot)</code></td>
+<td><code>已确认</code></td>
+<td>0x125</td>
+<td>设置 buff 父节点</td>
+</tr>
+<tr>
+<td><code>RawSetLifeTime(float)</code></td>
+<td><code>已确认</code></td>
+<td>0x64</td>
+<td>直接设置生命时间</td>
+</tr>
+<tr>
+<td><code>_SetLifeTime(float)</code></td>
+<td><code>已确认</code></td>
+<td>0x5e</td>
+<td>设置生命时间</td>
+</tr>
+<tr>
+<td><code>SetFinishable(bool)</code></td>
+<td><code>已确认</code></td>
+<td>0x112</td>
+<td>设置是否可被结束</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_12">增强系统<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>规模</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_Enhance()</code></td>
+<td><code>已确认</code></td>
+<td>0x253</td>
+<td>执行 buff 增强</td>
+</tr>
+<tr>
+<td><code>DecreaseEnhanceCnt(FinishBuffOption&amp;)</code></td>
+<td><code>已确认</code></td>
+<td><strong>0x9ba</strong></td>
+<td>减少增强层数, 重载修饰器, 必要时 MarkFinish</td>
+</tr>
+<tr>
+<td><code>_OnBeforeTryEnhanced(AbilitySystem)</code></td>
+<td><code>已确认</code></td>
+<td>0x67</td>
+<td>增强前回调 (纯事件通知)</td>
+</tr>
+<tr>
+<td><code>_OnAfterTryEnhanced(AbilitySystem, SkillCastInfo)</code></td>
+<td><code>已确认</code></td>
+<td>0x40f</td>
+<td>增强后回调 (事件广播)</td>
+</tr>
+<tr>
+<td><code>_EnhanceShield()</code></td>
+<td><code>已确认</code></td>
+<td>0xfe</td>
+<td>增强护盾</td>
+</tr>
+<tr>
+<td><code>OnDispelled(AbilitySystem)</code></td>
+<td><code>已确认</code></td>
+<td>0x67</td>
+<td>被驱散时回调</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_13">修饰器系统<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>规模</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_AddModifier()</code></td>
+<td><code>已确认</code></td>
+<td>0x1df</td>
+<td>添加 buff 修饰器</td>
+</tr>
+<tr>
+<td><code>_RemoveModifier()</code></td>
+<td><code>已确认</code></td>
+<td>0x172</td>
+<td>移除 buff 修饰器</td>
+</tr>
+<tr>
+<td><code>_LoadGlobalModifier()</code></td>
+<td><code>已确认</code></td>
+<td>0xcc</td>
+<td>加载全局修饰器</td>
+</tr>
+<tr>
+<td><code>_LoadDamageModifier()</code></td>
+<td><code>已确认</code></td>
+<td>0x1f2</td>
+<td>加载伤害修饰器</td>
+</tr>
+<tr>
+<td><code>_LoadPoiseModifier()</code></td>
+<td><code>已确认</code></td>
+<td>0x100</td>
+<td>加载韧性修饰器</td>
+</tr>
+<tr>
+<td><code>_LoadHealModifier()</code></td>
+<td><code>已确认</code></td>
+<td>0x100</td>
+<td>加载治疗修饰器</td>
+</tr>
+<tr>
+<td><code>GetPoiseModifiers()</code></td>
+<td><code>已确认</code></td>
+<td>0x27</td>
+<td>获取韧性修饰器</td>
+</tr>
+<tr>
+<td><code>GetHealModifiers()</code></td>
+<td><code>已确认</code></td>
+<td>0x27</td>
+<td>获取治疗修饰器</td>
+</tr>
+<tr>
+<td><code>GetDamageModifiers()</code></td>
+<td><code>已确认</code></td>
+<td>0x27</td>
+<td>获取伤害修饰器</td>
+</tr>
+<tr>
+<td><code>GetGlobalModifiers()</code></td>
+<td><code>已确认</code></td>
+<td>0x27</td>
+<td>获取全局修饰器</td>
+</tr>
+<tr>
+<td><code>GetBaseValue(AttributeType, double&amp;, double&amp;, double&amp;, double&amp;)</code></td>
+<td><code>已确认</code></td>
+<td>0x8d</td>
+<td>获取基础属性值</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_14">行为系统<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>规模</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_LoadActions(...)</code></td>
+<td><code>已确认</code></td>
+<td><strong>0x1898</strong></td>
+<td>加载 buff 行为 — 详见 <a href="#8-action-系统">§8</a></td>
+</tr>
+<tr>
+<td><code>_LoadIgniteActions()</code></td>
+<td><code>已确认</code></td>
+<td>0x47f</td>
+<td>加载点燃行为</td>
+</tr>
+<tr>
+<td><code>_ExecuteBuffAction(Event, AbilitySystem)</code></td>
+<td><code>已确认</code></td>
+<td>0x2c1</td>
+<td>执行 buff 行为</td>
+</tr>
+<tr>
+<td><code>_LoadPriority()</code></td>
+<td><code>已确认</code></td>
+<td>0x56</td>
+<td>加载优先级</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_15">标签 / 护盾 / 服务器<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>规模</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ContainsTag(GameplayTag)</code></td>
+<td><code>已确认</code></td>
+<td>0xa3</td>
+<td>是否包含标签</td>
+</tr>
+<tr>
+<td><code>ContainsTag(PredefinedTag)</code></td>
+<td><code>已确认</code></td>
+<td>0xea</td>
+<td>是否包含预定义标签</td>
+</tr>
+<tr>
+<td><code>ContainsTag(int)</code></td>
+<td><code>已确认</code></td>
+<td>0x61</td>
+<td>是否包含标签 (by ID)</td>
+</tr>
+<tr>
+<td><code>_LoadShieldInsts()</code></td>
+<td><code>已确认</code></td>
+<td>0x15a</td>
+<td>加载护盾实例</td>
+</tr>
+<tr>
+<td><code>ModifyShield(ShieldConfig.ModifyType, double)</code></td>
+<td><code>已确认</code></td>
+<td>0x11f</td>
+<td>修改护盾</td>
+</tr>
+<tr>
+<td><code>_AddExtendTagModifier()</code></td>
+<td><code>已确认</code></td>
+<td>0x9a8</td>
+<td>添加扩展标签修饰器</td>
+</tr>
+<tr>
+<td><code>_RemoveExtendTagModifier()</code></td>
+<td><code>已确认</code></td>
+<td>0x684</td>
+<td>移除扩展标签修饰器</td>
+</tr>
+<tr>
+<td><code>FillSkillCastInfo()</code></td>
+<td><code>已确认</code></td>
+<td>0x49</td>
+<td>填充技能施放信息</td>
+</tr>
+<tr>
+<td><code>RefreshPriority()</code></td>
+<td><code>已确认</code></td>
+<td>0x96</td>
+<td>刷新优先级</td>
+</tr>
+<tr>
+<td><code>_UploadToServer(ServerActionParams, bool)</code></td>
+<td><code>已确认</code></td>
+<td>0x31b</td>
+<td>上传到服务器</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_triggerinternal-tick">_TriggerInternal — 内部 Tick 触发<a class="headerlink" href="#_triggerinternal-tick" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><code>PrecisePeriodicTimer</code>: 如果 buff 周期为 1.0s 而 deltaTime 为 2.5s，则一次触发 2 次 <code>OnTrigger()</code>，保证帧率波动下行为一致性。</p>
+</blockquote>
+<h3 id="_enhance">_Enhance — 增强流水线<a class="headerlink" href="#_enhance" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>void Buff._Enhance():
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a> ① _ExecuteBuffAction(Event::OnEnhance, sourceAbilitySystem) // 触发增强事件
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a> ② source = this.source.Lock() // 锁定源实体
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a> ③ AttributeModifierLoader::LoadAttributesModifier( // ★ 加载增强层修饰器
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a> modifierData, Nullable&lt;AttrType&gt;, Nullable&lt;AttrType&gt;,
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a> actionBlackboard, stackCount)
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a> ④ MarkAttributesDirty(attributeMask) // 触发属性重算
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a> ⑤ _EnhanceShield() // 增强护盾
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a> ⑥ BattleRecorder::RecordBuffEnhanceChange(this) // 战斗日志
+</code></pre></div>
+<h3 id="decreaseenhancecnt">DecreaseEnhanceCnt — 反增强流水线<a class="headerlink" href="#decreaseenhancecnt" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>96 基本块, 2490 字节, 圈复杂度 41。由 <code>BuffContainer::FinishBuff</code> 触发。</p>
+</blockquote>
+<pre class="mermaid"><code>flowchart TD
+    A["执行 OnDecreaseEnhance"]
+    B["锁定 source"]
+    C["按 stackCount - finishLayerCnt&lt;br/&gt;重新加载属性修饰器"]
+    D["标记属性 dirty"]
+    E["刷新 stacking group"]
+    F["记录 BuffEnhanceChange"]
+    G{"enhanceCnt &lt;= 0"}
+    H["MarkFinish"]
+    I["触发 OnEnhanceChanged"]
+    A --&gt; B --&gt; C --&gt; D --&gt; E --&gt; F --&gt; G
+    G --&gt;|是| H --&gt; I
+    G --&gt;|否| I</code></pre>
+<p><strong><code>_Enhance</code> vs <code>DecreaseEnhanceCnt</code> 对比</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th><code>_Enhance</code></th>
+<th><code>DecreaseEnhanceCnt</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>触发事件</td>
+<td><code>_ExecuteBuffAction(OnEnhance)</code></td>
+<td><code>_ExecuteBuffAction(OnDecreaseEnhance)</code></td>
+</tr>
+<tr>
+<td>修饰器</td>
+<td><code>LoadAttributesModifier(..., stackCount)</code></td>
+<td><code>LoadAttributesModifier(..., stackCount - finishLayerCnt)</code></td>
+</tr>
+<tr>
+<td>结束 buff</td>
+<td>—</td>
+<td><code>MarkFinish(...)</code> 当层数归零</td>
+</tr>
+<tr>
+<td>广播</td>
+<td>—</td>
+<td><code>TriggerEvent(OnEnhanceChanged)</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_16">方法规模统计<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>规模</th>
+<th>方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&gt; 10KB</td>
+<td><code>MarkFinish</code> (0x2994), <code>_AddExtendTagModifier</code> (0x9a8)</td>
+</tr>
+<tr>
+<td>5-10KB</td>
+<td><code>_LoadActions</code> (0x1898), <code>DecreaseEnhanceCnt</code> (0x9ba)</td>
+</tr>
+<tr>
+<td>1-5KB</td>
+<td><code>_RemoveExtendTagModifier</code>, <code>_OnAfterTryEnhanced</code>, <code>_LoadIgniteActions</code>, <code>_UploadToServer</code>, <code>_ExecuteBuffAction</code>, <code>_AddModifier</code>, <code>_LoadDamageModifier</code>, <code>_RemoveModifier</code>, <code>_LoadShieldInsts</code>, <code>SetBuffParent</code></td>
+</tr>
+<tr>
+<td>&lt; 1KB</td>
+<td>其余 getter/setter 和小方法</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-buffstackinggroup">BuffStackingGroup<a class="headerlink" href="#4-buffstackinggroup" title="Permanent link">&para;</a></h2>
+<h3 id="_17">概述<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<p>管理同类 buff (相同 stackingKey) 的堆叠行为。当添加一个已有 buffId 的新 buff 时，由 StackingGroup 决定是创建新实例、刷新旧实例、还是拒绝。</p>
+<h3 id="_18">结构体字段布局<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>BuffStackingGroup:
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a> +0x18: int16 stackingType (switch key: 0~11)
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a> +0x1C: int32 maxStackCount (堆叠上限)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a> +0x20: int32 currentCount (当前未结束 buff 数)
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a> +0x38: List&lt;EffectInstance&gt;* effectList (_ClearStackEffects 发现)
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a> +0x40: AbilitySystem* buffSource (buff 施放者)
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a> +0x48: AbilitySystem* containerOwner (容器所属实体)
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a> +0x50: PriorityQueue&lt;Buff&gt;* priorityQueue (内部由 UniqueList&lt;Buff&gt; 支持)
+</code></pre></div>
+<h3 id="_19">方法清单<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>规模</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ctor(BuffData)</code></td>
+<td><code>已确认</code></td>
+<td>0x112</td>
+<td>构造函数</td>
+</tr>
+<tr>
+<td><code>StackBuff(BuffData, AbilitySystem, AbilitySystem, AddBuffOption&amp;, Buff&amp;)</code></td>
+<td><code>已确认</code></td>
+<td>0x2fc</td>
+<td>堆叠 buff — 详见 <a href="#52-stackbuff-完整汇编解码">§5.2</a></td>
+</tr>
+<tr>
+<td><code>_AllocateBuff(AbilitySystem, BuffData, AddBuffOption&amp;)</code></td>
+<td><code>已确认</code></td>
+<td>0xd5</td>
+<td>从 BuffPool 分配并初始化 Buff</td>
+</tr>
+<tr>
+<td><code>RemoveBuff(Buff)</code></td>
+<td><code>已确认</code></td>
+<td>0x79</td>
+<td>移除 buff</td>
+</tr>
+<tr>
+<td><code>Refresh()</code></td>
+<td><code>已确认</code></td>
+<td>0x14c</td>
+<td>刷新堆叠组</td>
+</tr>
+<tr>
+<td><code>RefreshPriority(Buff)</code></td>
+<td><code>已确认</code></td>
+<td>0x409</td>
+<td>刷新优先级</td>
+</tr>
+<tr>
+<td><code>Release()</code></td>
+<td><code>已确认</code></td>
+<td>0x62</td>
+<td>释放</td>
+</tr>
+<tr>
+<td><code>IsEmpty()</code></td>
+<td><code>已确认</code></td>
+<td>0x140</td>
+<td>是否为空</td>
+</tr>
+<tr>
+<td><code>_RefreshStackEffects()</code></td>
+<td><code>已确认</code></td>
+<td><strong>0x27bc</strong></td>
+<td>刷新堆叠效果 — 详见 <a href="#54-_refreshstackeffects">§5.4</a></td>
+</tr>
+<tr>
+<td><code>_ClearStackEffects()</code></td>
+<td><code>已确认</code></td>
+<td>0x16a</td>
+<td>清除堆叠效果</td>
+</tr>
+<tr>
+<td><code>_GetUnFinishedBuffCount()</code></td>
+<td><code>已确认</code></td>
+<td>0xcd</td>
+<td>获取未结束 buff 数</td>
+</tr>
+<tr>
+<td><code>_GetFirstUnFinishedBuff()</code></td>
+<td><code>已确认</code></td>
+<td>0x8a</td>
+<td>获取第一个未结束 buff</td>
+</tr>
+<tr>
+<td><code>_GetLastUnFinishedBuff()</code></td>
+<td><code>已确认</code></td>
+<td>0xd4</td>
+<td>获取最后一个未结束 buff</td>
+</tr>
+<tr>
+<td><code>InitMaxStackCount(Buff)</code></td>
+<td><code>已确认</code></td>
+<td>0x72</td>
+<td>初始化最大堆叠数</td>
+</tr>
+<tr>
+<td><code>_SetBuffDurationOverwrite(Buff, Buff)</code></td>
+<td><code>已确认</code></td>
+<td>0x2b</td>
+<td>覆盖式持续时间</td>
+</tr>
+<tr>
+<td><code>_SetBuffDurationRefresh(Buff, Buff)</code></td>
+<td><code>已确认</code></td>
+<td>0x57</td>
+<td>刷新式持续时间</td>
+</tr>
+<tr>
+<td><code>_SetBuffDurationExtend(Buff, Buff)</code></td>
+<td><code>已确认</code></td>
+<td>0x42</td>
+<td>延长式持续时间</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-堆叠系统">堆叠系统<a class="headerlink" href="#5-堆叠系统" title="Permanent link">&para;</a></h2>
+<h3 id="buffstackingsettings">BuffStackingSettings 属性分析<a class="headerlink" href="#buffstackingsettings" title="Permanent link">&para;</a></h3>
+<h4 id="_20">结构布局<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>BuffStackingSettings:
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a> +0x12: int16 stackingType (StackingType 枚举值)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a> +0x38: bool iconFlag
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a> +0x48: int iconCount
+</code></pre></div>
+<h4 id="stackingtype">StackingType 枚举与属性矩阵<a class="headerlink" href="#stackingtype" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>类型</th>
+<th>已有 buff</th>
+<th>新 buff</th>
+<th>层数</th>
+<th>生命周期</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Unlimited</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>每次创建独立 buff 实例并启用</td>
+</tr>
+<tr>
+<td>1</td>
+<td>HighPriority</td>
+<td>—</td>
+<td>—</td>
+<td>✓</td>
+<td>✓</td>
+<td>每次创建实例，队列中仅最高优先级 1 个实例 enabled，其余 disabled</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Stack</td>
+<td>✓</td>
+<td>—</td>
+<td>—</td>
+<td>✓</td>
+<td>每次创建实例；超过上限时 finish 最后一个未完成实例</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Enhance</td>
+<td>✓</td>
+<td>✓</td>
+<td>—</td>
+<td>—</td>
+<td>复用第一个未完成实例并增加 enhance 层数；无实例时创建</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Refresh</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>复用旧实例，只刷新持续时间，且不会把剩余时间缩短</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Extend</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>复用旧实例，将新持续时间累加到旧剩余时间</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Modify</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>复用旧实例并用新 buff 数据/参数修改旧实例</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Unique</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>已有未完成实例时拒绝新增；否则创建</td>
+</tr>
+<tr>
+<td>8</td>
+<td>EnhanceAndRefresh</td>
+<td>✓</td>
+<td>✓</td>
+<td>—</td>
+<td>—</td>
+<td>Enhance 后再按 Refresh 规则刷新持续时间</td>
+</tr>
+<tr>
+<td>9</td>
+<td>OverwriteDuration</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>复用旧实例并强制覆盖为新持续时间</td>
+</tr>
+<tr>
+<td>10</td>
+<td>EnhanceAndOverwriteDuration</td>
+<td>✓</td>
+<td>✓</td>
+<td>—</td>
+<td>—</td>
+<td>Enhance 后再按 OverwriteDuration 规则覆盖持续时间</td>
+</tr>
+<tr>
+<td>11</td>
+<td>HighPriorityWithMaxStack</td>
+<td>✓</td>
+<td>—</td>
+<td>✓</td>
+<td>—</td>
+<td>每次创建实例，队列中最高优先级 maxStackCount 个 enabled，其余 disabled</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-stackbuff-完整汇编解码">StackBuff 完整汇编解码<a class="headerlink" href="#52-stackbuff-完整汇编解码" title="Permanent link">&para;</a></h3>
+<h4 id="_21">函数签名<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>StackBuff(
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a> this: BuffStackingGroup*, // rdi
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a> buffData: BuffData*, // r14
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a> buffSource: AbilitySystem*, // rbx
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a> containerOwner: AbilitySystem*, // rsi
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a> addBuffOption: AddBuffOption&amp;, // [rbp+0x180]
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a> outBuff: Buff&amp; // [rbp+0x188]
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>)
+</code></pre></div>
+<h4 id="_22">公共前导逻辑<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>GC 屏障写入 <code>buffSource</code> 与 <code>containerOwner</code>。</td>
+</tr>
+<tr>
+<td>2</td>
+<td>读取 stacking type，进入 12 分支 switch。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="case-0-unlimited">Case 0 — Unlimited<a class="headerlink" href="#case-0-unlimited" title="Permanent link">&para;</a></h4>
+<pre class="mermaid"><code>flowchart TD
+    N0["_AllocateBuff"]
+    N1["set_isEnabled(true)"]
+    N2["PriorityQueue.Add"]
+    N3["*outBuff = newBuff"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3</code></pre>
+<p>始终创建新实例。</p>
+<h4 id="case-1-highpriority">Case 1 — HighPriority<a class="headerlink" href="#case-1-highpriority" title="Permanent link">&para;</a></h4>
+<pre class="mermaid"><code>flowchart TD
+    N0["_AllocateBuff"]
+    N1["PriorityQueue.Add"]
+    N2["遍历所有 buff, 管理 enable/disable 状态:"]
+    N3["第一个有效 buff"]
+    N4["set_isEnabled(true)"]
+    N5["其余有效且当前 enabled 的 buff"]
+    N6["set_isEnabled(false)"]
+    N7["构建 MapField&amp;lt;ulong, bool&amp;gt; protoMap"]
+    N8["BattleManager.ServerReporter.CreateServerOp(BATTLE_ACTION_OPERATE_TYPE=0x14, protoMap, ...)"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N3 --&gt; N4
+    N5 --&gt; N6
+    N6 --&gt; N7
+    N7 --&gt; N8</code></pre>
+<h4 id="case-2-stack">Case 2 — Stack<a class="headerlink" href="#case-2-stack" title="Permanent link">&para;</a></h4>
+<pre class="mermaid"><code>flowchart TD
+    A["_AllocateBuff"]
+    B["newBuff"]
+    C{"maxStackCount &gt; 0&lt;br/&gt;且 currentCount &gt;= maxStackCount"}
+    D["_GetLastUnFinishedBuff"]
+    E["MarkFinish(FinishReason=100)"]
+    F["PriorityQueue.Add(newBuff)"]
+    G["currentCount = _GetUnFinishedBuffCount()"]
+    H["_RefreshStackEffects()"]
+    A --&gt; B --&gt; C
+    C --&gt;|是| D --&gt; E --&gt; F
+    C --&gt;|否| F
+    F --&gt; G --&gt; H</code></pre>
+<p>溢出时 MarkFinish 最后一个未完成的 buff，为新 buff 腾空间。</p>
+<h4 id="case-3-enhance">Case 3 — Enhance<a class="headerlink" href="#case-3-enhance" title="Permanent link">&para;</a></h4>
+<pre class="mermaid"><code>flowchart TD
+    Start["_GetFirstUnFinishedBuff()"]
+    Exists{"existingBuff 存在"}
+    Before["_OnBeforeTryEnhanced(buffSource)"]
+    Full{"maxStackCount &gt; 0&lt;br/&gt;且 currentCount &gt;= maxStackCount"}
+    Skip["跳过增强"]
+    Enhance["currentCount++&lt;br/&gt;_RefreshStackEffects()&lt;br/&gt;existingBuff._Enhance()"]
+    Allocate["_AllocateBuff"]
+    Add["inc count&lt;br/&gt;_RefreshStackEffects&lt;br/&gt;PriorityQueue.Add"]
+    After["_OnAfterTryEnhanced"]
+    Start --&gt; Exists
+    Exists --&gt;|是| Before --&gt; Full
+    Full --&gt;|是| Skip --&gt; After
+    Full --&gt;|否| Enhance --&gt; After
+    Exists --&gt;|否| Allocate --&gt; Add --&gt; After</code></pre>
+<h4 id="case-4-refresh">Case 4 — 刷新 (Refresh)<a class="headerlink" href="#case-4-refresh" title="Permanent link">&para;</a></h4>
+<pre class="mermaid"><code>flowchart TD
+    Start["_GetFirstUnFinishedBuff()"]
+    Exists{"existingBuff 存在"}
+    Allocate["_AllocateBuff"]
+    Add["set_isEnabled(true)&lt;br/&gt;PriorityQueue.Add"]
+    OutNew["outBuff = newBuff"]
+    Temp["临时分配 newBuff"]
+    Refresh["_SetBuffDurationRefresh(existingBuff, newBuff)"]
+    OutOld["outBuff = existingBuff"]
+    Start --&gt; Exists
+    Exists --&gt;|否| Allocate --&gt; Add --&gt; OutNew
+    Exists --&gt;|是| Temp --&gt; Refresh --&gt; OutOld</code></pre>
+<p><code>_SetBuffDurationRefresh</code> 不会缩短旧 buff：当新 buff 总时长小于旧 buff 剩余时长时，旧剩余时长保持不变。</p>
+<h4 id="case-5-extend">Case 5 — 延展 (Extend)<a class="headerlink" href="#case-5-extend" title="Permanent link">&para;</a></h4>
+<pre class="mermaid"><code>flowchart TD
+    Start["_GetFirstUnFinishedBuff()"]
+    Exists{"existingBuff 存在"}
+    Allocate["_AllocateBuff"]
+    Add["set_isEnabled(true)&lt;br/&gt;PriorityQueue.Add"]
+    OutNew["outBuff = newBuff"]
+    Temp["临时分配 newBuff"]
+    Infinite{"任一 buff 为 Infinity"}
+    SetInf["existingBuff.lifeType = Infinity"]
+    Extend["existingBuff._SetLifeTime&lt;br/&gt;(remaining + newBuff.totalLifeTime)"]
+    OutOld["outBuff = existingBuff"]
+    Start --&gt; Exists
+    Exists --&gt;|否| Allocate --&gt; Add --&gt; OutNew
+    Exists --&gt;|是| Temp --&gt; Infinite
+    Infinite --&gt;|是| SetInf --&gt; OutOld
+    Infinite --&gt;|否| Extend --&gt; OutOld</code></pre>
+<h4 id="case-6-modify">Case 6 — Modify<a class="headerlink" href="#case-6-modify" title="Permanent link">&para;</a></h4>
+<pre class="mermaid"><code>flowchart TD
+    Start["_GetFirstUnFinishedBuff()"]
+    Exists{"existingBuff 存在"}
+    Allocate["_AllocateBuff"]
+    Add["set_isEnabled(true)&lt;br/&gt;PriorityQueue.Add"]
+    OutNew["outBuff = newBuff"]
+    Read["读取新 buffData / addBuffOption"]
+    Modify["修改 existingBuff 的参数/数据"]
+    OutOld["outBuff = existingBuff"]
+    Start --&gt; Exists
+    Exists --&gt;|否| Allocate --&gt; Add --&gt; OutNew
+    Exists --&gt;|是| Read --&gt; Modify --&gt; OutOld</code></pre>
+<p>Modify 不增加层数，也不刷新持续时间；它的重点是把新配置参数应用到已有实例。</p>
+<h4 id="case-7-unique">Case 7 — Unique<a class="headerlink" href="#case-7-unique" title="Permanent link">&para;</a></h4>
+<pre class="mermaid"><code>flowchart TD
+    Start["_GetFirstUnFinishedBuff()"]
+    Exists{"existingBuff 存在"}
+    Reject["outBuff = null&lt;br/&gt;拒绝本次添加"]
+    Allocate["_AllocateBuff"]
+    Add["set_isEnabled(true)&lt;br/&gt;PriorityQueue.Add"]
+    Out["outBuff = newBuff"]
+    Start --&gt; Exists
+    Exists --&gt;|是| Reject
+    Exists --&gt;|否| Allocate --&gt; Add --&gt; Out</code></pre>
+<p>已有未完成实例时直接拒绝本次添加。</p>
+<h4 id="case-8-enhanceandrefresh">Case 8 — EnhanceAndRefresh<a class="headerlink" href="#case-8-enhanceandrefresh" title="Permanent link">&para;</a></h4>
+<pre class="mermaid"><code>flowchart TD
+    Start["_GetFirstUnFinishedBuff()"]
+    Exists{"existingBuff 存在"}
+    Before["_OnBeforeTryEnhanced"]
+    CanEnhance{"maxStackCount &lt;= 0&lt;br/&gt;或 currentCount &lt; maxStackCount"}
+    Enhance["currentCount++&lt;br/&gt;_RefreshStackEffects&lt;br/&gt;existingBuff._Enhance()"]
+    Refresh["_SetBuffDurationRefresh(existingBuff, newBuff)"]
+    AfterOld["_OnAfterTryEnhanced&lt;br/&gt;outBuff = existingBuff"]
+    Allocate["_AllocateBuff"]
+    Add["inc count&lt;br/&gt;_RefreshStackEffects&lt;br/&gt;PriorityQueue.Add"]
+    AfterNew["_OnAfterTryEnhanced&lt;br/&gt;outBuff = newBuff"]
+    Start --&gt; Exists
+    Exists --&gt;|是| Before --&gt; CanEnhance
+    CanEnhance --&gt;|是| Enhance --&gt; Refresh --&gt; AfterOld
+    CanEnhance --&gt;|否| AfterOld
+    Exists --&gt;|否| Allocate --&gt; Add --&gt; AfterNew</code></pre>
+<p>增强层数和 Refresh 时长规则同时生效。</p>
+<h4 id="case-9-overwriteduration">Case 9 — OverwriteDuration<a class="headerlink" href="#case-9-overwriteduration" title="Permanent link">&para;</a></h4>
+<pre class="mermaid"><code>flowchart TD
+    Start["_GetFirstUnFinishedBuff()"]
+    Exists{"existingBuff 存在"}
+    Allocate["_AllocateBuff"]
+    Add["set_isEnabled(true)&lt;br/&gt;PriorityQueue.Add"]
+    OutNew["outBuff = newBuff"]
+    Temp["临时分配 newBuff"]
+    Overwrite["_SetBuffDurationOverwrite(existingBuff, newBuff)"]
+    OutOld["outBuff = existingBuff"]
+    Start --&gt; Exists
+    Exists --&gt;|否| Allocate --&gt; Add --&gt; OutNew
+    Exists --&gt;|是| Temp --&gt; Overwrite --&gt; OutOld</code></pre>
+<h4 id="case-10-enhanceandoverwriteduration">Case 10 — EnhanceAndOverwriteDuration<a class="headerlink" href="#case-10-enhanceandoverwriteduration" title="Permanent link">&para;</a></h4>
+<pre class="mermaid"><code>flowchart TD
+    Start["_GetFirstUnFinishedBuff()"]
+    Exists{"existingBuff 存在"}
+    Before["_OnBeforeTryEnhanced"]
+    CanEnhance{"maxStackCount &lt;= 0&lt;br/&gt;或 currentCount &lt; maxStackCount"}
+    Enhance["currentCount++&lt;br/&gt;_RefreshStackEffects&lt;br/&gt;existingBuff._Enhance()"]
+    Overwrite["_SetBuffDurationOverwrite(existingBuff, newBuff)"]
+    AfterOld["_OnAfterTryEnhanced&lt;br/&gt;outBuff = existingBuff"]
+    Allocate["_AllocateBuff"]
+    Add["inc count&lt;br/&gt;_RefreshStackEffects&lt;br/&gt;PriorityQueue.Add"]
+    AfterNew["_OnAfterTryEnhanced&lt;br/&gt;outBuff = newBuff"]
+    Start --&gt; Exists
+    Exists --&gt;|是| Before --&gt; CanEnhance
+    CanEnhance --&gt;|是| Enhance --&gt; Overwrite --&gt; AfterOld
+    CanEnhance --&gt;|否| AfterOld
+    Exists --&gt;|否| Allocate --&gt; Add --&gt; AfterNew</code></pre>
+<p>case 10 组合了 case 8 的增强层数处理和 case 9 的持续时间覆盖处理。</p>
+<h4 id="case-11-highprioritywithmaxstack">Case 11 — HighPriorityWithMaxStack<a class="headerlink" href="#case-11-highprioritywithmaxstack" title="Permanent link">&para;</a></h4>
+<pre class="mermaid"><code>flowchart TD
+    Allocate["_AllocateBuff"]
+    Add["PriorityQueue.Add"]
+    Init["selected = 0&lt;br/&gt;currentCount = queue.Count"]
+    Loop{"还有 buff"}
+    Keep{"selected &lt; maxStackCount&lt;br/&gt;且 buff 有效"}
+    Enable["selected++&lt;br/&gt;必要时 set_isEnabled(true)"]
+    Disable["必要时 set_isEnabled(false)"]
+    Report["构建 enable-state protoMap&lt;br/&gt;CreateServerOp"]
+    Out["outBuff = newBuff"]
+    Allocate --&gt; Add --&gt; Init --&gt; Loop
+    Loop --&gt;|有| Keep
+    Keep --&gt;|是| Enable --&gt; Loop
+    Keep --&gt;|否| Disable --&gt; Loop
+    Loop --&gt;|无| Report --&gt; Out</code></pre>
+<p>和 HighPriority 一样，HighPriorityWithMaxStack 不会 finish 或移除超过上限的旧实例；它只维护“前 maxStackCount 个有效实例 enabled，其余 disabled”。</p>
+<h4 id="case">Case 分布汇总<a class="headerlink" href="#case" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>类型</th>
+<th>行为</th>
+<th>输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Unlimited</td>
+<td>总是 Allocate + Add + enabled</td>
+<td>newBuff</td>
+</tr>
+<tr>
+<td>1</td>
+<td>HighPriority</td>
+<td>Allocate + Add + 只启用最高优先级 1 个 + ServerOp</td>
+<td>newBuff</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Stack</td>
+<td>上限检查 → 溢出则 MarkFinish 最后一个未完成实例</td>
+<td>newBuff</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Enhance</td>
+<td>找到现有则 _Enhance/加层，否则 Allocate</td>
+<td>existingBuff 或 newBuff</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Refresh</td>
+<td>Allocate 用于读取 duration → _SetBuffDurationRefresh</td>
+<td><strong>existingBuff</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Extend</td>
+<td>Allocate 用于读取 duration → 累加 remaining</td>
+<td><strong>existingBuff</strong></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Modify</td>
+<td>复用旧实例并修改参数</td>
+<td><strong>existingBuff</strong></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Unique</td>
+<td>已有实例则拒绝新增，否则 Allocate</td>
+<td>null 或 newBuff</td>
+</tr>
+<tr>
+<td>8</td>
+<td>EnhanceAndRefresh</td>
+<td>Enhance + Refresh</td>
+<td>existingBuff 或 newBuff</td>
+</tr>
+<tr>
+<td>9</td>
+<td>OverwriteDuration</td>
+<td>Allocate 用于读取 duration → _SetBuffDurationOverwrite</td>
+<td><strong>existingBuff</strong></td>
+</tr>
+<tr>
+<td>10</td>
+<td>EnhanceAndOverwriteDuration</td>
+<td>Enhance + OverwriteDuration</td>
+<td>existingBuff 或 newBuff</td>
+</tr>
+<tr>
+<td>11</td>
+<td>HighPriorityWithMaxStack</td>
+<td>Allocate + Add + 启用最高优先级 maxStackCount 个 + ServerOp</td>
+<td>newBuff</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Case 4/5 中 <code>_AllocateBuff</code> 创建的新 buff 仅用于提取 duration 数据，随后被丢弃。
+Case 1/11 中超出启用数量的 buff 不会被移除，只会 disabled；disabled buff 不应参与 timeline、trigger、modifier、ability event。</p>
+</blockquote>
+<h3 id="_23">三种持续时间策略<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h3>
+<p><strong>Overwrite</strong> (<code>_SetBuffDurationOverwrite</code>, 0x2b):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>target.lifeType = source.lifeType // [target+0x24] = [source+0x24]
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>target._SetLifeTime(source.totalLifeTime) // xmm1 = [source+0x20]
+</code></pre></div>
+<p><strong>Refresh</strong> (<code>_SetBuffDurationRefresh</code>, 0x57):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>if target.lifeType == 1: return // infinite, skip
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>if source.lifeType == 1: [special]
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>remaining = target.remaining - epsilon
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>if source.totalLifeTime &gt;= remaining:
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a> target._SetLifeTime(source.totalLifeTime)
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>else:
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a> target._SetLifeTime(target.remaining) // keep old
+</code></pre></div>
+<p><strong>Extend</strong> (在 Case 5 中内联实现):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>target._SetLifeTime(target.remaining + source.totalLifeTime)
+</code></pre></div>
+<h3 id="54-_refreshstackeffects">_RefreshStackEffects<a class="headerlink" href="#54-_refreshstackeffects" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>调用者:</strong> <code>StackBuff</code>, <code>DecreaseEnhanceCnt</code></li>
+<li><strong>所属:</strong> <code>BuffStackingGroup</code></li>
+</ul>
+<h4 id="_24">伪代码<a class="headerlink" href="#_24" title="Permanent link">&para;</a></h4>
+<p><strong>关键观察</strong>: 全量刷新模式——先全部清空，再全部重建。"效果"是通过 <code>CreateEffectByCfg</code> 创建的 <code>EffectInstance</code> 对象，存储在 <code>BuffStackingGroup.+0x38</code> 的 <code>List&lt;EffectInstance&gt;</code> 中。</p>
+<h3 id="refresh">Refresh 调用链<a class="headerlink" href="#refresh" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    Start["Buff 刷新堆叠组"]
+    Container["BuffContainer 按 stackingId 查找 group"]
+    Found{"找到 stacking group？"}
+    Refresh["group.Refresh()"]
+    Count["CountBuffs() 得到当前数量"]
+    Effects["_RefreshStackEffects() 重建堆叠特效"]
+    End["刷新结束"]
+
+    Start --&gt; Container --&gt; Found
+    Found -- "是" --&gt; Refresh --&gt; Count --&gt; Effects --&gt; End
+    Found -- "否" --&gt; End</code></pre>
+<p>调用时机:</p>
+<ul>
+<li><code>StackBuff()</code> — 添加/替换 buff 后</li>
+<li><code>DecreaseEnhanceCnt()</code> — 减少增强层数后</li>
+<li><code>MarkFinish()</code> — 当 isStackType → 结束后刷新</li>
+</ul>
+<hr />
+<h2 id="6-markfinish--buff-结束流程">MarkFinish — Buff 结束流程<a class="headerlink" href="#6-markfinish--buff-结束流程" title="Permanent link">&para;</a></h2>
+<h3 id="_25">基本信息<a class="headerlink" href="#_25" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>所属类:</strong> <code>Buff</code></li>
+</ul>
+<h3 id="10">执行流程 (10 步)<a class="headerlink" href="#10" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    Start["MarkFinish"]
+    NeedEvent{"需要 OnRemove 事件？"}
+    Event["触发 OnRemove 并执行移除 Action"]
+    RemoveMod["移除属性修饰器和扩展标签"]
+    Channel["结束引导动作"]
+    Children["级联移除子 Buff"]
+    Finish["OnFinish(reason)"]
+    Stack{"属于堆叠组？"}
+    Refresh["刷新堆叠组"]
+    Upload{"需要同步？"}
+    Sync["写入同步操作"]
+    Record["战斗记录"]
+    Cleanup["清理引用"]
+
+    Start --&gt; NeedEvent
+    NeedEvent -- "是" --&gt; Event --&gt; RemoveMod
+    NeedEvent -- "否" --&gt; RemoveMod
+    RemoveMod --&gt; Channel --&gt; Children --&gt; Finish --&gt; Stack
+    Stack -- "是" --&gt; Refresh --&gt; Upload
+    Stack -- "否" --&gt; Upload
+    Upload -- "是" --&gt; Sync --&gt; Record
+    Upload -- "否" --&gt; Record
+    Record --&gt; Cleanup</code></pre>
+<h3 id="_26">调用来源<a class="headerlink" href="#_26" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>调用者</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BuffContainer::FinishBuff(String, ...)</code></td>
+<td>按名称结束 buff</td>
+</tr>
+<tr>
+<td><code>BuffContainer::FinishBuff(Buff, ...)</code></td>
+<td>按实例结束 buff</td>
+</tr>
+<tr>
+<td><code>BuffStackingGroup::StackBuff</code></td>
+<td>堆叠冲突时标记旧 buff 结束 (Case 2 溢出)</td>
+</tr>
+<tr>
+<td><code>DecreaseEnhanceCnt</code></td>
+<td>增强层数归零时结束 buff</td>
+</tr>
+</tbody>
+</table>
+<h3 id="finishreason">FinishReason 枚举<a class="headerlink" href="#finishreason" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>名称</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Normal</td>
+<td>正常结束 (持续时间到期)</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Interrupt</td>
+<td>被中断 (StackBuff 冲突)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Replaced</td>
+<td>被替换 (新 buff 覆盖)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Manual</td>
+<td>手动移除</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Death</td>
+<td>实体死亡</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Dispel</td>
+<td>被驱散</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-_addbuffinternal--核心入口">_AddBuffInternal — 核心入口<a class="headerlink" href="#7-_addbuffinternal--核心入口" title="Permanent link">&para;</a></h2>
+<h3 id="_27">基本信息<a class="headerlink" href="#_27" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>所属类:</strong> <code>AbilitySystem</code></li>
+</ul>
+<h3 id="_28">调用关系<a class="headerlink" href="#_28" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    N0["_AddBuffInternal(source, buffId, option, &amp;out)"]
+    N1["→ BattleDataLoader::TryGetBuff(buffId, &amp;buffData) ← 配置表验证"]
+    N2["→ container-&amp;gt;CreateAndAddBuff(source, buffId, option)"]
+    N3["→ BuffContainer 内部走 AddBuff → StackBuff 流程"]
+    N0 --&gt; N1
+    N0 --&gt; N2
+    N0 --&gt; N3</code></pre>
+<hr />
+<h2 id="8-action-系统">Action 系统<a class="headerlink" href="#8-action-系统" title="Permanent link">&para;</a></h2>
+<h3 id="_29">事件触发链路<a class="headerlink" href="#_29" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    Start["Buff 事件到达"]
+    Lookup["按事件查找 ActionContainer"]
+    Found{"找到 action？"}
+    Execute["执行 action"]
+    Loop["按顺序执行子 action"]
+    More{"还有子 action？"}
+    Sub["AddBuff / Damage / Heal / Effect / FinishBuff 等"]
+    End["事件 action 结束"]
+
+    Start --&gt; Lookup --&gt; Found
+    Found -- "否" --&gt; End
+    Found -- "是" --&gt; Execute --&gt; Loop --&gt; More
+    More -- "是" --&gt; Sub --&gt; More
+    More -- "否" --&gt; End</code></pre>
+<ul>
+<li><strong>BuffAction</strong>: 配置在 BuffData 中，仅对该 buff 有效</li>
+<li><strong>AbilityAction</strong>: 配置在 Ability 中，由该技能创建的所有 buff 共享</li>
+<li>两者通过相同的 <code>RegisterAction(event, action)</code> 接口注册到同一个 ActionContainer</li>
+</ul>
+<hr />
+<h2 id="9-数据类与枚举">数据类与枚举<a class="headerlink" href="#9-数据类与枚举" title="Permanent link">&para;</a></h2>
+<h3 id="buffdata">BuffData<a class="headerlink" href="#buffdata" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>BuffData: (从配置表加载的静态 buff 模板)
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a> +0x00: String buffId — buff 唯一标识
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a> +0x08: String stackingKey — 堆叠键 (用于 IdentifierType=Custom)
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a> +0x10: BuffStackingSettings stackingSettings
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a> +0x20: bool ignoreImmune — 是否忽略免疫
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a> +0x68: GameplayTag[] tags — 标签列表
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a> +0x??: BuffActionMap[] actions — 行为列表
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a> +0x??: ModifierData[] modifiers — 修饰器列表
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a> +0x??: ShieldConfig shieldConfig — 护盾配置
+</code></pre></div>
+<h3 id="addbuffoption">AddBuffOption<a class="headerlink" href="#addbuffoption" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>AddBuffOption: (创建 buff 时的选项)
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a> +0x00: ObjectPtr&lt;AbilitySystem&gt; source
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a> +0x10: ObjectPtr&lt;Entity&gt; target
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a> +0x20: ulong serverBuffId
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a> +0x28: List&lt;DataPair&gt; dataPairs
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a> +0x30: SkillCastInfo castInfo
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a> +0x48: int filerTypeMask
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a> +0x4C: bool uploadToServer
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a> +0x4D: bool isExtra
+</code></pre></div>
+<h3 id="finishbuffoption">FinishBuffOption<a class="headerlink" href="#finishbuffoption" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>FinishBuffOption: (移除 buff 时的选项)
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a> - force: 是否强制移除
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a> - uploadToServer: 是否上传服务器
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a> - triggerEvent: 是否触发事件
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a> - finishReason: 结束原因
+</code></pre></div>
+<h3 id="buffevent">Buff::Event<a class="headerlink" href="#buffevent" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>事件</th>
+<th>触发时机</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OnAdd</td>
+<td>buff 添加时</td>
+</tr>
+<tr>
+<td>OnRemove</td>
+<td>buff 移除时</td>
+</tr>
+<tr>
+<td>OnTick</td>
+<td>buff 每帧 tick</td>
+</tr>
+<tr>
+<td>OnEnable</td>
+<td>buff 启用时</td>
+</tr>
+<tr>
+<td>OnDisable</td>
+<td>buff 禁用时</td>
+</tr>
+<tr>
+<td>OnEnhance</td>
+<td>buff 增强时</td>
+</tr>
+<tr>
+<td>OnDecreaseEnhance</td>
+<td>buff 反增强时</td>
+</tr>
+<tr>
+<td>OnBuffBeforeTryEnhanced</td>
+<td>增强尝试前</td>
+</tr>
+<tr>
+<td>OnStackChange</td>
+<td>堆叠数变化</td>
+</tr>
+<tr>
+<td>OnLifeEnd</td>
+<td>生命期结束</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bufflifetype">Buff::LifeType<a class="headerlink" href="#bufflifetype" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Timed</td>
+<td>限时 buff</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Infinite</td>
+<td>永久 buff (跳过所有 duration 策略)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>OneShot</td>
+<td>单次 buff</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bufffinishreason">Buff::FinishReason<a class="headerlink" href="#bufffinishreason" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>名称</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Normal</td>
+<td>自然到期</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Interrupt</td>
+<td>被打断</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Replaced</td>
+<td>被替换</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Manual</td>
+<td>手动移除</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Death</td>
+<td>实体死亡</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Dispel</td>
+<td>被驱散</td>
+</tr>
+</tbody>
+</table>
+<h3 id="buffstackingsettingsidentifiertype">BuffStackingSettings::IdentifierType<a class="headerlink" href="#buffstackingsettingsidentifiertype" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>ByBuffId — 按 buffId 标识
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>ByTag — 按标签标识
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>Custom — 自定义 stackingKey
+</code></pre></div>
+<h3 id="globalbuffevent">GlobalBuff::Event<a class="headerlink" href="#globalbuffevent" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>事件</th>
+<th>触发时机</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>OnStart</td>
+<td>首次 set_isEnabled(true)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>OnEnable</td>
+<td>每次 set_isEnabled(true)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>OnTick / OnEnableComplete</td>
+<td>OnTick 动作 / OnEnable 末尾</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-globalbuff-体系">GlobalBuff 体系<a class="headerlink" href="#10-globalbuff-体系" title="Permanent link">&para;</a></h2>
+<h3 id="buff_1">双层 Buff 架构<a class="headerlink" href="#buff_1" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    N0["BattleManager"]
+    N1["GlobalBuff GlobalBuff GlobalBuff"]
+    N2["(stackId=A) (stackId=B) (stackId=C)"]
+    N3["GlobalBuffStackingGroup (per stackId)"]
+    N4["_AddBuffsToCharacter(Entity)"]
+    N5["AbilitySystem (角色)"]
+    N6["BuffContainer"]
+    N7["Buff Buff Buff ← 普通 per-entity buff"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6
+    N6 --&gt; N7</code></pre>
+<p><strong>GlobalBuff</strong> 是"元 buff"——由 BattleManager 管理，不直接修改属性，而是通过 <code>_AddBuffsToCharacter(Entity)</code> 向队伍角色批量添加普通 Buff。</p>
+<h3 id="globalbuff">GlobalBuff 结构布局<a class="headerlink" href="#globalbuff" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>GlobalBuff:
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a> +0x10: String stackingKey (fallback)
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a> +0x1C: bool isEnabled
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a> +0x1E: bool hasStarted
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a> +0x1F: bool stateFlag
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a> +0x38: ActionContainer* actionContainer
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a> +0x60: ObjectPtr&lt;IActionEnv&gt; actionEnv
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a> +0x70: PeriodicTimer* timer
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a> +0x80: float lifeTime
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a> +0x88: int timerEnabled
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a> +0x90: timerObject* (timerObject+0x10: float remainingTime)
+</code></pre></div>
+<h3 id="globalbuff_1">GlobalBuff 生命周期<a class="headerlink" href="#globalbuff_1" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    Set["set_isEnabled(value)"]
+    Enable{"value 为 true？"}
+    Started{"已经启动过？"}
+    Start["OnStart：初始化计时并执行 OnStart action"]
+    AddBuffs["_AddBuffs：向全队添加子 Buff"]
+    RecordStart["记录 GlobalBuffStart"]
+    OnEnable["OnEnable"]
+    EnableChildren["启用已有子 Buff"]
+    EnableMods["启用全局属性修饰"]
+    EnableActions["执行 OnEnable / OnEnableComplete action"]
+    Disable["禁用修饰器和子 Buff"]
+
+    Set --&gt; Enable
+    Enable -- "否" --&gt; Disable
+    Enable -- "是" --&gt; Started
+    Started -- "否" --&gt; Start --&gt; AddBuffs --&gt; RecordStart --&gt; OnEnable
+    Started -- "是" --&gt; OnEnable
+    OnEnable --&gt; EnableChildren --&gt; EnableMods --&gt; EnableActions</code></pre>
+<h3 id="globalbuff_2">GlobalBuff 方法清单<a class="headerlink" href="#globalbuff_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>规模</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Init(GlobalBuffData, AbilitySystem, List&lt;DataPair&gt;)</code></td>
+<td><code>已确认</code></td>
+<td>0x2da</td>
+<td>初始化</td>
+</tr>
+<tr>
+<td><code>OnTick(float)</code></td>
+<td><code>已确认</code></td>
+<td>0x7c</td>
+<td>每帧 tick</td>
+</tr>
+<tr>
+<td><code>OnStart()</code></td>
+<td><code>已确认</code></td>
+<td>0xa7</td>
+<td>首次启用回调</td>
+</tr>
+<tr>
+<td><code>OnEnable()</code></td>
+<td><code>已确认</code></td>
+<td>0x5c</td>
+<td>每次启用回调</td>
+</tr>
+<tr>
+<td><code>set_isEnabled(bool)</code></td>
+<td><code>已确认</code></td>
+<td>0x61</td>
+<td>设置启用状态</td>
+</tr>
+<tr>
+<td><code>SetLifeTime(float)</code></td>
+<td><code>已确认</code></td>
+<td>0x38</td>
+<td>设置生命时间</td>
+</tr>
+<tr>
+<td><code>_AddBuffs()</code></td>
+<td><code>已确认</code></td>
+<td>0x242</td>
+<td>向全队添加子 Buff</td>
+</tr>
+<tr>
+<td><code>_AddBuffsToCharacter(Entity)</code></td>
+<td><code>已确认</code></td>
+<td><strong>0xe44</strong></td>
+<td>向单个角色添加 Buff (核心桥接)</td>
+</tr>
+<tr>
+<td><code>_EnableBuffs()</code></td>
+<td><code>已确认</code></td>
+<td>0x5dc</td>
+<td>启用子 Buff</td>
+</tr>
+<tr>
+<td><code>_ClearInvalidBuffs()</code></td>
+<td><code>已确认</code></td>
+<td>0x7af</td>
+<td>清除无效子 Buff</td>
+</tr>
+<tr>
+<td><code>_LoadActions(List&lt;GlobalBuffActionMap&gt;)</code></td>
+<td><code>已确认</code></td>
+<td>0x300</td>
+<td>加载行为</td>
+</tr>
+<tr>
+<td><code>_LoadGlobalModifier()</code></td>
+<td><code>已确认</code></td>
+<td>0x106</td>
+<td>加载全局修饰器</td>
+</tr>
+<tr>
+<td><code>_EnableGlobalModifiers()</code></td>
+<td><code>已确认</code></td>
+<td>0x6c</td>
+<td>启用修饰器</td>
+</tr>
+<tr>
+<td><code>_ExecuteGlobalBuffAction(Event)</code></td>
+<td><code>已确认</code></td>
+<td>0xea</td>
+<td>执行事件动作</td>
+</tr>
+<tr>
+<td><code>_TriggerInternal(float)</code></td>
+<td><code>已确认</code></td>
+<td>0x66</td>
+<td>内部计时器触发</td>
+</tr>
+<tr>
+<td><code>_TickGlobalBuffAction(float)</code></td>
+<td><code>已确认</code></td>
+<td>0xc9</td>
+<td>tick 全局 buff 行为</td>
+</tr>
+<tr>
+<td><code>OnTeamMemberChange()</code></td>
+<td><code>已确认</code></td>
+<td>0x207</td>
+<td>队伍成员变更回调</td>
+</tr>
+</tbody>
+</table>
+<h3 id="globalbuffstackinggroup">GlobalBuffStackingGroup<a class="headerlink" href="#globalbuffstackinggroup" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ctor</code></td>
+<td><code>已确认</code></td>
+<td>从 GlobalBuffData 构造</td>
+</tr>
+<tr>
+<td><code>StackGlobalBuff</code></td>
+<td><code>已确认</code></td>
+<td>叠加全局 buff (类似 StackBuff)</td>
+</tr>
+<tr>
+<td><code>RefreshStackingGroup</code></td>
+<td><code>已确认</code></td>
+<td>刷新堆叠组状态</td>
+</tr>
+<tr>
+<td><code>OnTick</code></td>
+<td><code>已确认</code></td>
+<td>Tick 更新 (0x13d8, 大函数)</td>
+</tr>
+<tr>
+<td><code>_AllocateGlobalBuff</code></td>
+<td><code>已确认</code></td>
+<td>分配全局 buff 实例</td>
+</tr>
+</tbody>
+</table>
+<p>与普通 BuffStackingGroup 的关键区别：操作对象是 GlobalBuff；不直接创建 Effect（效果通过子 Buff 间接实现）；最终通过 <code>set_isEnabled(bool)</code> 控制启用/禁用。</p>
+<h3 id="m_bufflistmap">m_buffListMap<a class="headerlink" href="#m_bufflistmap" title="Permanent link">&para;</a></h3>
+<p>GlobalBuff 维护 <code>Dictionary&lt;ulong, List&lt;ObjectPtr&lt;Buff&gt;&gt;&gt;</code> 以 <code>serverBuffId</code> 为键追踪所有创建的子 Buff:</p>
+<ul>
+<li><strong>清理时</strong>: 按 serverId 批量移除</li>
+<li><strong>叠加时</strong>: 判断是否需要先移除旧 buff</li>
+<li><strong>队伍变化时</strong>: 知道哪些 buff 需要重新应用到新成员</li>
+</ul>
+<h3 id="buffinput">BuffInput 结构<a class="headerlink" href="#buffinput" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>BuffInput:
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a> +0x00: String buffId // 要添加的普通 Buff 配置 ID
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a> +0x08: ulong serverBuffId // 服务器端唯一 ID (用于追踪)
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a> +0x10: AssignPair assignPair // Blackboard 数据赋值对
+</code></pre></div>
+<h3 id="buff-vs-globalbuff">Buff vs GlobalBuff 对照<a class="headerlink" href="#buff-vs-globalbuff" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>Buff</th>
+<th>GlobalBuff</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据类</td>
+<td><code>BuffData</code></td>
+<td><code>GlobalBuffData</code></td>
+</tr>
+<tr>
+<td>堆叠组</td>
+<td><code>BuffStackingGroup</code></td>
+<td><code>GlobalBuffStackingGroup</code></td>
+</tr>
+<tr>
+<td>所属</td>
+<td><code>BuffContainer</code> (per AbilitySystem)</td>
+<td><code>BattleManager</code> (全局)</td>
+</tr>
+<tr>
+<td>效果方式</td>
+<td>直接修改属性/标签</td>
+<td>向全队添加普通 Buff</td>
+</tr>
+<tr>
+<td>定时器</td>
+<td><code>PrecisePeriodicTimer</code></td>
+<td><code>PeriodicTimer</code></td>
+</tr>
+<tr>
+<td>参数传递</td>
+<td>直接读 BuffData 字段</td>
+<td>Blackboard 系统</td>
+</tr>
+<tr>
+<td>初始化</td>
+<td>BuffData 字段直接拷贝</td>
+<td><code>Blackboard::CreateFrom</code> + <code>Assign</code></td>
+</tr>
+<tr>
+<td>修饰器时机</td>
+<td><code>_AddModifier()</code> (Init 时)</td>
+<td><code>_EnableGlobalModifiers()</code> (OnEnable 时)</td>
+</tr>
+<tr>
+<td>启动方式</td>
+<td>创建即启动</td>
+<td><code>set_isEnabled(true)</code> → <code>OnStart()</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-数据流总览">数据流总览<a class="headerlink" href="#11-数据流总览" title="Permanent link">&para;</a></h2>
+<h3 id="buff_2">Buff 创建流程<a class="headerlink" href="#buff_2" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    Start["Action / GlobalBuff / Ability 请求添加 Buff"]
+    Load["按 buffId 读取配置"]
+    Loaded{"配置存在？"}
+    Create["BuffContainer 创建或取得堆叠组"]
+    Stack["按 stackingType 处理冲突"]
+    Overflow{"超过上限？"}
+    FinishOld["结束最旧 Buff"]
+    Allocate["_AllocateBuff / _Enhance / 复用现有 Buff"]
+    Effects["_RefreshStackEffects"]
+    Init["Buff::Init"]
+    Actions["加载 Event 到 Action 映射"]
+    Mods["加载属性修饰器"]
+    AddList["加入 Buff 列表"]
+    OnAdd["执行 OnAdd"]
+    Upload{"需要同步？"}
+    Sync["写入同步操作"]
+    End["添加完成"]
+
+    Start --&gt; Load --&gt; Loaded
+    Loaded -- "否" --&gt; End
+    Loaded -- "是" --&gt; Create --&gt; Stack --&gt; Overflow
+    Overflow -- "是" --&gt; FinishOld --&gt; Allocate
+    Overflow -- "否" --&gt; Allocate
+    Allocate --&gt; Effects --&gt; Init
+    Init --&gt; Actions --&gt; Mods --&gt; AddList --&gt; OnAdd --&gt; Upload
+    Upload -- "是" --&gt; Sync --&gt; End
+    Upload -- "否" --&gt; End</code></pre>
+<h3 id="buff-tick">Buff Tick 流程<a class="headerlink" href="#buff-tick" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    Start["BattleManager Tick Buff"]
+    Container["BuffContainer.OnTick"]
+    Loop["遍历 m_buffs"]
+    More{"还有 Buff？"}
+    Trigger["_TriggerInternal(deltaTime)"]
+    TimerReady{"周期计时器触发？"}
+    TickAction["执行 OnTick action"]
+    Finished{"Buff 已结束？"}
+    Remove["从列表和堆叠组移除"]
+    Recycle["回收到 BuffPool"]
+    Continue["继续下一个 Buff"]
+    Cleanup["ClearInvalidElementsIfNotLoop"]
+
+    Start --&gt; Container --&gt; Loop --&gt; More
+    More -- "否" --&gt; Cleanup
+    More -- "是" --&gt; Trigger --&gt; TimerReady
+    TimerReady -- "是" --&gt; TickAction --&gt; Finished
+    TimerReady -- "否" --&gt; Finished
+    Finished -- "是" --&gt; Remove --&gt; Recycle --&gt; Continue
+    Finished -- "否" --&gt; Continue
+    Continue --&gt; More</code></pre>
+<h3 id="buff_3">Buff 移除流程<a class="headerlink" href="#buff_3" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    Start["BuffContainer FinishBuff"]
+    Found{"找到目标 Buff？"}
+    Mark["MarkFinish"]
+    RemoveEvent["触发 OnRemove 并执行移除 Action"]
+    Cleanup["移除属性修饰、引导动作和子 Buff"]
+    Stack{"属于堆叠组？"}
+    Refresh["刷新堆叠组"]
+    Upload{"需要同步？"}
+    Sync["写入同步操作"]
+    Disable["置为未启用并从列表移除"]
+    Record["战斗记录"]
+    End["移除完成"]
+
+    Start --&gt; Found
+    Found -- "否" --&gt; End
+    Found -- "是" --&gt; Mark --&gt; RemoveEvent --&gt; Cleanup --&gt; Stack
+    Stack -- "是" --&gt; Refresh --&gt; Upload
+    Stack -- "否" --&gt; Upload
+    Upload -- "是" --&gt; Sync --&gt; Disable
+    Upload -- "否" --&gt; Disable
+    Disable --&gt; Record --&gt; End</code></pre>
+<h3 id="globalbuff_3">GlobalBuff 创建流程<a class="headerlink" href="#globalbuff_3" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    Start["BattleManager 添加 GlobalBuff"]
+    Stack["GlobalBuffStackingGroup 处理堆叠"]
+    Init["GlobalBuff 初始化"]
+    Load["加载全局 Action 与属性修饰"]
+    Clear["_ClearInvalidBuffs 清理旧子 Buff"]
+    Loop["遍历队伍角色"]
+    More{"还有角色？"}
+    AddChild["_AddBuffsToCharacter"]
+    Normal["转入普通 Buff 创建流程"]
+    Register["注册队伍成员变化回调"]
+    End["GlobalBuff 创建完成"]
+
+    Start --&gt; Stack --&gt; Init --&gt; Load --&gt; Clear --&gt; Loop --&gt; More
+    More -- "是" --&gt; AddChild --&gt; Normal --&gt; More
+    More -- "否" --&gt; Register --&gt; End</code></pre>
+<h3 id="_30">关键设计模式<a class="headerlink" href="#_30" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>双缓冲列表 (DoubleBufferedBuffList)</strong> — 允许在 tick 遍历过程中安全地添加/移除 buff</li>
+<li><strong>对象池 (NewBuff / RecycleBuff)</strong> — Buff 实例从 BuffPool 分配和回收，减少 GC 压力</li>
+<li><strong>堆叠组 (StackingGroup)</strong> — 按 stackingKey 聚合，统一管理同类型 buff 的叠加规则</li>
+<li><strong>修饰器独立加载</strong> — 不同 modifier 类型 (damage/heal/poise/global) 由独立方法加载</li>
+<li><strong>Action 驱动</strong> — buff 效果通过 Event→Action 映射触发，支持高度可配置的行为</li>
+<li><strong>双层 Buff 架构</strong> — GlobalBuff (元 buff) → 批量创建普通 Buff → 实际效果</li>
+<li><strong>全量刷新</strong> — <code>_RefreshStackEffects</code> 采用"全部清除→全部重建"模式保证一致性</li>
+<li><strong>精密周期计时器</strong> — <code>PrecisePeriodicTimer</code> 批量触发保证帧率波动下行为一致</li>
+<li><strong>Blackboard 参数系统</strong> — GlobalBuff 通过 Blackboard 动态传递参数 vs Buff 直接读配置字段</li>
+</ol>
+<h3 id="_31">实体关系图<a class="headerlink" href="#_31" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    N0["AbilitySystem"]
+    N1["m_buffContainer (+0x98)"]
+    N2["BuffContainer"]
+    N3["m_buffs (DoubleBufferedBuffList, +0x10)"]
+    N4["Buff 1 m_stackingGroups (+0x18)"]
+    N5["Buff 2"]
+    N6["Buff 3 BuffId_A → Group → Buff 1, Buff 3"]
+    N7["... BuffId_B → Group → Buff 2"]
+    N8["Entity"]
+    N9["(character/enemy)"]
+    N10["SetBuffParent"]
+    N11["GlobalBuff ← 由 BattleManager 管理"]
+    N12["(元 buff)"]
+    N13["m_buffListMap: Dictionary&amp;lt;ulong, List&amp;lt;ObjectPtr&amp;lt;Buff&amp;gt;&amp;gt;&amp;gt;"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6
+    N6 --&gt; N7
+    N7 --&gt; N8
+    N8 --&gt; N9
+    N9 --&gt; N10
+    N10 --&gt; N11
+    N11 --&gt; N12
+    N12 --&gt; N13</code></pre>
+<hr />
+<blockquote>
+<p>最后更新: 2026-05-22</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

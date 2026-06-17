@@ -1,0 +1,2144 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>BattleManager.BattleRecorder - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#battlemanagerbattlerecorder" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              BattleManager.BattleRecorder
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../actions/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        字段
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        主要嵌套类型
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        生命周期
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已确认行为
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="已确认行为">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordusetacticalitem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordUseTacticalItem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderiteminfoinit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.ItemInfo.Init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlemanagerusetacticalitem-recorder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleManager.UseTacticalItem recorder 参数来源
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderontaillatetick" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.OnTailLateTick
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordcastskill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordCastSkill
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordendskill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordEndSkill
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordbuffstart-recordbuffenhancechange-recordbuffattributerefresh-recordbufffinish" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordBuffStart / RecordBuffEnhanceChange / RecordBuffAttributeRefresh / RecordBuffFinish
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordglobalbuffstart-recordglobalbufffinish" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordGlobalBuffStart / RecordGlobalBuffFinish
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordprojectile-recordabilityentity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordProjectile / RecordAbilityEntity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_recordskillcaststartdetail-_recordskillcastenddetail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _RecordSkillCastStartDetail / _RecordSkillCastEndDetail
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#skillcastdetailinit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SkillCastDetail.Init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_recordcharactercastskill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _RecordCharacterCastSkill
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecorddamage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordDamage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderisindependenthealth-tower-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.IsIndependentHealth / tower summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordpoise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordPoise
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordheal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordHeal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordshield" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordShield
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordconsumeatb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordConsumeAtb
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordgainatb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordGainAtb
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordgainultimatesp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordGainUltimateSp
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordrecoveratb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordRecoverAtb
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordconsumedashcount" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordConsumeDashCount
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecorddodgesuccess" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordDodgeSuccess
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordshowweakness-recordbreakweakness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordShowWeakness / RecordBreakWeakness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordaddenemy-recordremoveenemy-recordcharacterkillenemy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordAddEnemy / RecordRemoveEnemy / RecordCharacterKillEnemy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordbreakpoise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordBreakPoise
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#battlerecorderrecordswitchcenter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BattleRecorder.RecordSwitchCenter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#abnormal-infliction-recorder-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        abnormal / infliction recorder methods
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="battlemanagerbattlerecorder">BattleManager.BattleRecorder<a class="headerlink" href="#battlemanagerbattlerecorder" title="Permanent link">&para;</a></h1>
+<p><code>BattleRecorder</code> 是 BattleManager 下的战斗统计与明细记录器，覆盖技能、伤害、治疗、韧性、护盾、ATB/USP、敌人、异常、Buff、GlobalBuff、投射物和 AbilityEntity 召唤等战斗事件。</p>
+<h2 id="_1">字段<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>分组</th>
+<th>字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>report state</td>
+<td><code>m_report</code>, <code>m_isWaitToEndRecord</code>, <code>m_inRecording</code>, <code>m_recordingTime</code>, <code>m_curBattleInfo</code>, <code>m_detailRecordLevel</code>, <code>m_detailReport</code>, <code>m_maxDetailRecordWindow</code>, <code>m_lastRecordAtb</code></td>
+</tr>
+<tr>
+<td>constants</td>
+<td>abnormal/burst/control ids such as <code>FIRE_ABNORMAL_ID</code>, <code>CRUSH_ID</code>, <code>KNOCKDOWN_ID</code>, <code>NO_GUARD_ID</code></td>
+</tr>
+</tbody>
+</table>
+<p>已展开的 tactical item summary 字段：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>字段</th>
+<th>offset</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>itemUse</code></td>
+<td><code>0x1E8</code></td>
+<td>指向 <code>ItemInfo</code>。</td>
+</tr>
+<tr>
+<td><code>ItemInfo</code></td>
+<td><code>itemId</code></td>
+<td><code>0x10</code></td>
+<td><code>ItemInfo.Init(slotIndex)</code> 从 <code>BattleManager.GetTacticalItemId(slotIndex)</code> 读取。</td>
+</tr>
+<tr>
+<td><code>ItemInfo</code></td>
+<td><code>usedCnt</code></td>
+<td><code>0x18</code></td>
+<td><code>ItemInfo.Init</code> 清 0；<code>RecordUseTacticalItem</code> native 主路径自增。</td>
+</tr>
+<tr>
+<td><code>ItemInfo</code></td>
+<td><code>remainCnt</code></td>
+<td><code>0x1C</code></td>
+<td><code>ItemInfo.Init(slotIndex)</code> 从 <code>BattleManager.GetTacticalItemRemainingUseCount(slotIndex)</code> 读取。</td>
+</tr>
+</tbody>
+</table>
+<p>已展开的 skill summary/detail 字段：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>字段</th>
+<th>offset</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>attackInfo</code></td>
+<td><code>0x98</code></td>
+<td>普通攻击非最后段总计。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>attackInfoMainChar</code></td>
+<td><code>0xA0</code></td>
+<td>主控角色普通攻击非最后段。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>attackInfoAI</code></td>
+<td><code>0xA8</code></td>
+<td>AI/非主控普通攻击非最后段。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>lastAttackInfoMainChar</code></td>
+<td><code>0xB0</code></td>
+<td>主控角色普通攻击最后段。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>lastAttackInfoAI</code></td>
+<td><code>0xB8</code></td>
+<td>AI/非主控普通攻击最后段。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>powerAttackInfo</code></td>
+<td><code>0xC0</code></td>
+<td><code>SkillType.BreakingAttack</code> 中的 power attack。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>plungingAttackInfo</code></td>
+<td><code>0xC8</code></td>
+<td>下落攻击。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>normalSkillInfo</code></td>
+<td><code>0xD0</code></td>
+<td>战技。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>comboSkillInfo</code></td>
+<td><code>0xD8</code></td>
+<td>连携技。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>ultimateSkillInfo</code></td>
+<td><code>0xE0</code></td>
+<td>终结技。</td>
+</tr>
+<tr>
+<td><code>SkillInfo</code></td>
+<td><code>skillId</code></td>
+<td><code>0x10</code></td>
+<td><code>SkillInfo.Init(string)</code> 初始化。</td>
+</tr>
+<tr>
+<td><code>SkillInfo</code></td>
+<td><code>totalDamage</code></td>
+<td><code>0x18</code></td>
+<td>伤害累计，后续 damage recorder slice 补齐。</td>
+</tr>
+<tr>
+<td><code>SkillInfo</code></td>
+<td><code>totalPoiseDamage</code></td>
+<td><code>0x20</code></td>
+<td>韧性伤害累计，后续 damage recorder slice 补齐。</td>
+</tr>
+<tr>
+<td><code>SkillInfo</code></td>
+<td><code>castTimes</code></td>
+<td><code>0x28</code></td>
+<td><code>_RecordCharacterCastSkill</code> 自增。</td>
+</tr>
+<tr>
+<td><code>SkillCastDetail</code></td>
+<td><code>battleTime</code></td>
+<td><code>0x10</code></td>
+<td><code>_RecordDetailTime</code> 写入。</td>
+</tr>
+<tr>
+<td><code>SkillCastDetail</code></td>
+<td><code>scaledBattleTime</code></td>
+<td><code>0x14</code></td>
+<td><code>_RecordDetailTime</code> 写入。</td>
+</tr>
+<tr>
+<td><code>SkillCastDetail</code></td>
+<td><code>skillId</code></td>
+<td><code>0x18</code></td>
+<td><code>SkillCastDetail.Init</code> 从 <code>Skill._skillId</code> 读取。</td>
+</tr>
+<tr>
+<td><code>SkillCastDetail</code></td>
+<td><code>recordType</code></td>
+<td><code>0x20</code></td>
+<td><code>CastStart=0</code> / <code>CastEnd=1</code> / <code>SwitchToAddBuff=2</code>。</td>
+</tr>
+<tr>
+<td><code>SkillCastDetail</code></td>
+<td><code>ownerId</code></td>
+<td><code>0x28</code></td>
+<td><code>skill.owner.entity.id + "_" + serverId</code>。</td>
+</tr>
+<tr>
+<td><code>SkillCastDetail</code></td>
+<td><code>sourceId</code></td>
+<td><code>0x30</code></td>
+<td><code>skill.source.entity.id + "_" + serverId</code>。</td>
+</tr>
+<tr>
+<td><code>SkillCastDetail</code></td>
+<td><code>targetId</code></td>
+<td><code>0x38</code></td>
+<td><code>skill.targetHandle.firstTarget</code> entity id/serverId。</td>
+</tr>
+<tr>
+<td><code>SkillCastDetail</code></td>
+<td><code>finishType</code></td>
+<td><code>0x44</code></td>
+<td><code>_RecordSkillCastEndDetail</code> 写入。</td>
+</tr>
+<tr>
+<td><code>SkillCastDetail</code></td>
+<td><code>interruptReason</code></td>
+<td><code>0x48</code></td>
+<td><code>_RecordSkillCastEndDetail</code> 写入。</td>
+</tr>
+<tr>
+<td><code>SkillCastDetail</code></td>
+<td><code>isCancelled</code></td>
+<td><code>0x4C</code></td>
+<td><code>_RecordSkillCastEndDetail</code> 写入。</td>
+</tr>
+</tbody>
+</table>
+<p>已展开的 damage/heal/poise/resource summary/detail 字段：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>字段</th>
+<th>offset</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>startHp</code> / <code>remainingHp</code></td>
+<td><code>0x28</code> / <code>0x30</code></td>
+<td>角色 summary HP 起始/剩余。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>totalDamageOutput</code> / <code>totalDamageEffective</code> / <code>totalTakenDamage</code></td>
+<td><code>0x38</code> / <code>0x40</code> / <code>0x48</code></td>
+<td>角色输出、有效输出、承伤累计。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>totalHeal</code> / <code>totalTakenHeal</code></td>
+<td><code>0x50</code> / <code>0x58</code></td>
+<td>角色治疗输出/承疗 HP delta。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>totalHealOverall</code> / <code>totalTakenHealOverall</code></td>
+<td><code>0x60</code> / <code>0x68</code></td>
+<td>包含 overheal/overall 的治疗统计。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>totalPoiseDamage</code></td>
+<td><code>0x80</code></td>
+<td>输出韧性伤害累计。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>breakWeaknessTimes</code></td>
+<td><code>0x90</code></td>
+<td><code>RecordBreakWeakness</code> 自增。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>mainCharTime</code></td>
+<td><code>0x94</code></td>
+<td><code>RecordSwitchCenter</code> 结算旧主控时间。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>consumedAtb</code></td>
+<td><code>0x100</code></td>
+<td><code>RecordConsumeAtb</code> 自增。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>gainedAtb</code> / <code>naturalGainedAtb</code></td>
+<td><code>0x110</code> / <code>0x118</code></td>
+<td><code>RecordGainAtb</code> 和 <code>RecordConsumeAtb</code> 结算 <code>m_lastRecordAtb</code> 差值。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td>ATB source buckets</td>
+<td><code>0x120-0x178</code></td>
+<td><code>RecordGainAtb</code> 按 environment/origin skill 分桶。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>gainedUltimateSp</code> / USP source buckets</td>
+<td><code>0x180-0x1E0</code></td>
+<td><code>RecordGainUltimateSp</code> 按 environment/origin skill 分桶。</td>
+</tr>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>totalTakenDamageTimes</code></td>
+<td><code>0x238</code></td>
+<td>承伤次数。</td>
+</tr>
+<tr>
+<td><code>DamageDetail</code></td>
+<td><code>attackerId/defenderId/damageValue/hpDelta/hpAfterDamage/damageType/originSkillId/isCritical/atkScale/calcResult/m_recordDamageScaleZones</code></td>
+<td><code>0x18-0x80</code></td>
+<td><code>DamageDetail.Init(in Modifier)</code> 写入。<code>m_recordDamageScaleZones</code> 为 private bool，决定 damage scale-zone fields 是否有效。</td>
+</tr>
+<tr>
+<td><code>HealDetail</code></td>
+<td><code>healerId/healReceiverId/healValue/hpDelta/hpAfterHeal/healType/originSkillId</code></td>
+<td><code>0x18-0x50</code></td>
+<td><code>HealDetail.Init(in Modifier)</code> 写入。</td>
+</tr>
+<tr>
+<td><code>PoiseDetail</code></td>
+<td><code>poiseModifySourceId/poiseModifyTargetId/poiseModifyValue/poiseDelta/poiseAfterModify/originSkillId</code></td>
+<td><code>0x18-0x48</code></td>
+<td><code>PoiseDetail.Init(in Modifier)</code> 写入。</td>
+</tr>
+<tr>
+<td><code>BattlePointDetail</code></td>
+<td><code>pointType/valueDelta/afterEventValue/sourceId/environmentId/originSkillId</code></td>
+<td><code>0x18-0x40</code></td>
+<td><code>RecordGainAtb</code> / <code>RecordRecoverAtb</code> / dash point detail 共用。</td>
+</tr>
+<tr>
+<td><code>UltimateSpDetail</code></td>
+<td><code>uspSourceId/uspTargetId/uspDelta/uspAfterModify/environmentId/originSkillId</code></td>
+<td><code>0x18-0x40</code></td>
+<td><code>_RecordUltimateSpDetail</code> / <code>UltimateSpDetail.Init</code> 写入。</td>
+</tr>
+<tr>
+<td><code>EnemyInfo</code></td>
+<td><code>encounter</code> / <code>deathCnt</code> / <code>playerKilledCnt</code> / <code>poiseBreakCnt</code> / <code>showWeaknessTimes</code> / <code>levelCntMap</code></td>
+<td><code>0x18</code> / <code>0x1C</code> / <code>0x20</code> / <code>0x24</code> / <code>0x28</code> / <code>0x30</code></td>
+<td><code>RecordAddEnemy</code>、<code>RecordRemoveEnemy</code>、<code>RecordCharacterKillEnemy</code>、<code>RecordBreakPoise</code>、<code>RecordShowWeakness</code> 写入。</td>
+</tr>
+<tr>
+<td><code>TowerInfo</code></td>
+<td><code>entityId</code></td>
+<td><code>0x10</code></td>
+<td><code>_GetOrCreateTowerInfo</code> 按 independent-health entity template id 查找/创建。</td>
+</tr>
+<tr>
+<td><code>TowerInfo</code></td>
+<td><code>remainingHp</code></td>
+<td><code>0x30</code></td>
+<td><code>_RecordTowerTakeDamage</code> 读取 target HP attribute 后写入。</td>
+</tr>
+<tr>
+<td><code>TowerInfo</code></td>
+<td><code>totalDamageOutput</code> / <code>totalTakenDamage</code></td>
+<td><code>0x38</code> / <code>0x40</code></td>
+<td><code>_RecordTowerOutputDamage</code> / <code>_RecordTowerTakeDamage</code> 累加 modifier delta。</td>
+</tr>
+</tbody>
+</table>
+<p>已展开的 abnormal summary 字段：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>字段</th>
+<th>offset</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CharacterSummaryInfo</code></td>
+<td><code>abnormalInfos</code></td>
+<td><code>0xE8</code></td>
+<td><code>Dictionary&lt;string, AbnormalInfo&gt;</code>，由 spell/physical abnormal recorder 方法按固定 key 写入。</td>
+</tr>
+<tr>
+<td><code>AbnormalInfo</code></td>
+<td><code>abnormalId</code></td>
+<td><code>0x10</code></td>
+<td><code>AbnormalInfo.Init(string key)</code> 初始化。</td>
+</tr>
+<tr>
+<td><code>AbnormalInfo</code></td>
+<td><code>castTimes</code></td>
+<td><code>0x20</code></td>
+<td><code>RecordSpellInfliction</code>、<code>RecordSpellAbnormal</code>、<code>RecordPhysicalNoGuard</code>、<code>RecordPhysicalInfliction</code> 自增。</td>
+</tr>
+<tr>
+<td><code>AbnormalInfo</code></td>
+<td><code>inflictionConsumeCnt</code></td>
+<td><code>0x24</code></td>
+<td><code>RecordAbnormalConsumeInfliction</code>、<code>RecordPhysicalConsumeNoGuard</code> 累加。</td>
+</tr>
+</tbody>
+</table>
+<p>已展开的 buff detail 字段：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>字段</th>
+<th>offset</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BuffDetail</code></td>
+<td><code>battleTime</code> / <code>scaledBattleTime</code></td>
+<td><code>0x10</code> / <code>0x14</code></td>
+<td><code>_RecordDetailTime</code> 写入。</td>
+</tr>
+<tr>
+<td><code>BuffDetail</code></td>
+<td><code>buffId</code></td>
+<td><code>0x18</code></td>
+<td><code>BuffDetail.Init</code> 从 <code>buff.id</code> 读取。</td>
+</tr>
+<tr>
+<td><code>BuffDetail</code></td>
+<td><code>recordType</code></td>
+<td><code>0x20</code></td>
+<td><code>BuffStart=0</code> / <code>BuffEnhanceChange=1</code> / <code>BuffAttributeRefresh=2</code> / <code>BuffFinish=3</code>。</td>
+</tr>
+<tr>
+<td><code>BuffDetail</code></td>
+<td><code>ownerId</code></td>
+<td><code>0x28</code></td>
+<td><code>buff.owner.entity.id + "_" + serverId</code>。</td>
+</tr>
+<tr>
+<td><code>BuffDetail</code></td>
+<td><code>sourceId</code></td>
+<td><code>0x30</code></td>
+<td><code>buff.source.entity.id + "_" + serverId</code>。</td>
+</tr>
+<tr>
+<td><code>BuffDetail</code></td>
+<td><code>lifeTime</code></td>
+<td><code>0x40</code></td>
+<td><code>buff.lifeTime</code>。</td>
+</tr>
+<tr>
+<td><code>BuffDetail</code></td>
+<td><code>enhanceCount</code></td>
+<td><code>0x44</code></td>
+<td><code>buff.m_enhanceCnt</code>。</td>
+</tr>
+<tr>
+<td><code>BuffDetail</code></td>
+<td><code>finishReason</code></td>
+<td><code>0x50</code></td>
+<td>仅 <code>_RecordBuffFinishDetail</code> 写入。</td>
+</tr>
+</tbody>
+</table>
+<p>已展开的 global buff detail 字段：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>字段</th>
+<th>offset</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GlobalBuffDetail</code></td>
+<td><code>battleTime</code> / <code>scaledBattleTime</code></td>
+<td><code>0x10</code> / <code>0x14</code></td>
+<td><code>_RecordDetailTime</code> 写入。</td>
+</tr>
+<tr>
+<td><code>GlobalBuffDetail</code></td>
+<td><code>globalBuffId</code></td>
+<td><code>0x18</code></td>
+<td><code>GlobalBuffDetail.Init</code> 从 <code>GlobalBuff.id</code> 读取。</td>
+</tr>
+<tr>
+<td><code>GlobalBuffDetail</code></td>
+<td><code>recordType</code></td>
+<td><code>0x20</code></td>
+<td><code>GlobalBuffStart=0</code> / <code>GlobalBuffFinish=1</code>。</td>
+</tr>
+<tr>
+<td><code>GlobalBuffDetail</code></td>
+<td><code>sourceId</code></td>
+<td><code>0x28</code></td>
+<td><code>source.entity.id + "_" + source.entity.serverId</code>。source 缺失时 native 走空字符串 fallback。</td>
+</tr>
+<tr>
+<td><code>GlobalBuffDetail</code></td>
+<td><code>lifeTime</code></td>
+<td><code>0x30</code></td>
+<td><code>GlobalBuff.lifeTime</code>。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">主要嵌套类型<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>BattleEventDetail</code></li>
+<li><code>MoveDetail</code></li>
+<li><code>BattlePointDetail</code></li>
+<li><code>BuffDetail</code></li>
+<li><code>GlobalBuffDetail</code></li>
+<li><code>DamageDetail</code></li>
+<li><code>HealDetail</code></li>
+<li>以及 character/enemy/tower/abnormal summary 相关类型（需继续拆分单类文档）。</li>
+</ul>
+<p>本文件只记录 <code>BattleRecorder</code> 聚合职责；嵌套 detail 类型后续按“一个类一个文档”补齐。</p>
+<h2 id="_3">生命周期<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<ul>
+<li>随 BattleManager 创建。</li>
+<li>battle start/end 控制 <code>m_inRecording</code> 与 detail report。</li>
+<li><code>OnTailLateTick</code> 在 BattleManager tail-late root 中执行；active recording 时累计 recording time，并在 end-record flag 置位时进入结束记录流程。</li>
+</ul>
+<h2 id="_4">已确认行为<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>原游戏 recorder 不是单一日志列表，而是按 battle point、buff、global buff、damage、heal、skill、projectile、ability entity 等 detail/summary 分层记录。</p>
+<h3 id="battlerecorderrecordusetacticalitem"><code>BattleRecorder.RecordUseTacticalItem</code><a class="headerlink" href="#battlerecorderrecordusetacticalitem" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+native 主路径：</p>
+<ol>
+<li>从 <code>GameInstance.player</code> 进入当前 player/squad 数据，读取 current squad slot list。</li>
+<li><code>List&lt;Squad.Slot&gt;.get_Item(slotIndex)</code>。</li>
+<li>从 slot 读取角色/AbilitySystem 指针：slot <code>+0x28</code> -&gt; <code>+0x128</code>。</li>
+<li>调用 <code>_GetOrCreateCharacterSummaryInfo(AbilitySystem)</code>，确认状态 <code>已确认</code>。</li>
+<li>若 summary 和 <code>summary.itemUse</code> 非空，执行 <code>inc dword ptr [itemUse + 0x18]</code>，即 <code>usedCnt++</code>。</li>
+</ol>
+<p>注意：</p>
+<h3 id="battlerecorderiteminfoinit"><code>BattleRecorder.ItemInfo.Init</code><a class="headerlink" href="#battlerecorderiteminfoinit" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code></p>
+<ol>
+<li><code>and dword ptr [this + 0x18], 0</code>，清 <code>usedCnt</code>。</li>
+<li>再从 <code>GameWorld.battleManager</code> 调 <code>BattleManager.GetTacticalItemRemainingUseCount(slotIndex)</code>，写入 <code>[this + 0x1C] remainCnt</code>。</li>
+</ol>
+<h3 id="battlemanagerusetacticalitem-recorder"><code>BattleManager.UseTacticalItem</code> recorder 参数来源<a class="headerlink" href="#battlemanagerusetacticalitem-recorder" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+成功调用 <code>InventorySystem.UseItem</code> 后：</p>
+<ul>
+<li>战斗中先扣 <code>remainingUseCount</code>，必要时扣 <code>remainingToMainCharCount</code>，并写回 <code>m_charEquippedItemDict</code>。</li>
+<li>随后取 <code>remainCnt = remainingUseCount</code>。</li>
+<li>取 <code>usedCnt = maxUseCount - remainingUseCount</code>。</li>
+<li>调 <code>BattleRecorder.RecordUseTacticalItem(slotIndex,itemId,usedCnt,remainCnt)</code>。</li>
+</ul>
+<h3 id="battlerecorderontaillatetick"><code>BattleRecorder.OnTailLateTick</code><a class="headerlink" href="#battlerecorderontaillatetick" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+调用入口：<code>BattleManager.TailLateTick</code> 状态 <code>已确认</code>。
+已确认主路径：</p>
+<ol>
+<li>若 <code>m_inRecording</code> 为 false，直接返回。</li>
+<li>若 end-record flag 为 true，调用 <code>_DoEndRecord</code>。</li>
+<li>若调用后仍处于 recording 状态，则 <code>m_recordingTime += deltaTime</code>。</li>
+</ol>
+<h3 id="battlerecorderrecordcastskill"><code>BattleRecorder.RecordCastSkill</code><a class="headerlink" href="#battlerecorderrecordcastskill" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+已确认主路径：</p>
+<ol>
+<li><code>m_inRecording</code> 为 false 时直接返回。</li>
+<li>若 <code>caster.entity.objectType == Character(8)</code>，调用 <code>_RecordCharacterCastSkill(caster, skill)</code>。</li>
+<li>若 <code>m_detailRecordLevel &gt; 0</code>，调用 <code>_RecordSkillCastStartDetail(skill)</code>。</li>
+</ol>
+<h3 id="battlerecorderrecordendskill"><code>BattleRecorder.RecordEndSkill</code><a class="headerlink" href="#battlerecorderrecordendskill" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+已确认主路径：</p>
+<ol>
+<li><code>m_inRecording</code> 为 false 时直接返回。</li>
+<li>若 <code>m_detailRecordLevel &gt; 0</code>，调用 <code>_RecordSkillCastEndDetail(skill, finishType, interruptReason, isCancelled)</code>。</li>
+<li>native 不在该方法更新 <code>CharacterSummaryInfo</code> cast count。</li>
+</ol>
+<h3 id="battlerecorderrecordbuffstart-recordbuffenhancechange-recordbuffattributerefresh-recordbufffinish"><code>BattleRecorder.RecordBuffStart</code> / <code>RecordBuffEnhanceChange</code> / <code>RecordBuffAttributeRefresh</code> / <code>RecordBuffFinish</code><a class="headerlink" href="#battlerecorderrecordbuffstart-recordbuffenhancechange-recordbuffattributerefresh-recordbufffinish" title="Permanent link">&para;</a></h3>
+<p>确认状态s：</p>
+<ul>
+<li><code>RecordBuffStart</code>：<code>已确认</code></li>
+<li><code>_RecordBuffStartDetail</code>：<code>已确认</code></li>
+<li><code>RecordBuffEnhanceChange</code>：<code>已确认</code></li>
+<li><code>_RecordBuffEnhanceChangeDetail</code>：<code>已确认</code></li>
+<li><code>RecordBuffAttributeRefresh</code>：<code>已确认</code></li>
+<li><code>_RecordBuffAttributeRefreshDetail</code>：<code>已确认</code></li>
+<li><code>RecordBuffFinish</code>：<code>已确认</code></li>
+<li><code>_RecordBuffFinishDetail</code>：<code>已确认</code></li>
+<li><code>_IsBuffNeedRecord</code>：<code>已确认</code></li>
+<li><code>BuffDetail.Init</code>：<code>已确认</code></li>
+</ul>
+<p>已确认主路径：</p>
+<ol>
+<li><code>RecordBuffStart</code> 受 <code>m_inRecording</code> gate 控制；其它三个 detail API 受 <code>m_inRecording &amp;&amp; m_detailRecordLevel &gt; 0</code> gate 控制。</li>
+<li><code>RecordBuffStart</code> 对 <code>buff_common_cryst_triggered_phys</code> 有特例：source 角色 summary 的 <code>abnormalInfos["icebreak"].castTimes++</code>。</li>
+<li>四个 detail method 都写入同一个 <code>DetailReport.buffDetails</code> list，并先调用 <code>_TrimDetailsByTime(buffDetails)</code>。</li>
+<li><code>BuffDetail.Init</code> 写 <code>buffId</code>、<code>recordType</code>、owner/source entity id、origin skill id、lifeTime、enhance count 和 blackboard copy。</li>
+<li>
+<p><code>_RecordBuffFinishDetail</code> 在 <code>Init(buff, BuffFinish)</code> 后额外写 <code>finishReason</code>。</p>
+</li>
+<li>
+<p><code>BattleRecorder.buffDetails</code></p>
+</li>
+<li><code>recordBuffStart(Buff)</code></li>
+<li><code>recordBuffEnhanceChange(Buff)</code></li>
+<li><code>recordBuffAttributeRefresh(Buff)</code></li>
+<li><code>recordBuffFinish(Buff, Buff.FinishReason)</code></li>
+<li><code>BuffDetail</code> / <code>BuffDetailRecordType</code></li>
+<li><code>BuffContainer.applyBuff</code> 在新实例 start 后记录 start；enhance 增减时记录 enhance-change；finish 路径在 finish event 后记录 finish。</li>
+<li>OpenAPI <code>FullSimulationResponse.battleRecorder.buffDetails</code> 已导出本地 no-network payload。</li>
+</ol>
+<p>未实现/保留：</p>
+<ul>
+<li>native pooled allocate/recycle 和上传 JSON 格式。</li>
+</ul>
+<h3 id="battlerecorderrecordglobalbuffstart-recordglobalbufffinish"><code>BattleRecorder.RecordGlobalBuffStart</code> / <code>RecordGlobalBuffFinish</code><a class="headerlink" href="#battlerecorderrecordglobalbuffstart-recordglobalbufffinish" title="Permanent link">&para;</a></h3>
+<p>确认状态s：</p>
+<ul>
+<li><code>RecordGlobalBuffStart</code>：<code>已确认</code></li>
+<li><code>_RecordGlobalBuffStartDetail</code>：<code>已确认</code></li>
+<li><code>RecordGlobalBuffFinish</code>：<code>已确认</code></li>
+<li><code>_RecordGlobalBuffFinishDetail</code>：<code>已确认</code></li>
+<li><code>GlobalBuffDetail.Init</code>：<code>已确认</code></li>
+<li><code>GlobalBuff.OnStart</code>：<code>已确认</code></li>
+<li><code>GlobalBuff.OnFinish</code>：<code>已确认</code></li>
+</ul>
+<p>已确认主路径：</p>
+<ol>
+<li><code>RecordGlobalBuffStart</code> / <code>RecordGlobalBuffFinish</code> 都受 <code>m_inRecording</code> 与 <code>m_detailRecordLevel &gt; 0</code> gate 控制。</li>
+<li>start/finish detail 都写入同一个 <code>GlobalBuffDetail</code> list，<code>recordType</code> 分别为 <code>GlobalBuffStart(0)</code> / <code>GlobalBuffFinish(1)</code>。</li>
+<li><code>_RecordGlobalBuffStartDetail</code> / <code>_RecordGlobalBuffFinishDetail</code> 都先 <code>_TrimDetailsByTime(globalBuffDetails)</code>，再分配 <code>GlobalBuffDetail</code>，调用 <code>Init</code>，写 <code>_RecordDetailTime</code>，最后加入 detail list。</li>
+<li><code>GlobalBuffDetail.Init</code> 写 <code>globalBuffId</code>、<code>recordType</code>、<code>sourceId</code> 和 <code>lifeTime</code>。<code>sourceId</code> 是 source ability 的 entity id/serverId 拼接；source 缺失时 native 有空字符串 fallback。</li>
+<li>
+<p><code>GlobalBuff.OnStart</code> 在 <code>_AddBuffs()</code> 之后写 start detail。<code>GlobalBuff.OnFinish</code> 先执行 finish event action，再 <code>_FinishBuffs()</code>，清状态/listener，最后调用 <code>RecordGlobalBuffFinish</code>。</p>
+</li>
+<li>
+<p><code>BattleRecorder.globalBuffDetails</code></p>
+</li>
+<li><code>recordGlobalBuffStart(GlobalBuffInstance)</code></li>
+<li><code>recordGlobalBuffFinish(GlobalBuffInstance)</code></li>
+<li><code>GlobalBuffDetail</code> / <code>GlobalBuffDetailRecordType</code></li>
+<li><code>GlobalBuffManager</code> 在 first-start <code>_AddBuffs</code> 等价路径后记录 start，在 finish child-buff cleanup 后记录 finish。</li>
+</ol>
+<p>未实现/保留：</p>
+<ul>
+<li>native detail window trim、pooled allocate/recycle 和上传 JSON 格式。</li>
+</ul>
+<h3 id="battlerecorderrecordprojectile-recordabilityentity"><code>BattleRecorder.RecordProjectile</code> / <code>RecordAbilityEntity</code><a class="headerlink" href="#battlerecorderrecordprojectile-recordabilityentity" title="Permanent link">&para;</a></h3>
+<p>确认状态s：</p>
+<ul>
+<li><code>RecordProjectile</code>：<code>已确认</code></li>
+<li><code>_RecordProjectileDetail</code>：<code>已确认</code></li>
+<li><code>RecordAbilityEntity</code>：<code>已确认</code></li>
+<li><code>_RecordAbilityEntityDetail</code>：<code>已确认</code></li>
+<li><code>SummonDetail.Init</code>：<code>已确认</code></li>
+<li><code>ProjectileComponent.Launch</code> caller：<code>已确认</code>，callsite <code>已确认</code></li>
+<li><code>ProjectileComponent.FinishProjectile</code> caller：<code>已确认</code>，callsite <code>已确认</code></li>
+<li><code>AbilityEntityController.OnSpawn</code> caller：<code>已确认</code></li>
+</ul>
+<p>已确认主路径：</p>
+<ol>
+<li>两个 public record 方法都受 <code>m_inRecording</code> 与 <code>m_detailRecordLevel &gt; 0</code> gate 控制。</li>
+<li>两者都写入 <code>DetailReport.summonDetails</code>，DTO 为 <code>BattleRecorder.SummonDetail</code>。</li>
+<li><code>SummonDetail.Init</code> 只写 <code>summonId</code> 与 <code>sourceId</code>。</li>
+<li>projectile detail 写 <code>summonType = Projectile(0)</code>；ability entity detail 写 <code>summonType = AbilityEntity(1)</code>。</li>
+<li><code>recordType = !isCreate</code>，即 create path 为 <code>Create(0)</code>，die/finish path 为 <code>Die(1)</code>。</li>
+<li>
+<p><code>AbilityEntityController.OnSpawn</code> 在 spawn event / global event path 后、<code>_CastSkill()</code> 前调用 <code>RecordAbilityEntity(abilityEntityTemplateId, sourceTemplateId, true)</code>；这里的 source 字符串是 source template id，不是 <code>templateId_serverId</code>。</p>
+</li>
+<li>
+<p><code>BattleRecorder.summonDetails</code></p>
+</li>
+<li><code>recordProjectile(projectileId, sourceId, isCreate)</code></li>
+<li><code>recordAbilityEntity(abilityEntityId, sourceId, isCreate)</code></li>
+<li><code>SummonDetail</code>、<code>SummonType</code>、<code>SummonDetailRecordType</code></li>
+<li><code>World.registerProjectile</code> / <code>finishProjectile</code> 记录 projectile create/die。</li>
+<li><code>World.createAbilityEntity</code> / <code>removeEntity</code> 记录 ability entity create/release。</li>
+</ol>
+<p>未实现/保留：</p>
+<ul>
+<li>native detail window trim、pooled allocate/recycle 和上传 JSON 格式。</li>
+</ul>
+<h3 id="_recordskillcaststartdetail-_recordskillcastenddetail"><code>_RecordSkillCastStartDetail</code> / <code>_RecordSkillCastEndDetail</code><a class="headerlink" href="#_recordskillcaststartdetail-_recordskillcastenddetail" title="Permanent link">&para;</a></h3>
+<p>确认状态s：<code>已确认</code> / <code>已确认</code>
+已确认主路径：</p>
+<ul>
+<li>两者都会维护 detail list window，分配 <code>SkillCastDetail</code>，调用 <code>SkillCastDetail.Init</code>，再调用 <code>_RecordDetailTime</code>。</li>
+<li>start detail 使用 <code>RecordType.CastStart = 0</code>。</li>
+<li>end detail 使用 <code>RecordType.CastEnd = 1</code>，随后写 <code>isCancelled</code>、<code>finishType</code>、<code>interruptReason</code>。</li>
+</ul>
+<h3 id="skillcastdetailinit"><code>SkillCastDetail.Init</code><a class="headerlink" href="#skillcastdetailinit" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+已确认字段来源：</p>
+<ul>
+<li><code>skillId</code> 来自 <code>Skill._skillId</code>。</li>
+<li><code>recordType</code> 来自参数。</li>
+<li><code>ownerId</code> / <code>sourceId</code> / <code>targetId</code> 使用 entity logical id 与 server id 拼接。</li>
+<li><code>skillType</code> 来自原游戏 <code>SkillType</code> numeric code。</li>
+</ul>
+<h3 id="_recordcharactercastskill"><code>_RecordCharacterCastSkill</code><a class="headerlink" href="#_recordcharactercastskill" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+已确认主路径：</p>
+<ul>
+<li>先通过 <code>_GetOrCreateCharacterSummaryInfo(target)</code> 获取角色 summary。</li>
+<li>非 Attack 分支：</li>
+<li><code>BreakingAttack(1)</code> -&gt; <code>powerAttackInfo.castTimes++</code>。</li>
+<li><code>NormalSkill(2)</code> -&gt; <code>normalSkillInfo.castTimes++</code>。</li>
+<li><code>ComboSkill(6)</code> -&gt; <code>comboSkillInfo.castTimes++</code>。</li>
+<li><code>UltimateSkill(7)</code> -&gt; <code>ultimateSkillInfo.castTimes++</code>。</li>
+<li><code>AttachSkill(3)</code> / <code>Dodge(5)</code> 未见 summary cast count 更新。</li>
+<li>Attack 分支会读取角色 normal/plunging 相关 skill list 和 <code>CharacterCtrl</code> 主控状态：</li>
+<li>下落攻击进入 <code>plungingAttackInfo</code>。</li>
+<li>普通攻击非最后段进入 <code>attackInfo</code>，并按 main char / AI 分桶到 <code>attackInfoMainChar</code> 或 <code>attackInfoAI</code>。</li>
+<li>
+<p>普通攻击最后段进入 <code>lastAttackInfoMainChar</code> 或 <code>lastAttackInfoAI</code>。</p>
+</li>
+<li>
+<p>下落攻击用 <code>SkillSpecification.CharacterPlungingAttack</code> 或角色 bundle 的 plunging start/end skill id 判定。</p>
+</li>
+<li>power attack 用 <code>SkillSpecification.CharacterPowerAttack</code> / <code>SkillType.BreakingAttack</code> 判定。</li>
+<li>normal/combo/ultimate 按 <code>SkillSpecification.toSkillType()</code> 判定。</li>
+<li>Attack 最后一段按 <code>CharacterTemplateSkillBundleResolver.normalAttackList.last()</code> 判定。</li>
+</ul>
+<h3 id="battlerecorderrecorddamage"><code>BattleRecorder.RecordDamage</code><a class="headerlink" href="#battlerecorderrecorddamage" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+已确认主路径：</p>
+<ol>
+<li><code>m_inRecording</code> 为 false 时直接返回。</li>
+<li>调 <code>_RecordCharacterOutputDamage(modifier)</code>。</li>
+<li>调 <code>_RecordCharacterTakeDamage(modifier)</code>。</li>
+<li>调 <code>_RecordTowerOutputDamage(modifier)</code>。</li>
+<li>调 <code>_RecordTowerTakeDamage(modifier)</code>。</li>
+<li>
+<p>若 <code>m_detailRecordLevel &gt; 0</code>，调 <code>_RecordDamageDetail(modifier)</code>。</p>
+</li>
+<li>
+<p><code>DamageApplication.applyDamageResult</code> 在 HP 结算后调用 <code>BattleRecorder.recordDamage</code>。</p>
+</li>
+<li>source 若为 <code>AbilityEntityController component</code>，输出归属到其 <code>sourceEntity</code>，否则用 source 本体。</li>
+<li>角色 source summary 累计 <code>totalDamageOutput</code> 和 <code>totalDamageEffective</code>，并按 <code>SkillCastInfo.skillSpec</code> 写对应 <code>SkillInfo.totalDamage</code>。</li>
+<li>角色 target summary 累计 <code>totalTakenDamage</code>、<code>totalTakenDamageTimes</code> 和 <code>remainingHp</code>。</li>
+<li>independent-health ability entity source 写 <code>TowerInfo.totalDamageOutput</code>，并按 <code>SkillCastInfo.skillId</code> 写 <code>damageOutputBySkillId</code>。</li>
+<li>independent-health ability entity target 写 <code>TowerInfo.totalTakenDamage</code> 和 <code>remainingHp</code>。</li>
+</ol>
+<h3 id="battlerecorderisindependenthealth-tower-summary"><code>BattleRecorder.IsIndependentHealth</code> / tower summary<a class="headerlink" href="#battlerecorderisindependenthealth-tower-summary" title="Permanent link">&para;</a></h3>
+<p>确认状态s：</p>
+<ul>
+<li><code>IsIndependentHealth</code>：<code>已确认</code></li>
+<li><code>_GetOrCreateTowerInfo</code>：<code>已确认</code></li>
+<li><code>_RecordTowerOutputDamage</code>：<code>已确认</code></li>
+<li><code>_RecordTowerTakeDamage</code>：<code>已确认</code></li>
+<li><code>TowerInfo.Init</code>：<code>已确认</code></li>
+</ul>
+<p>已确认主路径：</p>
+<ol>
+<li><code>IsIndependentHealth(target)</code> 返回 <code>target.get_healthType() == HealthType.Independent(1)</code>。</li>
+<li><code>_GetOrCreateTowerInfo(target)</code> 先经过 independent-health/type guard。</li>
+<li>tower key 是 <code>target.entity.templateData.id</code>。</li>
+<li>已存在同 key <code>TowerInfo</code> 时复用；否则分配并调用 <code>TowerInfo.Init(target)</code>。</li>
+<li><code>_RecordTowerOutputDamage</code> 读取 modifier source；source independent-health 时写 <code>totalDamageOutput += abs(modifier delta)</code>，并按 modifier action/skill index 更新 per-index damage map。</li>
+<li>
+<p><code>_RecordTowerTakeDamage</code> 读取 modifier target；target independent-health 时写 <code>totalTakenDamage += abs(modifier delta)</code>，并读取当前 HP 写 <code>remainingHp</code>。</p>
+</li>
+<li>
+<p>当前 <code>AbilityEntityController component</code> 表示 ability entity，不是原游戏 <code>AbilitySystem</code>。本地 <code>isIndependentHealth</code> 仅把 <code>AbilityEntityController component.isIndependentHealth</code> 映射到 native <code>AbilitySystem.healthType == Independent</code>。</p>
+</li>
+<li><code>TowerInfo.towerId</code> 使用 ability entity id，对应 native entity/template id key。</li>
+<li>output damage 使用 <code>DamageResult.finalDamage</code>，taken damage 使用 HP delta；这是当前 deterministic modifier delta 等价值。</li>
+</ol>
+<h3 id="battlerecorderrecordpoise"><code>BattleRecorder.RecordPoise</code><a class="headerlink" href="#battlerecorderrecordpoise" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+已确认主路径：</p>
+<ol>
+<li><code>m_inRecording</code> 为 false 时直接返回。</li>
+<li>调 <code>_RecordPoiseDamage(modifier)</code>。</li>
+<li>
+<p>若 <code>m_detailRecordLevel &gt; 0</code>，调 <code>_RecordPoiseDetail(modifier)</code>。</p>
+</li>
+<li>
+<p><code>DamageApplication.applyDamageResult</code> 在 poise 结算后调用 <code>BattleRecorder.recordPoise</code>。</p>
+</li>
+<li>角色 source summary 累计 <code>totalPoiseDamage</code>，并按 <code>SkillCastInfo.skillSpec</code> 写对应 <code>SkillInfo.totalPoiseDamage</code>。</li>
+<li><code>detailRecordLevel &gt; 0</code> 时写 <code>PoiseDetail</code>，记录 source/target、poise modify value、poise delta、poise after 和 origin skill id。</li>
+</ol>
+<h3 id="battlerecorderrecordheal"><code>BattleRecorder.RecordHeal</code><a class="headerlink" href="#battlerecorderrecordheal" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code></p>
+<ul>
+<li>调 <code>AbilitySystem.Modifier.get_finalDelta</code>。</li>
+<li>调 <code>Modifier.get_source</code> / <code>Modifier.get_target</code>。</li>
+<li>调 <code>AbilitySystem.get_objectType</code>。</li>
+<li>调 <code>_GetOrCreateCharacterSummaryInfo</code>。</li>
+<li>
+<p><code>m_detailRecordLevel &gt; 0</code> 时调 <code>_RecordHealDetail</code>。</p>
+</li>
+<li>
+<p><code>DamageApplication.applyHealResult</code> 在 HP 结算后调用 <code>BattleRecorder.recordHeal</code>。</p>
+</li>
+<li>source summary 累计 <code>totalHeal</code> 和 <code>totalHealOverall</code>。</li>
+<li>target summary 累计 <code>totalTakenHeal</code>、<code>totalTakenHealOverall</code> 和 <code>remainingHp</code>。</li>
+</ul>
+<h3 id="battlerecorderrecordshield"><code>BattleRecorder.RecordShield</code><a class="headerlink" href="#battlerecorderrecordshield" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code></p>
+<ol>
+<li><code>m_inRecording</code> 为 false 时返回。</li>
+<li>若 <code>source.entity.objectType == Character(8)</code>，取 source character summary 并写 <code>totalShieldOutput += shieldValue</code>。</li>
+<li>若 <code>target.entity.objectType == Character(8)</code>，取 target character summary 并写 <code>totalTakenShield += shieldValue</code>。</li>
+<li>
+<p>该方法不写 detail list。</p>
+</li>
+<li>
+<p><code>ShieldController.addShield</code> 在创建有限值护盾时调用 <code>BattleRecorder.recordShield(source,target,shieldValue)</code>。</p>
+</li>
+<li>source/target 仍通过当前 <code>core.entity.Entity</code> façade 解析 character；后续实体 identity 统一时同步替换。</li>
+</ol>
+<h3 id="battlerecorderrecordconsumeatb"><code>BattleRecorder.RecordConsumeAtb</code><a class="headerlink" href="#battlerecorderrecordconsumeatb" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code></p>
+<ol>
+<li><code>m_inRecording</code> 为 false 时返回。</li>
+<li><code>_GetOrCreateCharacterSummaryInfo(source)</code>。</li>
+<li><code>summary.consumedAtb += value</code>，字段 offset <code>0x100</code>。</li>
+<li>遍历 <code>m_curBattleInfo.characterSummaryInfos</code>。</li>
+<li>对每个 summary 写 <code>summary.naturalGainedAtb += currentAtb + value - m_lastRecordAtb</code>，字段 offset <code>0x118</code>。</li>
+<li><code>m_lastRecordAtb = BattleManager.atb</code>。</li>
+</ol>
+<p>原游戏 <code>BattleManager.CostAtb</code> 状态 <code>已确认</code> 在扣费成功后以 full <code>cost</code> 调用 <code>RecordConsumeAtb(source,cost)</code>，不是 non-returned cost。</p>
+<ul>
+<li><code>BattleManager.costAtb</code> 成功扣费后调用 <code>battleRecorder.recordConsumeAtb(source,cost)</code>。</li>
+</ul>
+<h3 id="battlerecorderrecordgainatb"><code>BattleRecorder.RecordGainAtb</code><a class="headerlink" href="#battlerecorderrecordgainatb" title="Permanent link">&para;</a></h3>
+<p>确认状态s：</p>
+<ul>
+<li><code>RecordGainAtb</code>：<code>已确认</code></li>
+<li><code>_RecordAtbDetail</code>：<code>已确认</code></li>
+<li><code>BattlePointDetail.Init(double,double,string,string,SkillCastInfo)</code>：<code>已确认</code></li>
+</ul>
+<p>已确认主路径：</p>
+<ol>
+<li>检查 <code>m_inRecording</code>；未 recording 直接返回。</li>
+<li><code>_GetOrCreateCharacterSummaryInfo(source)</code>，source 非角色时不更新角色 summary。</li>
+<li>source summary 写 <code>gainedAtb += value</code>。</li>
+<li>遍历所有 character summary，用当前 ATB、传入 gain value 和 <code>m_lastRecordAtb</code> 结算自然增长：<code>currentAtb - value - m_lastRecordAtb</code>。</li>
+<li>更新 <code>m_lastRecordAtb = currentAtb</code>。</li>
+<li>依据 <code>environmentId</code> 或 <code>originSkill.m_skillId</code> 子串写入来源分桶：<code>_power_attack</code>、<code>_plunging_attack</code>、<code>_attack</code>、<code>_normal_skill</code>、<code>_combo_skill</code>、<code>_ultimate_skill</code>、<code>wpn_passive_</code>、<code>passive_equipsuit_</code>、<code>talent</code>、精确 <code>buff_common_dash_behit_listener</code>，否则归入 other。</li>
+<li><code>m_detailRecordLevel &gt; 0</code> 时进入 <code>_RecordAtbDetail</code>。</li>
+<li>
+<p><code>_RecordAtbDetail</code> 裁剪 <code>battlePointDetails</code>，分配 <code>BattlePointDetail</code>，读取当前 ATB 为 <code>afterEventValue</code>，调用 <code>Init(valueDelta, afterEventValue, sourceId, environmentId, skillCastInfo)</code>，写 <code>pointType=Atb(0)</code>，写 detail time 后加入 list。</p>
+</li>
+<li>
+<p><code>BattleManager.gainAtb</code> 作为 owner entry，先通过 <code>AtbManager.gainCost</code> 应用 clamp，再用实际 post-clamp delta 调 <code>BattleRecorder.recordGainAtb</code>。</p>
+</li>
+</ol>
+<h3 id="battlerecorderrecordgainultimatesp"><code>BattleRecorder.RecordGainUltimateSp</code><a class="headerlink" href="#battlerecorderrecordgainultimatesp" title="Permanent link">&para;</a></h3>
+<p>确认状态s：</p>
+<ul>
+<li><code>RecordGainUltimateSp</code>：<code>已确认</code></li>
+<li><code>_RecordUltimateSpDetail</code>：<code>已确认</code></li>
+<li><code>UltimateSpDetail.Init</code>：<code>已确认</code></li>
+</ul>
+<p>已确认主路径：</p>
+<ol>
+<li><code>m_inRecording</code> 为 false 时返回。</li>
+<li>读取 <code>AbilitySystem.Modifier.source</code>；source 非角色时不更新角色 summary。</li>
+<li>zero/invalid final delta 不写入。</li>
+<li>source summary 写 <code>gainedUltimateSp += modifier.realDelta</code>。</li>
+<li>按 <code>environmentId</code> / origin skill id 使用与 ATB gain 同类的 bucket 分类。</li>
+<li><code>m_detailRecordLevel &gt; 0</code> 时 <code>_RecordUltimateSpDetail</code> 分配 <code>UltimateSpDetail</code>，写 detail time 后加入 <code>ultimateSpDetails</code>。</li>
+<li>
+<p><code>UltimateSpDetail.Init</code> 将 source/target 写为 template id + server id，写 <code>uspDelta = finalDelta</code>，<code>uspAfterModify = target.m_ultimateSp</code>，并写 <code>environmentId</code> / <code>originSkillId</code>。</p>
+</li>
+<li>
+<p><code>Entity.gainUsp</code> 在实际 USP clamp 后调用 <code>BattleRecorder.recordGainUltimateSp</code>。</p>
+</li>
+<li><code>ObtainCostAction</code>、damage unit cost 等 USP gain callsite 传入 <code>environmentId = skillCastInfo.skillId</code>，以便分桶和 detail 对前端可见。</li>
+<li>当前 <code>SkillCastDetail</code>、<code>DamageDetail</code>、<code>HealDetail</code>、<code>PoiseDetail</code>、<code>BuffDetail</code>、<code>GlobalBuffDetail</code> 和 <code>UltimateSpDetail</code> 的 entity id fields 已改为 native template id + server id 字符串格式；projectile / ability-entity summon source path 使用 source template id。</li>
+</ol>
+<h3 id="battlerecorderrecordrecoveratb"><code>BattleRecorder.RecordRecoverAtb</code><a class="headerlink" href="#battlerecorderrecordrecoveratb" title="Permanent link">&para;</a></h3>
+<p>确认状态s：</p>
+<ul>
+<li><code>RecordRecoverAtb</code>：<code>已确认</code></li>
+<li><code>_RecordAtbRecoverDetail</code>：<code>已确认</code></li>
+<li>
+<p><code>BattlePointDetail.Init(double,double,List&lt;string&gt;)</code>：<code>已确认</code></p>
+</li>
+<li>
+<p><code>m_inRecording</code> 为 false 时返回。</p>
+</li>
+<li><code>m_detailRecordLevel &lt;= 0</code> 时返回。</li>
+<li>调 <code>_RecordAtbRecoverDetail(recoverValue,influencedModifierIds)</code>。</li>
+<li><code>_RecordAtbRecoverDetail</code> 裁剪 <code>DetailReport.battlePointDetails</code>，分配 <code>BattlePointDetail</code>。</li>
+<li>从 <code>GameWorld</code> 当前 BattleManager/ATB 数据读取当前 ATB，作为 <code>afterEventValue</code>。</li>
+<li><code>BattlePointDetail.Init(valueDelta, afterEventValue, influencedModifierIds)</code> 写 <code>valueDelta</code> / <code>afterEventValue</code>，清空并复制 <code>influencedModifierIds</code>。</li>
+<li>
+<p><code>_RecordAtbRecoverDetail</code> 写 <code>pointType = AtbRecover(1)</code>，调用 <code>_RecordDetailTime</code>，加入 battle point detail list。</p>
+</li>
+<li>
+<p><code>AtbManager.tick</code> 现在返回本帧实际 ATB delta。</p>
+</li>
+<li><code>BattleManager.updateAtb</code> 只在正恢复时调用 <code>recordRecoverAtb</code>。</li>
+<li><code>BattleRecorder.battlePointDetails</code> 暴露 <code>BattlePointDetail</code> 本地 DTO。</li>
+<li><code>recordRecoverAtb</code> 写 <code>BattlePointType.AtbRecover(1)</code>、<code>valueDelta</code>、当前 ATB <code>afterEventValue</code> 和 <code>influencedModifierIds</code>。</li>
+</ul>
+<h3 id="battlerecorderrecordconsumedashcount"><code>BattleRecorder.RecordConsumeDashCount</code><a class="headerlink" href="#battlerecorderrecordconsumedashcount" title="Permanent link">&para;</a></h3>
+<p>确认状态s：</p>
+<ul>
+<li><code>RecordConsumeDashCount</code>：<code>已确认</code></li>
+<li><code>_RecordDashPointDetail</code>：<code>已确认</code></li>
+<li>
+<p><code>BattlePointDetail.Init(double,double,string,string,SkillCastInfo)</code>：<code>已确认</code></p>
+</li>
+<li>
+<p><code>m_inRecording</code> 为 false 时返回。</p>
+</li>
+<li><code>_GetOrCreateCharacterSummaryInfo(source)</code> 返回 null 时返回。</li>
+<li>写 <code>CharacterSummaryInfo.consumedDashCount += value</code>，字段 offset <code>0xF8</code>。</li>
+<li><code>m_detailRecordLevel &lt;= 0</code> 时不写 detail。</li>
+<li>detail 分支读取 <code>source.entity.id</code> 作为 <code>sourceId</code>。</li>
+<li>调 <code>_RecordDashPointDetail(-value, sourceId)</code>，即 detail 里 <code>valueDelta</code> 为负数。</li>
+<li><code>_RecordDashPointDetail</code> 裁剪 <code>DetailReport.battlePointDetails</code>，分配 <code>BattlePointDetail</code>。</li>
+<li><code>BattlePointDetail.Init(valueDelta, afterEventValue, sourceId, emptyEnvironmentId, emptySkillCastInfo)</code> 写 <code>valueDelta</code>、<code>afterEventValue</code>、<code>sourceId</code>、<code>environmentId</code> 和 <code>originSkillId</code>。</li>
+<li>
+<p><code>_RecordDashPointDetail</code> 写 <code>pointType = DashPoint(2)</code>，调用 <code>_RecordDetailTime</code>，加入 battle point detail list。</p>
+</li>
+<li>
+<p><code>BattleRecorder.recordConsumeDashCount(source,value)</code> 更新 source character summary <code>consumedDashCount</code>。</p>
+</li>
+<li><code>detailRecordLevel &gt; 0</code> 时写 <code>BattlePointType.DashPoint(2)</code>，<code>valueDelta=-value</code>，<code>afterEventValue=PlayerController.dashChargeState.currentDashCount</code>。</li>
+<li><code>PlayerController.executeRawDashCommand</code> 固定 dash 本地消耗 <code>1.0</code> 并调用 recorder。</li>
+<li>原游戏中 dash count 的具体扣费源仍属于 PlayerController / movement 还原范围；本 recorder slice 只还原统计和 detail side effect。</li>
+</ul>
+<h3 id="battlerecorderrecorddodgesuccess"><code>BattleRecorder.RecordDodgeSuccess</code><a class="headerlink" href="#battlerecorderrecorddodgesuccess" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code></p>
+<ol>
+<li><code>m_inRecording</code> 为 false 时返回。</li>
+<li><code>_GetOrCreateCharacterSummaryInfo(source)</code> 返回 null 时返回。</li>
+<li>读取 <code>source.get_characterCtrl()</code>；为空时报错路径。</li>
+<li>
+<p>只有 <code>characterCtrl + 0x1A1</code> 的 byte flag 非 0 时写 <code>CharacterSummaryInfo.dodgeCnt++</code>，字段 offset <code>0x8C</code>。</p>
+</li>
+<li>
+<p><code>BattleRecorder.recordDodgeSuccess(source)</code> 使用 <code>PlayerController</code> 的 perfect-dodge cache state 作为本地 characterCtrl flag 等价源。</p>
+</li>
+<li><code>PlayPerfectDodgeAnim</code> action 在 <code>markInPerfectDodge</code> 后调用 recorder。</li>
+<li>完整 <code>CharacterController</code> 状态字段还原仍属于后续 player-control cleanup。</li>
+</ol>
+<h3 id="battlerecorderrecordshowweakness-recordbreakweakness"><code>BattleRecorder.RecordShowWeakness</code> / <code>RecordBreakWeakness</code><a class="headerlink" href="#battlerecorderrecordshowweakness-recordbreakweakness" title="Permanent link">&para;</a></h3>
+<p>确认状态s：</p>
+<ul>
+<li><code>RecordShowWeakness</code>：<code>已确认</code></li>
+<li><code>_GetOrCreateEnemyInfo</code>：<code>已确认</code></li>
+<li><code>RecordBreakWeakness</code>：<code>已确认</code></li>
+</ul>
+<p>native callers：</p>
+<ul>
+<li><code>SetWeaknessAction._StartInterruptEvent</code> 状态 <code>已确认</code> 调用 <code>RecordShowWeakness(owner)</code>。</li>
+<li>
+<p><code>SetWeaknessAction._OnWeaknessTriggered</code> 状态 <code>已确认</code> 调用 <code>RecordBreakWeakness(context.eventSource)</code>。</p>
+</li>
+<li>
+<p><code>RecordShowWeakness</code> 检查 <code>m_inRecording</code>，调用 <code>_GetOrCreateEnemyInfo(source)</code>。</p>
+</li>
+<li><code>_GetOrCreateEnemyInfo</code> 只接受 <code>AbilitySystem.objectType == Enemy(16)</code>，按 enemy id 查找/创建 <code>EnemyInfo</code>。</li>
+<li><code>RecordShowWeakness</code> 写 <code>EnemyInfo.showWeaknessTimes++</code>，字段 offset <code>0x28</code>。</li>
+<li><code>RecordBreakWeakness</code> 检查 <code>m_inRecording</code>，调用 <code>_GetOrCreateCharacterSummaryInfo(source)</code>。</li>
+<li>
+<p><code>RecordBreakWeakness</code> 写 <code>CharacterSummaryInfo.breakWeaknessTimes++</code>，字段 offset <code>0x90</code>。</p>
+</li>
+<li>
+<p><code>BattleRecorder.enemyInfos</code> 暴露本地 <code>EnemyInfo</code> DTO，目前覆盖 <code>showWeaknessTimes</code> 子集。</p>
+</li>
+</ul>
+<h3 id="battlerecorderrecordaddenemy-recordremoveenemy-recordcharacterkillenemy"><code>BattleRecorder.RecordAddEnemy</code> / <code>RecordRemoveEnemy</code> / <code>RecordCharacterKillEnemy</code><a class="headerlink" href="#battlerecorderrecordaddenemy-recordremoveenemy-recordcharacterkillenemy" title="Permanent link">&para;</a></h3>
+<p>确认状态s：</p>
+<ul>
+<li><code>RecordAddEnemy</code>：<code>已确认</code></li>
+<li><code>RecordAddEnemyBySpawner</code>：<code>已确认</code></li>
+<li><code>RecordRemoveEnemy</code>：<code>已确认</code></li>
+<li><code>RecordCharacterKillEnemy</code>：<code>已确认</code></li>
+<li><code>_GetOrCreateEnemyInfo</code>：<code>已确认</code></li>
+<li><code>EnemyInfo.Init</code>：<code>已确认</code></li>
+</ul>
+<p>已确认主路径：</p>
+<ol>
+<li><code>_GetOrCreateEnemyInfo</code> 只接受 <code>AbilitySystem.objectType == Enemy(16)</code>，按 <code>target.entity.templateData.id</code> 查找现有 <code>EnemyInfo</code>，不存在则从 pool 分配，调用 <code>EnemyInfo.Init(enemyId)</code> 并加入 report enemy list。</li>
+<li><code>EnemyInfo.Init</code> 写入 <code>enemyId</code>，清 <code>encounter</code>、<code>deathCnt</code>、<code>playerKilledCnt</code>、<code>poiseBreakCnt</code>、<code>showWeaknessTimes</code>，并清空 <code>levelCntMap</code>。</li>
+<li><code>RecordAddEnemy</code> 在 <code>m_inRecording</code> 下只接受 enemy，调用 <code>_GetOrCreateEnemyInfo</code> 后执行 <code>encounter++</code>，再读取 <code>enemy.lv</code>，如果 <code>levelCntMap</code> 已有该 level 则 <code>+1</code>，否则写 <code>1</code>。</li>
+<li><code>RecordAddEnemy</code> 在 <code>m_detailRecordLevel &gt; 0</code> 时调用 <code>_RecordMiscBattleEventDetail(AddEnemy=3, enemyTemplateId, null)</code>。</li>
+<li><code>RecordRemoveEnemy</code> 在 <code>m_inRecording</code> 下只接受 <code>Entity.objectType == Enemy(16)</code>；<code>isDead == true</code> 时 <code>EnemyInfo.deathCnt++</code>，活体移除不改 death counter。</li>
+<li>
+<p><code>RecordCharacterKillEnemy</code> 在 <code>m_inRecording</code> 下要求 <code>character.objectType == Character(8)</code> 且 <code>enemy.objectType == Enemy(16)</code>；命中后 <code>EnemyInfo.playerKilledCnt++</code>。</p>
+</li>
+<li>
+<p><code>EnemyInfo.encounter/deathCnt/playerKilledCnt/levelCntMap</code> 已通过 <code>BattleRecorderRuntimeTest</code> 覆盖。</p>
+</li>
+<li><code>RecordAddEnemyBySpawner</code> 只记录为 SDK/no-network boundary，不实现本地副作用。</li>
+</ol>
+<h3 id="battlerecorderrecordbreakpoise"><code>BattleRecorder.RecordBreakPoise</code><a class="headerlink" href="#battlerecorderrecordbreakpoise" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+caller：</p>
+<ul>
+<li><code>AbilitySystem.PoiseController.OnPoiseZero</code> 状态 <code>已确认</code></li>
+</ul>
+<p>已确认主路径：</p>
+<ol>
+<li><code>m_inRecording</code> 为 false 时返回。</li>
+<li><code>_GetOrCreateCharacterSummaryInfo(breaker)</code> 成功时写 <code>CharacterSummaryInfo.breakPoiseTimes++</code>。</li>
+<li><code>_GetOrCreateEnemyInfo(target)</code> 成功时写 <code>EnemyInfo.poiseBreakCnt++</code>。</li>
+<li>
+<p>该方法不写 detail list。</p>
+</li>
+<li>
+<p><code>PoiseController.modifyPoise</code> 在首次归零 transition 调用 <code>BattleRecorder.recordBreakPoise(source, owner)</code>。</p>
+</li>
+</ol>
+<h3 id="battlerecorderrecordswitchcenter"><code>BattleRecorder.RecordSwitchCenter</code><a class="headerlink" href="#battlerecorderrecordswitchcenter" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code></p>
+<ol>
+<li><code>oldLeader == null</code> 时直接返回；该方法没有看到 <code>m_inRecording</code> gate。</li>
+<li>调 <code>TimeManager.get_time()</code> 取得当前时间。</li>
+<li>读取 <code>Report.switchCenterTime</code>，字段 offset <code>0x20</code>。</li>
+<li>读取 <code>oldLeader.abilitySystem</code>，调用 <code>_GetOrCreateCharacterSummaryInfo(oldLeaderAbility)</code>。</li>
+<li>写 <code>summary.mainCharTime += TimeManager.time - Report.switchCenterTime</code>，字段 offset <code>0x94</code>。</li>
+<li>再次读取 <code>TimeManager.time()</code> 并写回 <code>Report.switchCenterTime</code>。</li>
+<li>当 <code>m_detailRecordLevel &gt; 0</code> 且 <code>reason.HasValue</code> 时，读取当前 <code>GameInstance.playerController</code> 主控目标 id，并调用 <code>_RecordMiscBattleEventDetail(EventType.SwitchMainCharacter = 2, targetId, reason)</code>。</li>
+</ol>
+<p><code>_RecordMiscBattleEventDetail</code> 确认状态：<code>已确认</code></p>
+<ul>
+<li>先 <code>_TrimDetailsByTime&lt;BattleEventDetail&gt;(DetailReport.battleEventDetails)</code>。</li>
+<li>从 <code>GenericStaticPool&lt;BattleEventDetail&gt;</code> 分配 detail。</li>
+<li><code>BattleEventDetail.Init(eventType,targetId)</code> 写 <code>eventType</code> offset <code>0x18</code> 和 <code>targetId</code> offset <code>0x20</code>。</li>
+<li>若 <code>reason.HasValue</code>，写 <code>detail.reason</code> offset <code>0x28</code>。</li>
+<li>调 <code>_RecordDetailTime(detail)</code>。</li>
+<li>
+<p>将 detail 加入 <code>DetailReport.battleEventDetails</code>。</p>
+</li>
+<li>
+<p><code>BattleRecorder.recordSwitchCenter</code> 结算旧主控 <code>CharacterSummaryInfo.mainCharTime</code>，并在 detail record level 打开时写本地 <code>BattleEventDetail.SwitchMainCharacter</code>。</p>
+</li>
+</ul>
+<h3 id="abnormal-infliction-recorder-methods">abnormal / infliction recorder methods<a class="headerlink" href="#abnormal-infliction-recorder-methods" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>key mapping</th>
+<th>counter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RecordSpellInfliction</code></td>
+<td><code>Fire -&gt; fire_inflict</code>; <code>Pulse -&gt; electric_inflict</code>; <code>Cryst -&gt; cold_inflict</code>; <code>Natural -&gt; nature_inflict</code>; default <code>unknown_status</code></td>
+<td><code>castTimes++</code></td>
+</tr>
+<tr>
+<td><code>RecordSpellAbnormal</code></td>
+<td><code>Fire -&gt; burn_status</code>; <code>Pulse -&gt; electric_status</code>; <code>Cryst -&gt; frozen_status</code>; <code>Natural -&gt; corrupt_status</code>; <code>Burst</code> 根据 <code>buffId.Contains</code> 顺序 <code>fire/cryst/pulse/natural</code> 映射 <code>fire_burst/cold_burst/electric_burst/nature_burst</code>，否则 <code>unknown_status</code></td>
+<td><code>castTimes++</code></td>
+</tr>
+<tr>
+<td><code>RecordAbnormalConsumeInfliction</code></td>
+<td><code>EnergyShardByFire/Pulse/Cryst/Natural -&gt; burn_status/electric_status/frozen_status/corrupt_status</code>，其它 <code>unknown_status</code></td>
+<td><code>inflictionConsumeCnt += count</code></td>
+</tr>
+<tr>
+<td><code>RecordPhysicalNoGuard</code></td>
+<td><code>armorbrk</code></td>
+<td><code>castTimes++</code></td>
+</tr>
+<tr>
+<td><code>RecordPhysicalInfliction</code></td>
+<td><code>Airborne -&gt; airborne</code>; <code>KnockDown -&gt; knockdown</code>; <code>Fracture -&gt; fracture</code>; <code>Crush -&gt; crush</code>; default <code>unknown_status</code></td>
+<td><code>castTimes++</code></td>
+</tr>
+<tr>
+<td><code>RecordPhysicalConsumeNoGuard</code></td>
+<td><code>Fracture -&gt; fracture</code>; <code>Crush -&gt; crush</code>; 其它 <code>unknown_status</code></td>
+<td><code>inflictionConsumeCnt += count</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>BattleRecorder</code> 新增 <code>AbnormalInfo</code> 和上述 recorder API。</li>
+<li><code>PhysicalInflictionHelper</code> 在 no-guard buff 实际创建时调用 <code>recordPhysicalNoGuard</code>，在物理 infliction buff 实际创建时调用 <code>recordPhysicalInfliction</code>。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

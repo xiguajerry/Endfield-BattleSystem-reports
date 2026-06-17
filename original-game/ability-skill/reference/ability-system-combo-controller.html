@@ -1,0 +1,1038 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>AbilitySystem.ComboController - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#abilitysystemcombocontroller" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              AbilitySystem.ComboController
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../combat-core/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../actions/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        归属
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        字段
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        嵌套类型
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        调用入口
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        生命周期
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已确认行为
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="abilitysystemcombocontroller">AbilitySystem.ComboController<a class="headerlink" href="#abilitysystemcombocontroller" title="Permanent link">&para;</a></h1>
+<p>更新时间：2026-06-11</p>
+<h2 id="_1">归属<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p><code>ComboController</code> 是 <code>AbilitySystem</code> 的嵌套 <code>SubFeature</code>，不是 <code>PlayerController</code> 的子类。它负责 command 到 skill 的 runtime mapping、next skill request、allowed next skill pack、offset mapping 和 change skill mapping。</p>
+<h2 id="_2">字段<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>offset</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>m_baseCommandMapping</code></td>
+<td><code>0x20</code></td>
+<td><code>BattleCommandType -&gt; MappingModifier</code> 基础映射。</td>
+</tr>
+<tr>
+<td><code>m_runtimeCommandMapping</code></td>
+<td><code>0x28</code></td>
+<td><code>BattleCommandType -&gt; PriorityQueue&lt;MappingModifier&gt;</code> runtime 覆盖映射。</td>
+</tr>
+<tr>
+<td><code>m_realCommandMapping</code></td>
+<td><code>0x30</code></td>
+<td>当前实际生效映射。</td>
+</tr>
+<tr>
+<td><code>m_nextSkillRequest</code></td>
+<td><code>0x38</code></td>
+<td><code>NextSkillRequest?</code>，缓存下一技能请求。</td>
+</tr>
+<tr>
+<td><code>m_allowedNextSkillPacks</code></td>
+<td><code>0xA0</code></td>
+<td>allowed-next 技能集合，优先放行打断。</td>
+</tr>
+<tr>
+<td><code>m_offsetModifierPack</code></td>
+<td><code>0xA8</code></td>
+<td><code>OffsetModifierPack?</code>，dash/skill/jump 触发的 offset mapping。</td>
+</tr>
+<tr>
+<td><code>m_offsetTargetSkillId</code></td>
+<td><code>0xE8</code></td>
+<td>offset 目标 skill id。</td>
+</tr>
+<tr>
+<td><code>m_changeSkillHandles</code></td>
+<td><code>0xF0</code></td>
+<td>change skill handle 列表。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">嵌套类型<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>字段/值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BattleCommandType</code></td>
+<td><code>Attack=0</code>, <code>Dash=1</code>, <code>Jump=2</code>, <code>NormalSkill=3</code>, <code>ComboSkill=4</code>, <code>Count=5</code></td>
+<td>原游戏 command mapping 枚举。</td>
+</tr>
+<tr>
+<td><code>Priority</code></td>
+<td><code>Default=0</code>, <code>Mode=10</code>, <code>Offset=15</code>, <code>Skill=20</code>, <code>Buff=30</code></td>
+<td>mapping modifier 优先级，不是 skill interrupt priority。</td>
+</tr>
+<tr>
+<td><code>OffsetTriggerType</code></td>
+<td><code>Dash=0</code>, <code>Skill=1</code>, <code>Jump=2</code></td>
+<td>offset mapping 触发来源。</td>
+</tr>
+<tr>
+<td><code>MappingModifier</code></td>
+<td><code>skillId</code>, <code>instId</code>, <code>priority</code>, <code>cacheTime</code></td>
+<td>runtime mapping 条目。</td>
+</tr>
+<tr>
+<td><code>NextSkillRequest</code></td>
+<td><code>nextSkillId</code>, <code>remainingTime</code>, <code>allowToCastNextSkill</code>, <code>modifierInstId</code>, <code>skillCastInputData?</code></td>
+<td>command 缓存请求。</td>
+</tr>
+<tr>
+<td><code>OffsetModifierPack</code></td>
+<td><code>handle</code>, <code>duration</code>, <code>triggerType</code>, <code>triggerSkillId</code>, <code>reduceDuration</code>, <code>skillCasted</code></td>
+<td>offset mapping 生命周期。</td>
+</tr>
+<tr>
+<td><code>AllowedNextSkillPack</code></td>
+<td><code>skillList</code>, <code>instanceUid</code></td>
+<td>允许下一技能列表。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">方法<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>状态</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OnInit()</code></td>
+<td><code>已确认</code></td>
+<td>documented</td>
+<td>设置 owner <code>m_comboController</code>，枚举 <code>skillDataBundle.defaultCmdMapping</code>，用 default cache time 建 <code>Priority.Default</code> base mapping，然后刷新 real mapping。</td>
+</tr>
+<tr>
+<td><code>AddMappingModifier(commandType, skillId, priority, clearSkillRequestOnRemove, overrideCacheTime, clearOffsetTargetSkillIdOnRemove)</code></td>
+<td><code>已确认</code></td>
+<td>documented</td>
+<td>创建 runtime <code>MappingModifier</code>；cache time 用 override 或 <code>BattleCommandMappingConfig.GetDefaultCacheTime</code>；加入 command priority queue；刷新 real mapping；返回带清理标志的 handle。</td>
+</tr>
+<tr>
+<td><code>RemoveMappingModifier(cmdType, instId)</code></td>
+<td><code>已确认</code></td>
+<td>documented</td>
+<td>在 runtime queue 中按 <code>instId</code> 查找并移除 modifier，然后刷新 real mapping；不直接处理 handle 的 clear request / clear offset flag。</td>
+</tr>
+<tr>
+<td><code>_UpdateRealEffectedMapping()</code></td>
+<td><code>已确认</code></td>
+<td>documented</td>
+<td>遍历 <code>BattleCommandType</code> 0..4；runtime queue 有元素则取 queue item 0，否则回落到 base mapping；写入 <code>m_realCommandMapping</code>。</td>
+</tr>
+<tr>
+<td><code>_GetCacheTime(cmdType, modifier)</code></td>
+<td><code>已确认</code></td>
+<td>documented</td>
+<td>默认返回 <code>modifier.cacheTime</code>；仅 <code>Attack</code> 在 dash / perfect dodge 状态读取 <code>BattleCommandMappingConfig.attackCacheTimeInDash</code> / <code>attackCacheTimeInPerfectDodge</code>。</td>
+</tr>
+<tr>
+<td><code>BattleCommandMappingConfig.GetDefaultCacheTime(cmdType)</code></td>
+<td><code>已确认</code></td>
+<td>documented</td>
+<td><code>defaultCacheTimeMap.GetValueOrDefault(cmdType, 0f)</code>。</td>
+</tr>
+<tr>
+<td><code>MappingModifier.CompareTo(other)</code></td>
+<td><code>已确认</code></td>
+<td>documented</td>
+<td>比较 <code>priority</code> 并取负，priority 数值越大越靠前；未看到 instId/sequence tie-break。</td>
+</tr>
+<tr>
+<td><code>ChangeSkillHandle.ctor(owner, curSkillId, revertSkillId, duration, slot, inheritCdProgress, handle)</code></td>
+<td><code>已确认</code></td>
+<td>documented</td>
+<td>保存 owner/current/revert/slot/inheritCdProgress/handle；<code>duration</code> 同时写入初始和当前 duration；<code>isValid=true</code>。</td>
+</tr>
+<tr>
+<td><code>ChangeSkillHandle.Tick(deltaTime)</code></td>
+<td><code>已确认</code></td>
+<td>documented</td>
+<td>仅当 <code>isValid &amp;&amp; duration &gt; 0.00001</code> 时递减 duration；递减后 <code>duration &lt;= 0.00001</code> 调 <code>Revert()</code>。</td>
+</tr>
+<tr>
+<td><code>ChangeSkillHandle.Revert()</code></td>
+<td><code>已确认</code></td>
+<td>documented</td>
+<td>若 invalid 直接返回；按 slot 检查当前 <code>_curNormalSkill</code> / <code>_curComboSkill</code> 是否已等于 revert id；未等于且 <code>inheritCdProgress</code> 为 true 时，将当前临时技能 cdProgress 复制到 revert skill；恢复当前 slot，发送对应全局事件；调用 mapping handle <code>RemoveModifier()</code>；<code>isValid=false</code>，<code>duration=-1</code>。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_5">调用入口<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>AbilitySystem.RefreshNextSkillRequest</code> 转发到 <code>ComboController.RefreshNextSkillRequest</code>。</li>
+<li><code>AbilitySystem.AddMappingModifier</code> 转发到 <code>ComboController.AddMappingModifier</code>。</li>
+<li><code>AbilitySystem.ComboControllerOnSkillCastStart</code> 转发到 <code>ComboController.OnSkillCastStart</code>。</li>
+<li><code>AbilitySystem.OnSkillExclusiveTimeExecuted</code> 转发到 <code>ComboController.OnSkillExclusiveTimeExecuted</code>。</li>
+<li><code>AbilitySystem.CheckCanInterruptCurSkill</code> 读取 <code>ComboController.allowedNextSkillPacks</code>。</li>
+</ul>
+<h2 id="_6">生命周期<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<ol>
+<li>初始化时建立 base command mapping。</li>
+<li>runtime action、mode、buff、skill 等通过 <code>AddMappingModifier</code> 或 <code>ChangeSkillMapping</code> 叠加 mapping。</li>
+<li>玩家命令进入后，<code>RefreshNextSkillRequest(cmdType)</code> 根据实际 mapping 产生 <code>NextSkillRequest</code>。</li>
+<li><code>Tick</code> 每帧对 pending request 重新调用 <code>_AllowNextSkill(rawSkillId)</code>，写回 <code>allowToCastNextSkill</code>，并递减 <code>remainingTime</code>；过期时若存在 <code>SkillCastInputData</code> 会先 <code>Dispose</code>，再清空 request。</li>
+<li>cast start 时 <code>OnSkillCastStart(skillId)</code> 更新 offset target，并标记 offset pack 已 cast。</li>
+<li>request 成功、过期、modifier removal 或 <code>ClearSkillRequest</code> 会清理 next request。</li>
+</ol>
+<h2 id="_7">已确认行为<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>OnInit</code> 将 <code>owner.m_comboController</code> 指向当前 controller；随后读取 <code>owner._data.skillDataBundle.defaultCmdMapping</code>，对每个 <code>(BattleCommandType, skillId)</code> 从 <code>GameInstance.dataManager.battleCommandMappingConfig.defaultCacheTimeMap</code> 取默认 cache time，创建 <code>Priority.Default</code> 的 <code>MappingModifier</code> 并写入 <code>m_baseCommandMapping</code>；最后调用 <code>_UpdateRealEffectedMapping</code>。</li>
+<li><code>BattleCommandMappingConfig.GetDefaultCacheTime</code> 是 <code>defaultCacheTimeMap.GetValueOrDefault(cmdType, 0f)</code>。</li>
+<li><code>AddMappingModifier</code> 的 cache time 选择顺序为：</li>
+<li><code>overrideCacheTime.HasValue</code> 时直接使用 override 值。</li>
+<li>否则调用 <code>BattleCommandMappingConfig.GetDefaultCacheTime(commandType)</code>。</li>
+<li><code>AddMappingModifier</code> 构造 <code>MappingModifier(skillId, cacheTime, priority)</code> 后放入 <code>m_runtimeCommandMapping[commandType]</code> 的 priority queue；该 command 首次出现时会先创建 <code>List&lt;MappingModifier&gt;</code>，放入新 modifier，再用该 list 构造 <code>PriorityQueue&lt;MappingModifier&gt;</code>。添加后立即 <code>_UpdateRealEffectedMapping</code>，返回 <code>MappingModifier.Handle(instId, commandType, clearSkillRequestOnRemove, clearOffsetTargetSkillIdOnRemove, owner)</code>。</li>
+<li><code>RemoveMappingModifier</code> 只负责从 <code>m_runtimeCommandMapping[cmdType]</code> 中倒序查找 matching <code>instId</code> 的 modifier 并移除，然后 <code>_UpdateRealEffectedMapping</code>。<code>clearSkillRequestOnRemove</code> / <code>clearOffsetTargetSkillIdOnRemove</code> 是 <code>MappingModifier.Handle.RemoveModifier</code> 或上层 handle lifecycle 的职责，不在该方法本体内处理。</li>
+<li><code>_UpdateRealEffectedMapping</code> 清空/重建 <code>m_realCommandMapping</code>，遍历 <code>BattleCommandType</code> 0..4：</li>
+<li>若 <code>m_runtimeCommandMapping[cmd]</code> 存在且 queue 非空，取 queue item <code>0</code> 作为 real mapping。</li>
+<li>若 runtime queue 不存在或为空，回落到 <code>m_baseCommandMapping[cmd]</code>。</li>
+<li>无 base 时该 command 不写入 real map。</li>
+<li><code>PlayerCommandConfig.CmdType</code> 第一层分支在 <code>RefreshNextSkillRequest</code> 中按 <code>cmdType - 1</code> 跳转：</li>
+<li><code>Jump=1</code> -&gt; 读取 <code>BattleCommandType.Jump=2</code> 的 real mapping。</li>
+<li><code>Attack=2</code> -&gt; 读取 <code>BattleCommandType.Attack=0</code> 的 real mapping。</li>
+<li><code>Skill=3</code> -&gt; 读取 <code>PlayerCommandController.GetCommand&lt;SkillCommand&gt;(CmdType=3)</code>，再按当前 <code>AbilitySystem</code> 的 <code>ObjectPtr</code> 从 <code>SkillCommand.m_entity2InputData</code> 取 <code>SkillCastInputData</code>。</li>
+<li><code>Dash=4</code> -&gt; 读取 <code>BattleCommandType.Dash=1</code> 的 real mapping。</li>
+<li>其他 command type 走 default/fail path。</li>
+<li>Skill command 分支中，<code>SkillCastInputView.skillId</code> 会与 owner <code>AbilitySystem._curNormalSkill</code> 和 <code>_curComboSkill</code> 比较：</li>
+<li>匹配 <code>_curNormalSkill</code> 时，读取 <code>BattleCommandType.NormalSkill=3</code> 的 real mapping，然后用 <code>_curNormalSkill</code> 更新 modifier skill id。</li>
+<li>匹配 <code>_curComboSkill</code> 时，读取 <code>BattleCommandType.ComboSkill=4</code> 的 real mapping，然后用 <code>_curComboSkill</code> 更新 modifier skill id。</li>
+<li>两者都不匹配时，直接用 input view 的 <code>skillId</code> 构造默认 <code>MappingModifier</code>。</li>
+<li><code>RefreshNextSkillRequest</code> 生成 request 时会先 dispose 旧 request 内的 <code>SkillCastInputData</code>，然后写入新的 nullable <code>NextSkillRequest</code>。</li>
+<li>新 request 初始 <code>allowToCastNextSkill = false</code>；实际放行由 <code>Tick</code> 每帧调用 <code>_AllowNextSkill(rawSkillId)</code> 写回，或者由 <code>hasNextSkillRequestPrediction</code> 实时调用 <code>_AllowNextSkill</code> 得到预测结果。</li>
+<li><code>_GetCacheTime(cmdType, modifier)</code> 默认返回 <code>modifier.cacheTime</code>；只对 <code>PlayerCommandConfig.CmdType.Attack</code> 有特殊分支：</li>
+<li>owner movement component <code>isInDash</code> 时返回 <code>BattleCommandMappingConfig.attackCacheTimeInDash</code>。</li>
+<li>owner ability <code>inPerfectDodge</code> 时返回 <code>BattleCommandMappingConfig.attackCacheTimeInPerfectDodge</code>。</li>
+<li>其他状态仍返回 <code>modifier.cacheTime</code>。</li>
+<li><code>nextSkillId</code> / <code>hasNextSkillRequest</code> 都要求 <code>allowToCastNextSkill == true</code>；<code>rawNextSkillId</code> 只要求 request 存在。</li>
+<li><code>Tick</code> 使用 pending request 的 <code>remainingTime</code> 做过期控制；到期会 dispose request 内 <code>SkillCastInputData</code> 并清空 nullable。</li>
+<li><code>Tick</code> 对 offset pack 的倒计时受 <code>reduceDuration</code> 控制：<code>reduceDuration == false</code> 时不递减 duration；置 true 后才递减，到期调用 <code>MappingModifier.Handle.RemoveModifier()</code> 并清空 offset nullable。</li>
+<li><code>CreateOffsetMappingModifier</code> 的目标 skill 不读取当前 Attack runtime mapping：<code>m_offsetTargetSkillId</code> 非空则用它，否则取当前 normal attack list 第 0 段。</li>
+<li><code>CreateOffsetMappingModifier(Dash, "")</code> 初始 <code>reduceDuration = true</code>，因此 Dash offset 从创建后就开始倒计时。</li>
+<li><code>CreateOffsetMappingModifier(Skill, triggerSkillId)</code> 和 <code>CreateOffsetMappingModifier(Jump, "")</code> 初始 <code>reduceDuration = false</code>；前者等 <code>OnSkillExclusiveTimeExecuted(triggerSkillId)</code>，后者等 <code>OnJumpOffsetLanded()</code>。</li>
+<li><code>CreateOffsetMappingModifier(Jump, "")</code> 若已有 Jump pack 且 <code>skillCasted == false</code>，会直接返回，不重复创建；若已 cast 过 skill，则允许重建。</li>
+<li><code>RefreshOffsetMappingModifier</code> 不创建 pack，也不把 <code>reduceDuration</code> 改成 true；它只是把 duration 刷成 <code>_GetOffsetCachedTime(existing.triggerType)</code>。</li>
+<li>入口先遍历 <code>m_changeSkillHandles</code>，对同 <code>SkillSlot</code> 的旧 handle 调 <code>Revert()</code> 并从 list 中移除。</li>
+<li><code>SkillSlot.NormalSkill=0</code>：从 <code>_curNormalSkill</code> 对应 <code>Skill</code> 读取 CD progress，写入 owner <code>_curNormalSkill = targetSkillId</code>，目标 skill <code>ChangeSkillType(2)</code> 并 <code>Enable()</code>，若 <code>inheritCdProgress</code> 为 true 则 <code>SetCdProgress(progress)</code>，随后 <code>AddMappingModifier(BattleCommandType.NormalSkill, targetSkillId, Priority.Skill, clearSkillRequestOnRemove=true, overrideCacheTime, clearOffsetTargetSkillIdOnRemove=false)</code>。</li>
+<li><code>SkillSlot.ComboSkill=1</code>：同理处理 <code>_curComboSkill</code>，目标 skill <code>ChangeSkillType(6)</code>，command 为 <code>BattleCommandType.ComboSkill</code>。</li>
+<li>添加 mapping 后创建 <code>AbilitySystem.ChangeSkillHandle(owner, curSkillId, revertSkillId, duration, slot, inheritCdProgress, handle)</code> 并加入 <code>m_changeSkillHandles</code>。</li>
+<li><code>ChangeSkillHandle</code> 构造函数保存 owner、当前 skill id、revert skill id、duration、slot、inherit cd flag 和 mapping handle；duration 写入初始和当前字段，并置 <code>isValid=true</code>。</li>
+<li><code>ChangeSkillHandle.Tick(deltaTime)</code> 不处理 mapping 本身，只在 handle 有效且 duration 大于 <code>0.00001</code> 时递减；递减到 epsilon 后调用 <code>Revert()</code>。</li>
+<li><code>ChangeSkillHandle.Revert()</code> 分 NormalSkill / ComboSkill 两条分支：</li>
+<li>若当前 slot 已经等于 <code>m_revertSkillId</code>，跳过 CD copy 和 slot 写入，但仍调用 mapping handle remove，并将 handle 标记 invalid。</li>
+<li>若当前 slot 不等于 revert，且 <code>m_inheritCdProgress == true</code>，从当前临时技能读取 <code>Skill.cdProgress</code>，写入 revert skill <code>SetCdProgress(progress)</code>。</li>
+<li>恢复 owner <code>_curNormalSkill</code> 或 <code>_curComboSkill</code> 到 <code>m_revertSkillId</code>。</li>
+<li>NormalSkill 分支发送 <code>EventManager.SendGlobal&lt;ulong, string&gt;</code>，参数为 owner entity <code>serverId</code> 和 revert skill id；ComboSkill 分支发送 <code>EventManager.SendGlobal&lt;AbilitySystem, string&gt;</code>，参数为 owner AbilitySystem 和 revert skill id。</li>
+<li>最后调用 <code>MappingModifier.Handle.RemoveModifier()</code>，置 <code>isValid=false</code>、<code>duration=-1</code>。</li>
+<li>allowed-next 并不直接执行 cast，它只作为 <code>AbilitySystem.CheckCanInterruptCurSkill</code> 的优先放行条件。</li>
+<li><code>_AllowNextSkill</code> 不另写打断规则，而是回到 <code>AbilitySystem.CheckCanInterruptCurSkill</code>。</li>
+<li><code>OnSkillCastStart</code> 和 <code>OnSkillExclusiveTimeExecuted</code> 对 offset pack 的两个标记不同：</li>
+<li>cast start：<code>skillCasted = true</code>。</li>
+<li>exclusive executed 且 trigger skill 匹配：<code>reduceDuration = true</code>。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

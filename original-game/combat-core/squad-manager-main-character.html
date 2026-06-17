@@ -1,0 +1,1061 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Beyond.Gameplay.Core.SquadManager / Squad 主控维护 - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#beyondgameplaycoresquadmanager-squad" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Beyond.Gameplay.Core.SquadManager / Squad 主控维护
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类定位
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心数据
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setleaderbyclient-squadsetleader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SetLeaderByClient 与 Squad.SetLeader
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#squadapply-leader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Squad.Apply 与初始化 leader
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_applytocurrentsquad-serverspawnsquad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _ApplyToCurrentSquad 与 ServerSpawnSquad
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_refreshsquadcharacters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _RefreshSquadCharacters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_setmaincharacter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _SetMainCharacter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_swapleaderposifneeded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _SwapLeaderPosIfNeeded
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_postprocessmembers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _PostProcessMembers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        角色释放与死亡 fallback
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setleaderreason" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SetLeaderReason
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        对条件 action 的影响
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="beyondgameplaycoresquadmanager-squad">Beyond.Gameplay.Core.SquadManager / Squad 主控维护<a class="headerlink" href="#beyondgameplaycoresquadmanager-squad" title="Permanent link">&para;</a></h1>
+<h2 id="_1">类定位<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th style="text-align: right;">状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SquadManager._SetMainCharacter</code></td>
+<td style="text-align: right;"><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>SquadManager._SwapLeaderPosIfNeeded</code></td>
+<td style="text-align: right;"><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>SquadManager._PostProcessMembers</code></td>
+<td style="text-align: right;"><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>SquadManager.SetLeaderByClient</code></td>
+<td style="text-align: right;"><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>SquadManager._RefreshSquadCharacters</code></td>
+<td style="text-align: right;"><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>SquadManager._ApplyToCurrentSquad</code></td>
+<td style="text-align: right;"><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>Squad.Apply</code></td>
+<td style="text-align: right;"><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>Squad._InitLeader</code></td>
+<td style="text-align: right;"><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>Squad._GetCurLeader</code></td>
+<td style="text-align: right;"><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>Squad.SetLeader</code></td>
+<td style="text-align: right;"><code>已确认</code></td>
+</tr>
+<tr>
+<td><code>Squad.OnCharacterRelease</code></td>
+<td style="text-align: right;"><code>已确认</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">核心数据<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p><code>Squad</code> 维护当前 leader 的 slot 状态:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th style="text-align: right;">偏移</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>leaderIndex</code></td>
+<td style="text-align: right;"><code>0x10</code></td>
+<td>当前 leader 所在 slot</td>
+</tr>
+<tr>
+<td><code>leaderId</code></td>
+<td style="text-align: right;"><code>0x18</code></td>
+<td>当前 leader 的角色实例 id</td>
+</tr>
+<tr>
+<td><code>slots</code></td>
+<td style="text-align: right;"><code>0x20</code></td>
+<td>squad slot 列表</td>
+</tr>
+<tr>
+<td><code>Slot.charInstId</code></td>
+<td style="text-align: right;"><code>0x18</code></td>
+<td>slot 绑定的角色实例 id</td>
+</tr>
+<tr>
+<td><code>Slot.character</code></td>
+<td style="text-align: right;"><code>0x28</code></td>
+<td>slot 当前实体</td>
+</tr>
+</tbody>
+</table>
+<p><code>PlayerController.mainCharacter</code> 是最终运行时主控引用；<code>Squad.leaderIndex/leaderId</code>
+是小队层的 leader 状态。二者通过 <code>_SetMainCharacter</code> 连接。</p>
+<h2 id="setleaderbyclient-squadsetleader">SetLeaderByClient 与 Squad.SetLeader<a class="headerlink" href="#setleaderbyclient-squadsetleader" title="Permanent link">&para;</a></h2>
+<p><code>SetLeaderByClient</code> 是外部请求入口，<code>Squad.SetLeader</code> 是真正改 squad leader 状态的入口。</p>
+<p><code>SetLeaderByClient</code> 不直接做成员归属判断，它只做非空、存活和 squad 状态校验；
+具体是否是当前 squad 成员由 <code>Squad.SetLeader</code> 的 slot 匹配决定。</p>
+<h2 id="squadapply-leader">Squad.Apply 与初始化 leader<a class="headerlink" href="#squadapply-leader" title="Permanent link">&para;</a></h2>
+<p><code>_InitLeader</code> 的分叉很关键: 当前 leader 仍有效时直接 <code>_SetMainCharacter</code>；
+只有当前 leader 无效并找到 fallback 时，才通过 <code>SetLeader</code> 同步 <code>leaderIndex/leaderId</code>。</p>
+<h2 id="_applytocurrentsquad-serverspawnsquad">_ApplyToCurrentSquad 与 ServerSpawnSquad<a class="headerlink" href="#_applytocurrentsquad-serverspawnsquad" title="Permanent link">&para;</a></h2>
+<p>核心顺序如下:</p>
+<p>注意: apply 前只刷新 server character show/hide；obsolete client character release 与
+current squad visibility refresh 发生在 <code>curSquad.Apply(reason)</code> 之后。
+服务端 self scene info 刷新 squad 的主流程:</p>
+<h2 id="_refreshsquadcharacters">_RefreshSquadCharacters<a class="headerlink" href="#_refreshsquadcharacters" title="Permanent link">&para;</a></h2>
+<p>这是实体重建后修正 slot 引用和主控引用的关键函数:</p>
+<p>这段解释了为什么 <code>PlayerController.mainCharacter</code> 不是只在切人时变化: leader 实体重建后，
+slot 指向新实体，<code>mainCharacter</code> 也会被修正到新实体。</p>
+<h2 id="_setmaincharacter">_SetMainCharacter<a class="headerlink" href="#_setmaincharacter" title="Permanent link">&para;</a></h2>
+<p><code>_SetMainCharacter</code> 是 leader 决策进入 <code>PlayerController</code> 的统一门面:</p>
+<p>关键点:</p>
+<ul>
+<li><code>newLeader == oldMainChar</code> 时直接 no-op，后续事件也不会发。</li>
+<li>坐标/队形/战斗/导航/埋点/全局事件都挂在这个函数后半段。</li>
+<li><code>PlayerController.mainCharacter</code> 的实际字段写入发生在 <code>PlayerController.SetMainCharacter</code>。</li>
+</ul>
+<h2 id="_swapleaderposifneeded">_SwapLeaderPosIfNeeded<a class="headerlink" href="#_swapleaderposifneeded" title="Permanent link">&para;</a></h2>
+<p><code>Revive</code> 经过第一层过滤后立刻返回，不做交换。</p>
+<h2 id="_postprocessmembers">_PostProcessMembers<a class="headerlink" href="#_postprocessmembers" title="Permanent link">&para;</a></h2>
+<p><code>PlayerController.SetMainCharacter</code> 已经通知 ability/animator；<code>_PostProcessMembers</code>
+更偏向 squad member 的 controller、actor data、AI/focus 刷新。</p>
+<h2 id="fallback">角色释放与死亡 fallback<a class="headerlink" href="#fallback" title="Permanent link">&para;</a></h2>
+<p>释放当前 leader 和当前 leader 死亡最终都会回到 <code>SetLeader</code>，
+所以它们会同步更新 <code>leaderIndex/leaderId</code>，再进入 <code>_SetMainCharacter</code>。</p>
+<h2 id="setleaderreason">SetLeaderReason<a class="headerlink" href="#setleaderreason" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">值</th>
+<th>名称</th>
+<th>常见来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td><code>Default</code></td>
+<td>默认</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td><code>Init</code></td>
+<td>squad 初始化/应用</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td><code>CastSkill</code></td>
+<td>技能切主控</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td><code>OldLeaderDead</code></td>
+<td>当前 leader 死亡后 fallback</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td><code>Revive</code></td>
+<td>复活</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td><code>ServerNotify</code></td>
+<td>服务端通知</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td><code>ServerCorrectLeader</code></td>
+<td>服务端纠正</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td><code>ScriptControl</code></td>
+<td>脚本控制</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td><code>ScriptAction</code></td>
+<td>脚本 action</td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td><code>ClientSquad</code></td>
+<td>临时客户端 squad</td>
+</tr>
+<tr>
+<td style="text-align: right;">10</td>
+<td><code>ClearClientSquad</code></td>
+<td>清理临时客户端 squad</td>
+</tr>
+<tr>
+<td style="text-align: right;">11</td>
+<td><code>CharRecreate</code></td>
+<td>实体重建刷新</td>
+</tr>
+<tr>
+<td style="text-align: right;">12</td>
+<td><code>CharRelease</code></td>
+<td>实体释放 fallback</td>
+</tr>
+</tbody>
+</table>
+<h2 id="action">对条件 action 的影响<a class="headerlink" href="#action" title="Permanent link">&para;</a></h2>
+<p><code>CheckMainCharacterCondition</code> 不关心 <code>leaderIndex</code>、<code>leaderId</code>、slot 或 squad member 列表。
+它只读最终落在 <code>PlayerController.mainCharacter</code> 上的实体引用。
+因此实际语义是:</p>
+<ul>
+<li>切 leader 成功后，条件立即跟随新主控。</li>
+<li>角色重建时，如果重建的是 leader，条件会跟随新实体引用。</li>
+<li>当前 leader 释放或死亡后，如果 fallback 成功，条件会跟随 fallback leader。</li>
+<li>如果 <code>_SetMainCharacter</code> 因为 <code>newLeader == oldMainChar</code> no-op，则条件结果不会变化，
+ 同时 leader-change 全局事件也不会重复发。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

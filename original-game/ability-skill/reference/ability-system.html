@@ -1,0 +1,1176 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>AbilitySystem - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#abilitysystem" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              AbilitySystem
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../combat-core/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../actions/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        字段
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        调用入口
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        生命周期
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_oncastend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _OnCastEnd 顺序
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skill-init-detach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        skill init / detach 顺序
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gameeventscastskill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GameEvents.CastSkill 消费者
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已确认行为
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="abilitysystem">AbilitySystem<a class="headerlink" href="#abilitysystem" title="Permanent link">&para;</a></h1>
+<p>更新时间：2026-06-15</p>
+<h2 id="_1">字段<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>offset</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>m_attributes</code></td>
+<td><code>0x148</code></td>
+<td>属性系统。</td>
+</tr>
+<tr>
+<td><code>m_hp</code></td>
+<td><code>0x150</code></td>
+<td>HP synced value。</td>
+</tr>
+<tr>
+<td><code>m_ap</code></td>
+<td><code>0x168</code></td>
+<td>AP。</td>
+</tr>
+<tr>
+<td><code>m_ultimateSp</code></td>
+<td><code>0x16C</code></td>
+<td>终结技能量。</td>
+</tr>
+<tr>
+<td><code>m_onDieAction</code></td>
+<td><code>0x170</code></td>
+<td>死亡回调 <code>MultiAction&lt;AbilitySystem&gt;</code>。</td>
+</tr>
+<tr>
+<td><code>m_timeManager</code></td>
+<td><code>0x1F0</code></td>
+<td>TimeManager 引用。</td>
+</tr>
+<tr>
+<td><code>m_skillDataBundle</code></td>
+<td><code>0x228</code></td>
+<td>当前技能配置 bundle。</td>
+</tr>
+<tr>
+<td><code>m_skills</code></td>
+<td><code>0x230</code></td>
+<td>所有 skill runtime。</td>
+</tr>
+<tr>
+<td><code>m_activeSkillMap</code></td>
+<td><code>0x238</code></td>
+<td>当前可用 skillId 到 <code>Skill</code> 的映射。</td>
+</tr>
+<tr>
+<td><code>m_isCastingSkillStart</code></td>
+<td><code>0x240</code></td>
+<td>cast start 状态。</td>
+</tr>
+<tr>
+<td><code>_curNormalAttackList</code></td>
+<td><code>0x288</code></td>
+<td>当前普攻链表。</td>
+</tr>
+<tr>
+<td><code>_curNormalSkill</code></td>
+<td><code>0x298</code></td>
+<td>当前战技。</td>
+</tr>
+<tr>
+<td><code>_curComboSkill</code></td>
+<td><code>0x2A0</code></td>
+<td>当前连携技。</td>
+</tr>
+<tr>
+<td><code>_curUltimateSkill</code></td>
+<td><code>0x2B0</code></td>
+<td>当前终结技。</td>
+</tr>
+<tr>
+<td><code>_dodgeSkill</code></td>
+<td><code>0x2C8</code></td>
+<td>闪避技能。</td>
+</tr>
+<tr>
+<td><code>alreadySendDieOp</code></td>
+<td><code>0x2D3</code></td>
+<td><code>BattleManager.SendEntityDie</code> 发送死亡 op 后置位。</td>
+</tr>
+<tr>
+<td><code>_curSkill</code></td>
+<td><code>0x338</code></td>
+<td>当前技能。</td>
+</tr>
+<tr>
+<td><code>m_curProcessingSkill</code></td>
+<td><code>0x340</code></td>
+<td>当前处理中的技能。</td>
+</tr>
+<tr>
+<td><code>m_buffContainer</code></td>
+<td><code>0x358</code></td>
+<td>buff container。</td>
+</tr>
+<tr>
+<td><code>m_comboController</code></td>
+<td><code>0x3A0</code></td>
+<td>嵌套 <code>AbilitySystem.ComboController</code> 子功能。</td>
+</tr>
+<tr>
+<td><code>m_mappingHandles</code></td>
+<td><code>0x400</code></td>
+<td>command mapping handle 列表。</td>
+</tr>
+<tr>
+<td><code>m_timedMarkers</code></td>
+<td><code>0x3D8</code></td>
+<td>timed marker 列表；详见 <code>../buff-globalbuff/timed-marker.md</code>。</td>
+</tr>
+<tr>
+<td><code>m_serverCheckDeath</code></td>
+<td><code>0x458</code></td>
+<td>enemy 死亡由 server 校验时，本地 <code>_Die</code> 发送 op 后返回。</td>
+</tr>
+<tr>
+<td><code>m_damageModifiers</code> 等</td>
+<td><code>0x460+</code></td>
+<td>damage/heal/poise modifier。</td>
+</tr>
+<tr>
+<td><code>m_poise</code> / <code>m_poiseController</code></td>
+<td><code>0x4C0</code> / <code>0x4C8</code></td>
+<td>poise。</td>
+</tr>
+<tr>
+<td><code>m_subFeatures</code></td>
+<td><code>0x4F0</code></td>
+<td>sub feature 列表，包含 ComboController。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">方法<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>状态</th>
+<th>状态</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_InitSkills()</code></td>
+<td><code>已确认</code></td>
+<td>已确认</td>
+<td>读取 <code>m_skillDataBundle</code>，写当前技能槽字段，按 <code>allNormalAttackId</code> -&gt; <code>allActiveSkillId</code> -&gt; <code>allPassiveSkillId</code> 顺序调用 <code>_CreateSkill</code>；normal/active skill <code>allowFrameSplitInit=true</code>，passive skill <code>allowFrameSplitInit=false</code>；passive 创建后加入 <code>m_defaultPassiveSkills</code>。</td>
+</tr>
+<tr>
+<td><code>TryCastSkill(SkillCastInputView, options)</code></td>
+<td><code>已确认</code></td>
+<td>已定位</td>
+<td>overload 入口，最终进入 string skillId overload。</td>
+</tr>
+<tr>
+<td><code>_FrameSplitInitSkills()</code></td>
+<td><code>已确认</code></td>
+<td>已确认</td>
+<td>若 <code>m_pendingInitSkills</code> 非空且 <code>BattleManager.CanSplitFrameInitSkill()</code> 为 true，则初始化第一个 pending skill 并 <code>RemoveAt(0)</code>。</td>
+</tr>
+<tr>
+<td><code>DetachSkill(String skillId)</code></td>
+<td><code>已确认</code></td>
+<td>已确认</td>
+<td>空 skillId 返回 false；从 <code>m_skills</code> 尾部向前查找 skillId；若 <code>_curSkill</code> 为空立即 <code>_DetachSkillInternal</code>，否则把 detach action 加入 <code>m_modifySkillListAction</code>，cast end 后执行；函数找到与否之外主路径返回 true。</td>
+</tr>
+<tr>
+<td><code>_DetachSkillInternal(Skill skill)</code></td>
+<td><code>已确认</code></td>
+<td>已确认</td>
+<td>从 <code>m_skills</code> 和 <code>m_pendingInitSkills</code> 移除；当 <code>skill.m_data.castType == Active(0)</code> 时从 <code>m_activeSkillMap</code> 移除；随后调用 <code>Skill.Disable()</code> 和 <code>Skill.Remove()</code>。</td>
+</tr>
+<tr>
+<td><code>TryGetSkill(String, out Skill)</code></td>
+<td><code>已确认</code></td>
+<td>已确认</td>
+<td>out 参数先置 null；顺序扫描 <code>m_skills</code>，比较 <code>Skill.skillId</code>，命中后写 out 并返回 true；不查询 <code>m_activeSkillMap</code>。</td>
+</tr>
+<tr>
+<td><code>SetHpDirectly(double targetHp, bool skipModifier)</code></td>
+<td><code>已确认</code></td>
+<td>已确认</td>
+<td>主路径先做对象有效性检查；<code>skipModifier=false</code> 时计算 <code>targetHp - currentHp</code>，正数构造 <code>Modifier.NewHeal(godAbility,this,abs(delta))</code>，否则构造 <code>Modifier.NewDamage(godAbility,this,abs(delta), Real, None, Hidden)</code>，随后 <code>Modifier.Apply()</code> 并创建 independent entity value op；<code>skipModifier=true</code> 时进入直接 HP 写入/上报路径，不走 heal/damage modifier。</td>
+</tr>
+<tr>
+<td><code>CharInfo.TryGetServerSkillData(UInt64 instanceId, out SkillData)</code></td>
+<td><code>已确认</code></td>
+<td>已确认</td>
+<td>若 skill data 未初始化则 <code>InitSkillData(false)</code>；随后从 <code>this+0x110</code> 的 <code>Dictionary&lt;ulong, SkillData&gt;</code> 用 instanceId <code>TryGetValue</code>。</td>
+</tr>
+<tr>
+<td><code>CanCastSkill(SkillCastInputView, skipAngle, skipDistance)</code></td>
+<td><code>已确认</code></td>
+<td>已定位</td>
+<td>overload 入口。</td>
+</tr>
+<tr>
+<td><code>RefreshNextSkillRequest(cmdType)</code></td>
+<td><code>已确认</code></td>
+<td>已定位</td>
+<td>thin/bridge 方法，转到 <code>m_comboController.RefreshNextSkillRequest</code> 语义，细节在 ComboController 文档。</td>
+</tr>
+<tr>
+<td><code>AddMappingModifier(...)</code></td>
+<td><code>已确认</code></td>
+<td>已定位</td>
+<td>AbilitySystem 对 ComboController mapping modifier 的 façade。</td>
+</tr>
+<tr>
+<td><code>ComboControllerOnSkillCastStart(skillId)</code></td>
+<td><code>已确认</code></td>
+<td>已定位</td>
+<td>AbilitySystem 对 ComboController <code>OnSkillCastStart</code> 的 façade。</td>
+</tr>
+<tr>
+<td><code>OnSkillExclusiveTimeExecuted(skillId)</code></td>
+<td><code>已确认</code></td>
+<td>已定位</td>
+<td>AbilitySystem 对 ComboController exclusive callback 的 façade。</td>
+</tr>
+<tr>
+<td><code>OnHpZero()</code></td>
+<td><code>已确认</code></td>
+<td>已确认</td>
+<td>若 <code>NeedTriggerEvent(OnOwnerHpZero=1)</code>，构造 <code>EventContext.eventSource=this</code> 并 <code>TriggerEvent</code>；随后调用 <code>_Die()</code>。</td>
+</tr>
+<tr>
+<td><code>_Die()</code></td>
+<td><code>已确认</code></td>
+<td>已确认</td>
+<td>按 owner <code>Entity.objectType</code> 分支：Character/Enemy 调 <code>BattleManager.SendEntityDie(..., flush=true)</code>；Enemy 在 <code>m_serverCheckDeath</code> 为 true 时返回；Projectile/AbilityEntity 调 <code>SendEntityDie(..., flush=false)</code>；Interactive 直接返回；其余继续 <code>Entity.Die()</code>。</td>
+</tr>
+<tr>
+<td><code>OnDie()</code></td>
+<td><code>已确认</code></td>
+<td>已确认</td>
+<td>Character owner 时遍历当前 squad slot，向每个成员 AbilitySystem 触发 <code>OnSquadMemberDie(67)</code>，context.eventSource 为死亡者；随后 <code>m_onDieAction.Invoke(this)</code>，再 <code>Clear()</code>，最后调用 <code>BaseComponent.OnDie()</code>。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">调用入口<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>Beyond.Gameplay.Core.Entity.abilityCom</code> 持有实体的 <code>AbilitySystem</code>；<code>AbilitySystem</code> 不是独立全局系统，而是附着在统一 <code>Entity</code> 上的 <code>TickComponent</code> 战斗 owner。</li>
+<li>Player command / AI / action 会以 skillId 或 command request 进入 <code>AbilitySystem.TryCastSkill</code>。</li>
+<li><code>AbilitySystem.ComboController</code> 负责把 command 映射为 next skill request。</li>
+<li><code>Skill</code> 的 cast/interrupt/end 由 <code>AbilitySystem</code> 统一调度。</li>
+<li><code>AbilitySystem.m_buffContainer</code> 持有 <code>Buff.BuffContainer</code>；实体 buff、stacking group、buff tick/finish/dispel/ignite 入口应从这里进入。</li>
+</ul>
+<h2 id="_4">生命周期<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<ol>
+<li>初始化时创建 <code>Skill</code> 列表和 active skill map，并创建 <code>ComboController</code> sub feature。</li>
+<li>初始化时创建 <code>m_buffContainer</code>，实体 buff runtime 由该 container 管理。</li>
+<li><code>_InitSkills</code> 从 <code>SkillDataBundle</code> 初始化当前技能槽，并创建 normal/active/passive skill runtime。</li>
+<li>Player command 或 action 请求 cast 时，进入 <code>AbilitySystem.TryCastSkill</code>。</li>
+<li><code>TryCastSkill</code> 在 active map 命中后调用 <code>_InitSkillIfNot(skillId)</code>，保证待释放 skill 已初始化并离开 pending-init 队列。</li>
+<li><code>CanCastSkill</code> / <code>CheckCanInterruptCurSkill</code> 决定当前技能是否可被新技能替换。</li>
+<li>若可 cast 且当前有技能，<code>TryCastSkill</code> 调用旧技能 <code>Interrupt(CastNextSkill, context)</code>。</li>
+<li>cast 过程中请求 detach skill 时，<code>DetachSkill</code> 会把实际 detach 延迟到当前 cast end 后执行。</li>
+<li><code>PreLateTick</code> / tick 路径推进当前 skill、buff、action、timed marker 等。</li>
+<li>HP 归零进入 <code>OnHpZero</code>；<code>OnOwnerHpZero</code> event 先于 <code>_Die</code>。</li>
+<li><code>_Die</code> 按 <code>Entity.objectType</code> 发送死亡 op / 继续或跳过本地 <code>Entity.Die</code>。</li>
+<li><code>Entity.Die</code> 经 <code>ComponentContainer.OnEntityDie</code> 触发组件死亡；AbilitySystem 组件的 <code>OnDie</code> 负责 squad member death event 和 <code>m_onDieAction</code> 回调。</li>
+</ol>
+<p>连携技 UI / pending window 路径：</p>
+<ol>
+<li><code>BattleManager.CastPendingComboSkill(charIndex)</code> 解析 slot ability 和 pending <code>ComboSkillCastInfo</code>。</li>
+<li><code>BattleManager._TryCastComboSkill(ability, comboCastInfo)</code> 取 <code>comboCastInfo+0x10/+0x18</code> 的 input/trigger target handle view，并以 <code>onCastEnd=null</code> 调 <code>AbilitySystem.TryCastComboSkill</code>。</li>
+<li><code>AbilitySystem.TryCastComboSkill</code> 读取 <code>_curComboSkill</code>，保存目标 handle，最终调用 <code>PlayerController.CastSkill(..., immediatelyActivate=true, triggerAutoLock=true)</code>。</li>
+<li>
+<p>真实 cast/interrupt/cost/CD 仍回到通用 <code>AbilitySystem.TryCastSkill</code> / <code>Skill.DoCast</code> 生命周期；不应给连携技写独立打断规则。</p>
+</li>
+<li>
+<p>若 <code>objectType == 8</code>，直接返回 false。</p>
+</li>
+<li>调 <code>_InitSkillIfNot(skillId)</code>，再从 <code>m_activeSkillMap[skillId]</code> 取 <code>newSkill</code>。</li>
+<li>调 <code>CheckCanInterruptCurSkill(newSkill)</code>；失败返回 false。</li>
+<li>从 <code>CastSkillOptions</code> nullable 中解析 <code>skipDistance</code> / <code>skipAngle</code>，调 <code>newSkill.CanCastToTarget(inputTarget, skipDistance, skipAngle)</code>；失败返回 false。</li>
+<li>调 <code>newSkill.TrySwitchToAddBuff(inputTarget)</code>；若成功，直接返回 true。</li>
+<li>设置 <code>m_isCastingSkillStart = true</code>。</li>
+<li>写 <code>_curSkill = newSkill</code>。这一步发生在 <code>Skill.DoCast</code> 之前。</li>
+<li>对 <code>newSkill.ability</code> 调 <code>Ability.AssignSkillCastInfo(skillCastInfo)</code>。</li>
+<li>调 <code>newSkill.SaveTarget(inputTarget, options)</code>。</li>
+<li>取 <code>newSkill.targetHandle</code>，调 <code>AbilitySystem.BeforeCastStart(newSkill, castTarget)</code>。</li>
+<li>对角色 objectType 的部分非闪避/非步进技能，若技能 ability 的某标志未开启，则调 <code>ClearOffsetModifier(clearOffsetSkillId = true)</code>。</li>
+<li>调 <code>newSkill.DoCast(onCastEndDelegate, onExclusiveTimeCallback, options)</code>。</li>
+<li>若 <code>afterCastStartCallback</code> 非空，立即调用 <code>afterCastStartCallback(newSkill)</code>。</li>
+<li>调 <code>newSkill.OnTick(0, 0)</code>。</li>
+<li>设置 <code>m_isCastingSkillStart = false</code>，返回 true。</li>
+</ol>
+<h2 id="_oncastend"><code>_OnCastEnd</code> 顺序<a class="headerlink" href="#_oncastend" title="Permanent link">&para;</a></h2>
+<ol>
+<li><code>_OnCastEnd</code> 检查 <code>NeedTriggerEvent(OnSkillEnd=31)</code>。</li>
+<li>若需要触发事件，从当前 <code>_curSkill</code> 构造 <code>CastSkillContext.AssignFromSkill(_curSkill)</code>，调用 <code>TriggerEvent(OnSkillEnd, context)</code>。</li>
+<li>若当前 <code>_curSkill.skillType == 7</code>，发送预定义全局事件，payload 是 owner entity 与 skill。</li>
+<li>清 <code>_curSkill</code>。</li>
+</ol>
+<p><code>CancelCurrentSkillCastEndCallback</code> 状态 <code>已确认</code> 只把 <code>m_invokeCastEndCallback</code> 设为 false，因此它只屏蔽外部 callback，不屏蔽 <code>OnSkillEnd</code>、<code>_curSkill</code> 清理或 <code>_OnCastEnd</code> 的其他副作用。</p>
+<h2 id="skill-init-detach">skill init / detach 顺序<a class="headerlink" href="#skill-init-detach" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>_ZN6Beyond8Gameplay4Core13AbilitySystem11_InitSkillsEv</code> -&gt; <code>已确认</code></li>
+<li><code>_ZN6Beyond8Gameplay4Core13AbilitySystem12_CreateSkillEN6Beyond8Gameplay18CreateSkillOptionsE</code> -&gt; <code>已确认</code></li>
+<li><code>_ZN6Beyond8Gameplay4Core5Skill6CreateERN6Beyond8Gameplay4Core5Skill14SkillInitParamEN6Beyond8Gameplay4Core13AbilitySystemEN6Beyond8Gameplay9SkillTypeEN5Proto19BATTLE_SKILL_SOURCEEb</code> -&gt; <code>已确认</code></li>
+<li><code>_ZN6Beyond8Gameplay4Core13AbilitySystem15_InitSkillIfNotEN6System6StringE</code> -&gt; <code>已确认</code></li>
+<li><code>_ZN6Beyond8Gameplay4Core13AbilitySystem21_FrameSplitInitSkillsEv</code> -&gt; <code>已确认</code></li>
+<li><code>_ZN6Beyond8Gameplay4Core13AbilitySystem11DetachSkillEN6System6StringE</code> -&gt; <code>已确认</code></li>
+<li><code>_ZN6Beyond8Gameplay4Core13AbilitySystem20_DetachSkillInternalEN6Beyond8Gameplay4Core5SkillE</code> -&gt; <code>已确认</code></li>
+<li><code>_ZN6Beyond8Gameplay4Core13AbilitySystem16CanCastItemSkillEv</code> -&gt; <code>已确认</code></li>
+<li><code>_ZN6Beyond8Gameplay4Core13AbilitySystem9CompareToEN6Beyond8Gameplay4Core13AbilitySystemE</code> -&gt; <code>已确认</code></li>
+</ul>
+<p>已确认：</p>
+<ol>
+<li><code>_InitSkills</code> 先写 <code>_curBreakingAttackList</code>、<code>_curNormalAttackList</code>、<code>_curNormalSkill</code>、<code>_curComboSkill</code>、<code>_curUltimateSkill</code>、<code>_plungingAttackStart</code>、<code>_plungingAttackEnd</code>、<code>_dodgeSkill</code>，再清 <code>_curExtraPassiveSkill</code> / <code>_curSkill</code>。</li>
+<li><code>_InitSkills</code> 遍历 <code>allNormalAttackId</code>，用 <code>allowFrameSplitInit=true</code> 创建 skill；plunging start/end 设置 source <code>7</code>，enabled breaking normal attack 设置 source <code>8</code>。</li>
+<li><code>_InitSkills</code> 遍历 <code>allActiveSkillId</code>，用 <code>allowFrameSplitInit=true</code> 创建 skill；normal skill type <code>2</code>，dodge <code>5</code>，combo <code>6</code>，ultimate <code>7</code>。</li>
+<li><code>_InitSkills</code> 清 <code>m_defaultPassiveSkills</code> 后遍历 <code>allPassiveSkillId</code>，用 skillType/source <code>-1</code>、<code>allowFrameSplitInit=false</code> 创建 skill；创建成功后加入 <code>m_defaultPassiveSkills</code>。</li>
+<li><code>_CreateSkill</code> 先查 <code>m_activeSkillMap.TryGetValue(skillId)</code>；重复 active skill 时记录 “当前技能已经存在” 并返回已有 skill。</li>
+<li><code>_CreateSkill</code> 创建 <code>SkillData</code>，角色 owner 分支优先走 <code>CharInfo.TryGetActiveSkillData</code> / <code>TryGetServerSkillData</code>，失败才用 <code>SkillUtil.CreateSkillDataWithCharInfo</code>。</li>
+<li><code>_CreateSkill</code> 调 <code>Skill.Create(...)</code> 后把 skill 加入 <code>m_skills</code>；只有 <code>skillData.castType == Active(0)</code> 时加入 <code>m_activeSkillMap</code>。</li>
+<li><code>Skill.Create</code> 调 <code>_OnCreate</code> 后，如果 <code>allowFrameSplitInit &amp;&amp; skillData.castType != Passive(1)</code>，调用 <code>AbilitySystem.AddSkillToFrameSplitInitList(skill)</code>；否则立即调用 <code>Skill._Init()</code>。</li>
+<li><code>_InitSkillIfNot</code> 读取 <code>m_activeSkillMap[skillId]</code>。skill 存在且内部 init flag 未置位时调用 <code>Skill.Init()</code>，随后从 <code>m_pendingInitSkills</code> 移除该 skill。</li>
+<li><code>_FrameSplitInitSkills</code> 每次只处理 <code>m_pendingInitSkills[0]</code>；只有 <code>BattleManager.CanSplitFrameInitSkill()</code> 返回 true 时才初始化并 <code>RemoveAt(0)</code>。</li>
+<li><code>DetachSkill</code> 空 skillId 直接返回 false；否则从 <code>m_skills</code> 尾部向前找第一个 matching skillId。若 <code>_curSkill</code> 不存在，立即 detach；若存在当前技能，则把 detach 操作写入 <code>m_modifySkillListAction</code>，避免 cast 过程中修改 skill list。</li>
+<li><code>_DetachSkillInternal</code> 会移除 <code>m_skills</code>、<code>m_pendingInitSkills</code>、当 skill data <code>castType == Active(0)</code> 时移除 active map，然后调用 <code>Skill.Disable()</code> 和 <code>Skill.Remove()</code>。</li>
+<li><code>SetHpDirectly(targetHp, skipModifier=false)</code> 并不是直接写 <code>m_hp</code>：它根据目标 HP 和当前 HP 差值构造 heal/damage modifier，source 为 god entity 的 AbilitySystem，target 为当前 AbilitySystem，再走 <code>Modifier.Apply()</code>。只有 <code>skipModifier=true</code> 分支进入直接写值/上报语义。</li>
+<li><code>CharInfo.TryGetServerSkillData</code> 的 server skill 数据保存在 <code>CharInfo+0x110</code> 字典，缺初始化时会先调用 <code>InitSkillData(false)</code>。</li>
+</ol>
+<h2 id="gameeventscastskill"><code>GameEvents.CastSkill</code> 消费者<a class="headerlink" href="#gameeventscastskill" title="Permanent link">&para;</a></h2>
+<p>已确认原游戏全局事件名：</p>
+<p>已确认监听者：</p>
+<ul>
+<li><code>Beyond.Gameplay.AI.GroupAISystem.OnInit</code> 状态 <code>已确认</code>：</li>
+<li><code>EventManager.get_gameEvents()</code></li>
+<li>创建 <code>EventDelegateForStruct&lt;EventData&lt;Skill&gt;&gt;</code></li>
+<li>handler 指向 <code>GroupAISystem._RefreshLastPlayerCastSkill</code></li>
+<li><code>GroupAISystem.OnRelease</code> 状态 <code>已确认</code>：</li>
+<li>使用相同 handler 和 <code>GameEvents.CastSkill</code> 执行 <code>UnBind</code>。</li>
+<li><code>GroupAISystem._RefreshLastPlayerCastSkill</code> 状态 <code>已确认</code>：</li>
+<li>读取 payload skill。</li>
+<li>检查 <code>skill.owner.objectType == 8</code>。</li>
+<li>检查 <code>skill.skillType == NormalAttack(1)</code>；<code>Skill.skillType</code> 字段 offset 为 <code>0xD8</code>。</li>
+<li>检查 owner entity 的 <code>CharacterAIComponent.isCenter == true</code>。</li>
+<li>满足条件后写 <code>m_lastPlayerCastSkillTime = TimeManager.time</code>。</li>
+</ul>
+<h2 id="_5">已确认行为<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<ul>
+<li>通用打断规则由 <code>AbilitySystem.CheckCanInterruptCurSkill</code> 集中处理，不应为连携技写独立显式打断规则。</li>
+<li><code>TryCastComboSkill</code> 不是独立打断实现；它解析当前 <code>_curComboSkill</code> 和 pending target，然后通过 player/skill cast path 进入通用 cast 生命周期。</li>
+<li>allowed-next skill pack 优先于 priority，可以直接允许下一技能。</li>
+<li>priority 比较是 <code>newSkill.priority &gt; curSkill.priority</code>，相等不通过 priority 分支。</li>
+<li>如果 priority 不够，最终看当前技能 <code>canInterrupt</code>。</li>
+<li><code>TryCastSkill</code> 会在 <code>Skill.DoCast</code> 前写 <code>_curSkill = newSkill</code>，因此 cost、tag、cast-start 期间的 side effect 应能观察到新当前技能。</li>
+<li><code>TryCastSkill</code> 在 active map 命中后会执行 <code>_InitSkillIfNot(skillId)</code>。</li>
+<li><code>_CreateSkill</code> 会把 passive skill 保留在 <code>m_skills</code>，但不会加入 <code>m_activeSkillMap</code>。</li>
+<li><code>TryGetSkill(String, out Skill)</code> 状态 <code>已确认</code> 不查询 <code>m_activeSkillMap</code>；它把 out 参数置空后，从 index <code>0</code> 开始顺序扫描 <code>m_skills</code> offset <code>0x230</code>，比较 <code>Skill.skillId</code> offset <code>0xE8</code>，命中后写 out 参数并返回 true。</li>
+<li><code>Skill.Create</code> 的 <code>allowFrameSplitInit</code> 只对非 passive skill 生效；passive skill 立即 <code>_Init()</code>。</li>
+<li><code>TryCastSkill</code> 在 <code>DoCast</code> 后立即调用 <code>afterCastStartCallback(newSkill)</code>，然后执行一次 <code>Skill.OnTick(0,0)</code>，再派发 <code>GameEvents.CastSkill</code>。</li>
+<li><code>OnSkillEnd</code> 由 <code>AbilitySystem._OnCastEnd</code> 触发；事件触发时 <code>_curSkill</code> 仍未清空，事件后再清 <code>_curSkill</code>，外部 callback 在 <code>_OnCastEnd</code> 之后调用。</li>
+<li><code>CancelCurrentSkillCastEndCallback</code> 不取消 <code>_OnCastEnd</code>，只取消外部 cast-end callback。</li>
+<li><code>Skill.OnTick(0,0)</code> 不是空转；它会进入 <code>TimelineActionProcessor._TickInternal(0,0)</code>，执行 startTime/frame 0 timeline actions。</li>
+<li><code>DetachSkill</code> 在当前技能存在时延迟修改 skill list，避免 cast 栈内修改 <code>m_skills</code> / <code>m_activeSkillMap</code>。</li>
+<li><code>AbilitySystem.CompareTo</code> 委托 owner <code>Entity.CompareTo</code>。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1309 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>BattleManager.ServerReporter - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#battlemanagerserverreporter" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              BattleManager.ServerReporter
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../actions/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        原游戏来源
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        字段
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        调用入口
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        生命周期
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已确认行为
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="已确认行为">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#constructor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constructor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#createserveropt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CreateServerOp&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flush" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flush
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_checkcanupload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _CheckCanUpload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tryupload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TryUpLoad
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Release
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#abilityactionserveractionparamscreateserverop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AbilityAction.ServerActionParams.CreateServerOp
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#createserveractionop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CreateServerActionOp
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#createmodifyentityvalueop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CreateModifyEntityValueOp
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#createupdateatbinfoop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CreateUpdateAtbInfoOp
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refreshmodifyentityvalueop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RefreshModifyEntityValueOp
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="battlemanagerserverreporter">BattleManager.ServerReporter<a class="headerlink" href="#battlemanagerserverreporter" title="Permanent link">&para;</a></h1>
+<p>状态：<code>documented</code>（core lifecycle / upload gate / generic <code>CreateServerOp&lt;T&gt;</code> / <code>CreateServerActionOp</code> / <code>CreateModifyEntityValueOp</code> / <code>CreateUpdateAtbInfoOp</code> / <code>RefreshModifyEntityValueOp</code> <code>已确认</code>; op builders partial）</p>
+<h2 id="_1">原游戏来源<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ul>
+<li>原游戏类：<code>Beyond.Gameplay.Core.BattleManager.ServerReporter</code></li>
+</ul>
+<h2 id="_2">字段<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>debugMode</code></td>
+<td><code>bool</code></td>
+<td>offset <code>0x10</code>; ctor 置 false。</td>
+</tr>
+<tr>
+<td><code>m_manager</code></td>
+<td><code>BattleManager</code></td>
+<td>offset <code>0x18</code>; owning BattleManager。</td>
+</tr>
+<tr>
+<td><code>m_cachedOp</code></td>
+<td><code>List&lt;BATTLE_CLIENT_OP_DATA&gt;</code></td>
+<td>offset <code>0x20</code>; 缓存的客户端 battle op。</td>
+</tr>
+<tr>
+<td><code>m_lastUploadTimestamp</code></td>
+<td><code>float</code></td>
+<td>offset <code>0x28</code>; 上次上传时间。</td>
+</tr>
+<tr>
+<td><code>m_msgList</code></td>
+<td><code>List&lt;CS_BATTLE_OP&gt;</code></td>
+<td>offset <code>0x30</code>; 待上传消息。</td>
+</tr>
+<tr>
+<td><code>m_triggerMaxCountFrameLastFrame</code></td>
+<td><code>bool</code></td>
+<td>offset <code>0x38</code>; 上传数量/帧相关状态。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">调用入口<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>BattleManager.Tick</code> 尾部调用 <code>ServerReporter.TryUpLoad(false)</code>。</li>
+<li><code>InventorySystem._UseItemInternal</code> 末尾调用 <code>ServerReporter.Flush()</code>。</li>
+</ul>
+<h2 id="_4">生命周期<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<ul>
+<li>随 BattleManager 创建；ctor 创建 <code>m_cachedOp</code> / <code>m_msgList</code> 并保存 manager。</li>
+<li>battle op 产生时缓存到 <code>m_cachedOp</code>。</li>
+<li>tick 时 <code>TryUpLoad(false)</code> 受 <code>_CheckCanUpload</code> gate 控制。</li>
+<li>item local use 或强制上传调用 <code>Flush()</code>，等价 <code>TryUpLoad(true)</code>。</li>
+<li><code>Release()</code> 清空 cached op 和 msg list。</li>
+</ul>
+<h2 id="_5">已确认行为<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="constructor">Constructor<a class="headerlink" href="#constructor" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+已确认：</p>
+<ul>
+<li>创建 <code>List&lt;BATTLE_CLIENT_OP_DATA&gt;</code> 写入 <code>this + 0x20</code>。</li>
+<li>创建 <code>List&lt;CS_BATTLE_OP&gt;</code> 写入 <code>this + 0x30</code>。</li>
+<li>写入 owning BattleManager 到 <code>this + 0x18</code>。</li>
+<li><code>debugMode</code> 字节 <code>this + 0x10</code> 置 false。</li>
+<li>为 <code>NetWorkMsgPoolSend&lt;CS_BATTLE_OP&gt;</code> 设置两个 static callback。</li>
+</ul>
+<h3 id="createserveropt"><code>CreateServerOp&lt;T&gt;</code><a class="headerlink" href="#createserveropt" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>（<code>CreateServerOp&lt;System.Object&gt;</code> specialization）
+参数：</p>
+<ul>
+<li><code>opType</code>: <code>BATTLE_ACTION_OPERATE_TYPE</code>，Windows x64 <code>edx</code>，写入 <code>BATTLE_CLIENT_OP_DATA.OpType</code>。</li>
+<li><code>opData</code>: typed proto payload，Windows x64 <code>r8</code>。</li>
+<li><code>ownerInfo</code>: <code>BattleManager.ServerReporter.OwnerInfo*</code>，Windows x64 <code>r9</code>。</li>
+</ul>
+<p>native 主路径：</p>
+<ol>
+<li>通过 <code>ownerInfo.serverId</code> 调 <code>GameWorld.ObjectContainer.GetEntityById(...)</code>。</li>
+<li>若 owner entity 存在、<code>entity.charCtrl</code> 存在且 <code>entity.charCtrl.isScriptControlled == true</code>（<code>Entity.charCtrl</code> offset <code>0x168</code>，<code>CharacterController.isScriptControlled</code> offset <code>0x1A2</code>），直接 return，不创建 op。</li>
+<li><code>BattleProtoAllocator.Allocate&lt;BATTLE_CLIENT_OP_DATA&gt;()</code>。</li>
+<li>写 header：</li>
+<li><code>clientOp.OpType = opType</code>（offset <code>+0x20</code>）。</li>
+<li><code>clientOp.OwnerId = ownerInfo.battleInstId</code>（<code>ownerInfo+0x08 -&gt; op+0x18</code>）。注意 proto 字段名是 <code>OwnerId</code>，但 native 写入的是 battle inst id。</li>
+<li><code>clientOp.Generation = ownerInfo.generation</code>（<code>ownerInfo+0x10 -&gt; op+0x24</code>）。</li>
+<li><code>clientOp.ChapterMapId = current GameWorld map/chapter state</code>（observed <code>GameWorld + 0x1E8 -&gt; +0xB0 -&gt; op+0x28</code>）。</li>
+<li><code>clientOp.SeqId = GameInstance.gameplayNetwork.GetNextBattleSeqId()</code>（<code>op+0x2C</code>）。</li>
+<li><code>clientOp.ClientTickTms = TimeManager.curClientTms</code>（<code>op+0x30</code>）。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th><code>BATTLE_ACTION_OPERATE_TYPE</code></th>
+<th>proto oneof setter</th>
+<th>field number</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BattleOpAddBuff(1)</code></td>
+<td><code>AddBuffOpData</code></td>
+<td>101</td>
+</tr>
+<tr>
+<td><code>BattleOpFinishBuff(2)</code></td>
+<td><code>FinishBuffOpData</code></td>
+<td>102</td>
+</tr>
+<tr>
+<td><code>BattleOpSkillAttach(3)</code></td>
+<td><code>SkillAttachOpData</code></td>
+<td>103</td>
+</tr>
+<tr>
+<td><code>BattleOpSkillDetach(4)</code></td>
+<td><code>SkillDetachOpData</code></td>
+<td>104</td>
+</tr>
+<tr>
+<td><code>BattleOpSkillStartCast(5)</code></td>
+<td><code>SkillStartCastOpData</code></td>
+<td>106</td>
+</tr>
+<tr>
+<td><code>BattleOpSkillEndCast(6)</code></td>
+<td><code>SkillEndCastOpData</code></td>
+<td>107</td>
+</tr>
+<tr>
+<td><code>BattleOpSwitchMode(7)</code></td>
+<td>no setter in observed specialization</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>BattleOpTriggerAction(8)</code></td>
+<td><code>TriggerActionOpData</code></td>
+<td>109</td>
+</tr>
+<tr>
+<td><code>BattleOpEntityDie(10)</code></td>
+<td><code>EntityDieOpData</code></td>
+<td>110</td>
+</tr>
+<tr>
+<td><code>BattleOpEntityValueModify(11)</code></td>
+<td><code>EntityValueModifyData</code></td>
+<td>111</td>
+</tr>
+<tr>
+<td><code>BattleOpResetBattleData(12)</code></td>
+<td><code>ResetBattleOpData</code></td>
+<td>112</td>
+</tr>
+<tr>
+<td><code>BattleOpUpdateDataVersion(13)</code></td>
+<td><code>UpdateDataVersionOpData</code></td>
+<td>113</td>
+</tr>
+<tr>
+<td><code>BattleOpEnablePassiveSkill(14)</code></td>
+<td><code>SkillEnableOpData</code></td>
+<td>105</td>
+</tr>
+<tr>
+<td><code>BattleOpTriggerKeyword(15)</code></td>
+<td><code>TriggerKeywordOpData</code></td>
+<td>114</td>
+</tr>
+<tr>
+<td><code>BattleOpShieldValueModify(16)</code></td>
+<td><code>ShieldValueModifyOpData</code></td>
+<td>115</td>
+</tr>
+<tr>
+<td><code>BattleOpUpdateAtbInfo(17)</code></td>
+<td><code>UpdateAtbInfoOpData</code></td>
+<td>116</td>
+</tr>
+<tr>
+<td><code>BattleOpModifyBattleState(18)</code></td>
+<td><code>ModifyBattleStateOpData</code></td>
+<td>117</td>
+</tr>
+<tr>
+<td><code>BattleOpModifyPoiseValue(19)</code></td>
+<td><code>ModifyPoiseValueOpData</code></td>
+<td>118</td>
+</tr>
+<tr>
+<td><code>BattleOpSetBuffEnableState(20)</code></td>
+<td><code>SetBuffEnableStateOpData</code></td>
+<td>119</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>无论 oneof 是否被设置，正常路径最后调用 <code>m_cachedOp.Add(clientOp)</code>。</li>
+</ol>
+<p>确认差异点：</p>
+<h3 id="flush"><code>Flush</code><a class="headerlink" href="#flush" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+native 主路径：</p>
+<ol>
+<li>tail call <code>TryUpLoad(true)</code>。</li>
+</ol>
+<h3 id="_checkcanupload"><code>_CheckCanUpload</code><a class="headerlink" href="#_checkcanupload" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+native 主路径：</p>
+<ol>
+<li><code>m_cachedOp == null</code> 进入 assert/trap；<code>m_cachedOp.Count == 0</code> 返回 false。</li>
+<li>若 <code>m_triggerMaxCountFrameLastFrame == true</code>，返回 true。</li>
+<li>否则读取 <code>TimeManager.time</code> 和 <code>m_lastUploadTimestamp</code>。</li>
+<li>从 <code>GameInstance</code> battle data config 读取 upload interval 字段（observed offset <code>0x8C</code>），加 epsilon 后与 elapsed time 比较；elapsed 超过 interval 时返回 true，否则 false。</li>
+</ol>
+<h3 id="tryupload"><code>TryUpLoad</code><a class="headerlink" href="#tryupload" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+native 主路径：</p>
+<ol>
+<li>若 <code>force == false</code>，先调用 <code>_CheckCanUpload()</code>；false 时直接 return。</li>
+<li>清空 <code>m_msgList</code>。</li>
+<li>从 <code>NetWorkMsgPoolSend&lt;CS_BATTLE_OP&gt;.Allocate()</code> 获取 message，加入 <code>m_msgList</code>。</li>
+<li>清 <code>m_triggerMaxCountFrameLastFrame</code>。</li>
+<li>遍历 <code>m_cachedOp</code>，把 op 添加到当前 <code>CS_BATTLE_OP</code> 的 repeated field。</li>
+<li>上传分包受 battle data config 控制：</li>
+<li>observed <code>+0x94</code>：最大 op count。</li>
+<li>observed <code>+0x90</code>：message size/limit。</li>
+<li>达到限制时通过分支设置 max-count/flush 状态并切换 batch。</li>
+<li>遍历 <code>m_msgList</code>，只发送 repeated field 非空的 <code>CS_BATTLE_OP</code>，调用 <code>BattleManager.SendMsg(IMessage, Action&lt;int&gt;)</code>。</li>
+<li>若没有触发 max-count frame flag，清空 <code>m_cachedOp</code> 和 <code>m_msgList</code>。</li>
+<li>更新 <code>m_lastUploadTimestamp = TimeManager.time</code>。</li>
+</ol>
+<h3 id="release"><code>Release</code><a class="headerlink" href="#release" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+native 主路径清空：</p>
+<ul>
+<li><code>m_cachedOp</code></li>
+<li><code>m_msgList</code></li>
+</ul>
+<h3 id="abilityactionserveractionparamscreateserverop"><code>AbilityAction.ServerActionParams.CreateServerOp</code><a class="headerlink" href="#abilityactionserveractionparamscreateserverop" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code></p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>offset</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ownerInfo</code></td>
+<td><code>0x00</code></td>
+<td><code>BattleManager.ServerReporter.OwnerInfo</code></td>
+</tr>
+<tr>
+<td><code>ownerId</code></td>
+<td><code>0x18</code></td>
+<td><code>ulong</code></td>
+</tr>
+<tr>
+<td><code>instId</code></td>
+<td><code>0x20</code></td>
+<td><code>ulong</code></td>
+</tr>
+<tr>
+<td><code>templateId</code></td>
+<td><code>0x28</code></td>
+<td><code>TEMPLATE_ID</code></td>
+</tr>
+<tr>
+<td><code>triggerType</code></td>
+<td><code>0x30</code></td>
+<td><code>BATTLE_TRIGGER_TYPE</code></td>
+</tr>
+<tr>
+<td><code>envType</code></td>
+<td><code>0x34</code></td>
+<td><code>BATTLE_ACTION_OWNER_TYPE</code></td>
+</tr>
+<tr>
+<td><code>actionInst</code></td>
+<td><code>0x38</code></td>
+<td><code>BATTLE_ACTION_INST</code></td>
+</tr>
+<tr>
+<td><code>serverRuntime</code></td>
+<td><code>0x40</code></td>
+<td><code>object</code></td>
+</tr>
+</tbody>
+</table>
+<p>native 主路径：</p>
+<ol>
+<li>从当前全局 BattleManager 路径取 <code>serverReporter</code>。</li>
+<li>若 manager/reporter 缺失，直接 return。</li>
+<li>否则以 <code>this</code> 作为 <code>actionParams</code> 跳转到 <code>ServerReporter.CreateServerActionOp</code>。</li>
+</ol>
+<h3 id="createserveractionop"><code>CreateServerActionOp</code><a class="headerlink" href="#createserveractionop" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+native 主路径：</p>
+<ol>
+<li><code>BattleProtoAllocator.Allocate&lt;BATTLE_TRIGGER_ACTION_OP_DATA&gt;()</code>。</li>
+<li>字段拷贝：</li>
+<li><code>op.OwnerId = actionParams.ownerId</code>（<code>+0x18 -&gt; +0x18</code>）。</li>
+<li><code>op.InstId = actionParams.instId</code>（<code>+0x20 -&gt; +0x20</code>）。</li>
+<li><code>op.TemplateId = actionParams.templateId</code>（<code>+0x28 -&gt; +0x28</code>）。</li>
+<li><code>op.Action = actionParams.actionInst</code>（<code>+0x38 -&gt; +0x30</code>）。</li>
+<li><code>op.TriggerType = actionParams.triggerType</code>（<code>+0x30 -&gt; +0x38</code>）。</li>
+<li><code>op.OwnerType = actionParams.envType</code>（<code>+0x34 -&gt; +0x3C</code>）。</li>
+<li>调 <code>CreateServerOp&lt;BATTLE_TRIGGER_ACTION_OP_DATA&gt;</code>：</li>
+<li><code>opType = BattleOpTriggerAction(8)</code>。</li>
+<li><code>opData = BATTLE_TRIGGER_ACTION_OP_DATA</code>。</li>
+<li>
+<p><code>ownerInfo = actionParams.ownerInfo</code>。
+确认差异点：</p>
+</li>
+<li>
+<p><code>ServerActionParams.serverRuntime</code> 不在该方法中直接拷贝；runtime oneof 应已经挂在 <code>actionInst</code> 内。</p>
+</li>
+</ol>
+<h3 id="createmodifyentityvalueop"><code>CreateModifyEntityValueOp</code><a class="headerlink" href="#createmodifyentityvalueop" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+参数：</p>
+<ul>
+<li><code>entity</code>: <code>Entity*</code>，Windows x64 <code>rdx</code>，保存到 <code>rdi</code>。</li>
+<li><code>hp</code>: <code>double</code>，保存到 <code>xmm6</code>。</li>
+<li><code>usp</code>: <code>float</code>，保存到 <code>xmm7</code>。</li>
+<li><code>type</code>: <code>ModifyValueType</code>，栈参数，写入 proto <code>Source</code>。</li>
+</ul>
+<p>native 主路径：</p>
+<ol>
+<li><code>BattleProtoAllocator.Allocate&lt;BATTLE_ENTITY_确认状态LUE_MODIFY_DATA&gt;()</code>。</li>
+<li>写 <code>op.Source = type</code>（<code>[rsp+0xB0] -&gt; op+0x30</code>）。</li>
+<li>若 <code>entity == null</code>，走 assert/trap；正常路径继续。</li>
+<li>写 entity id 字段：</li>
+<li><code>op.EntityInstId = entity.battleInstId</code>（observed <code>entity+0x40 -&gt; op+0x18</code>）。</li>
+<li><code>op.SceneNumId = entity.sceneNumId</code>（observed <code>entity+0x48 -&gt; op+0x20</code>）。</li>
+<li><code>BattleProtoAllocator.Allocate&lt;BATTLE_INFO&gt;()</code>，写入 <code>op.Value</code>。</li>
+<li>写 nested battle info：</li>
+<li><code>op.Value.Hp = hp</code>（<code>xmm6 -&gt; value+0x18</code>）。</li>
+<li><code>op.Value.Ultimatesp = usp</code>（<code>xmm7 -&gt; value+0x20</code>）。</li>
+<li>构造栈上 <code>OwnerInfo</code>：</li>
+<li><code>ownerInfo.serverId = entity.serverId</code>（observed <code>entity+0x30</code>）。</li>
+<li><code>ownerInfo.battleInstId = entity.battleInstId</code>（observed <code>entity+0x40</code>）。</li>
+<li><code>ownerInfo.generation = entity.generation</code>（observed <code>entity+0x38</code>）。</li>
+<li>调 <code>CreateServerOp&lt;BATTLE_ENTITY_确认状态LUE_MODIFY_DATA&gt;</code>：</li>
+<li><code>opType = BattleOpEntityValueModify(11)</code>。</li>
+<li><code>opData = BATTLE_ENTITY_确认状态LUE_MODIFY_DATA</code>。</li>
+<li><code>ownerInfo = stack OwnerInfo</code>。</li>
+<li>返回分配的 <code>BATTLE_ENTITY_确认状态LUE_MODIFY_DATA</code>。</li>
+</ol>
+<p>确认差异点：</p>
+<h3 id="createupdateatbinfoop"><code>CreateUpdateAtbInfoOp</code><a class="headerlink" href="#createupdateatbinfoop" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+参数：</p>
+<ul>
+<li><code>updateType</code>: <code>BATTLE_UPDATE_ATB_INFO_REASON</code>，保存到 <code>r14d</code>。</li>
+<li><code>templateId</code>: <code>TEMPLATE_ID*</code>，保存到 <code>rbx</code>，null 时分配空 <code>TEMPLATE_ID</code>。</li>
+<li><code>originId</code>: <code>TEMPLATE_ID*</code>，保存到 <code>rsi</code>，null 时分配空 <code>TEMPLATE_ID</code>。</li>
+<li><code>defaultValue</code>: <code>double</code>，栈参数，写入 <code>DeltaValue</code>。</li>
+</ul>
+<p>native 主路径：</p>
+<ol>
+<li>静态 MethodInfo 初始化。</li>
+<li>分配 <code>BATTLE_UPDATE_ATB_INFO_OP_DATA</code>。</li>
+<li>分配 nested <code>BATTLE_ATB_DATA</code>，写入 <code>op.AtbData</code>。</li>
+<li>从当前 <code>BattleManager</code> 读取 ATB 当前值，写 <code>AtbData.AtbValue</code>。</li>
+<li>调 <code>BattleManager.GetAtbRecover()</code>，写 <code>AtbData.AtbRecoverySpeed</code>。</li>
+<li>调 <code>TimeManager.curClientTms</code>，写 <code>AtbData.ClientTickTs</code>。</li>
+<li>写 <code>AtbData.Reason = updateType</code>。</li>
+<li>写 <code>op.TemplateId = templateId ?: new TEMPLATE_ID()</code>。</li>
+<li>写 <code>op.OriginalSourceTemplateId = originId ?: new TEMPLATE_ID()</code>。</li>
+<li>写 <code>op.DeltaValue = defaultValue</code>。</li>
+<li>从 <code>GameInstance.playerController</code> 当前主控对象取 AbilitySystem，调用 <code>BattleServerDataConverter.GetOwnerInfo</code> 构造 ownerInfo。</li>
+<li>从当前 BattleManager 取 <code>serverReporter</code>，调 <code>CreateServerOp&lt;BATTLE_UPDATE_ATB_INFO_OP_DATA&gt;</code>：</li>
+<li><code>opType = BattleOpUpdateAtbInfo(17)</code>。</li>
+<li><code>opData = BATTLE_UPDATE_ATB_INFO_OP_DATA</code>。</li>
+<li>
+<p><code>ownerInfo = current main-control AbilitySystem ownerInfo</code>。
+确认差异点：</p>
+</li>
+<li>
+<p>ownerInfo 暂由 <code>world.playerController.mainCharacter.serverId</code> 派生，等待原 Entity identity 字段还原。</p>
+</li>
+</ol>
+<h3 id="refreshmodifyentityvalueop"><code>RefreshModifyEntityValueOp</code><a class="headerlink" href="#refreshmodifyentityvalueop" title="Permanent link">&para;</a></h3>
+<p>确认状态：<code>已确认</code>
+参数：</p>
+<ul>
+<li><code>entity</code>: <code>Entity*</code>，Windows x64 <code>rdx</code>，保存到 <code>rbx</code>。</li>
+</ul>
+<p>native 主路径：</p>
+<ol>
+<li>静态 MethodInfo 初始化，准备 <code>List&lt;BATTLE_CLIENT_OP_DATA&gt;.get_Item</code> 等方法引用。</li>
+<li>读取 <code>this.m_cachedOp</code>（offset <code>0x20</code>）和 list <code>_size</code>。</li>
+<li>遍历 cached op：</li>
+<li>只处理 <code>op.opType == 0x0B</code>，即 <code>BattleOpEntityValueModify(11)</code>。</li>
+<li>通过 <code>BATTLE_CLIENT_OP_DATA.get_EntityValueModifyData()</code> 取 typed payload。</li>
+<li>只处理 <code>payload.Source == 1</code>，即 <code>ModifyValueType.Merge</code>。</li>
+<li>比较 <code>payload.EntityInstId == entity.battleInstId</code>（observed <code>entity+0x40</code>）。</li>
+<li>命中已有 merge op 时：</li>
+<li>读取当前 HP，并写入 <code>payload.Value.Hp</code>（nested <code>BATTLE_INFO</code> offset <code>+0x18</code>）。</li>
+<li>读取 <code>entity.abilityCom.m_ultimateSp</code>（observed ability component offset <code>+0x16C</code>），写入 <code>payload.Value.Ultimatesp</code>（nested offset <code>+0x20</code>）。</li>
+<li>返回，不追加新 op。</li>
+<li>未命中时：</li>
+<li>读取当前 HP 和当前 USP。</li>
+<li>调 <code>CreateModifyEntityValueOp(entity, currentHp, currentUsp, ModifyValueType.Merge)</code>。</li>
+<li>native 对 null <code>m_cachedOp</code>、payload、entity、ability component、nested value 均走 assert/trap；正常 gameplay 路径不接受这些对象缺失。</li>
+</ol>
+<p>确认差异点：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

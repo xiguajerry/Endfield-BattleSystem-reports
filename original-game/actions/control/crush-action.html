@@ -1,0 +1,1546 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>CrushAction / BlowOffEnemyAction / FractureAction - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#crushaction-blowoffenemyaction-fractureaction" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CrushAction / BlowOffEnemyAction / FractureAction
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../combat-core/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        类继承结构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#blowoffenemyaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BlowOffEnemyAction — 父类
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BlowOffEnemyAction — 父类">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-extends-abilityactiondata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data 字段 (extends AbilityActionData)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        执行流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crushaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CrushAction — 击碎（压碎）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CrushAction — 击碎（压碎）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-blowoffenemyactiondata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data 字段（继承 BlowOffEnemyAction.Data，额外字段）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process 重写
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键逻辑要点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fractureaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FractureAction — 破碎（部位破坏）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FractureAction — 破碎（部位破坏）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-blowoffenemyactiondata_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data 字段（继承 BlowOffEnemyAction.Data，额外字段）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#crushaction_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        与 CrushAction 的区别
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="crushaction-blowoffenemyaction-fractureaction">CrushAction / BlowOffEnemyAction / FractureAction<a class="headerlink" href="#crushaction-blowoffenemyaction-fractureaction" title="Permanent link">&para;</a></h1>
+<h2 id="_1">类继承结构<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>AbilityAction&lt;T&gt;
+</code></pre></div>
+<h2 id="blowoffenemyaction">BlowOffEnemyAction — 父类<a class="headerlink" href="#blowoffenemyaction" title="Permanent link">&para;</a></h2>
+<h3 id="data-extends-abilityactiondata">Data 字段 (extends AbilityActionData)<a class="headerlink" href="#data-extends-abilityactiondata" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>偏移</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>attackerTargetSettings</td>
+<td>TargetSettings</td>
+<td>0x20</td>
+<td>攻击者目标筛选</td>
+</tr>
+<tr>
+<td>targetSettings</td>
+<td>TargetSettings</td>
+<td>0x28</td>
+<td>被击飞目标筛选</td>
+</tr>
+<tr>
+<td>blowOffDistance</td>
+<td>BlackboardDouble</td>
+<td>0x30</td>
+<td>击飞距离</td>
+</tr>
+<tr>
+<td>distanceRandomRange</td>
+<td>BlackboardDouble</td>
+<td>0x38</td>
+<td>距离随机范围</td>
+</tr>
+<tr>
+<td>overwriteHeight</td>
+<td>bool</td>
+<td>0x40</td>
+<td>是否覆盖高度</td>
+</tr>
+<tr>
+<td>blowOffHeight</td>
+<td>BlackboardDouble</td>
+<td>0x48</td>
+<td>击飞高度</td>
+</tr>
+<tr>
+<td>directionSettings</td>
+<td>DirectionSettings</td>
+<td>0x50</td>
+<td>方向设置</td>
+</tr>
+<tr>
+<td>totalTime</td>
+<td>BlackboardDouble</td>
+<td>0x58</td>
+<td>总时间</td>
+</tr>
+<tr>
+<td>isExtra</td>
+<td>bool</td>
+<td>0x60</td>
+<td>是否额外击飞段</td>
+</tr>
+<tr>
+<td>deadOption</td>
+<td>ControlledStateDeadOption</td>
+<td>0x64</td>
+<td>死亡判定选项</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">执行流程<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p><strong>ExecuteInternal(TargetHandleView)</strong> → <code>已确认</code>:</p>
+<ol>
+<li>获取 <code>attackerTargetSettings</code> → 调用 <code>GetFirstTarget()</code> 获取攻击源（attacker）</li>
+<li>类型检查攻击源是否为 enemy</li>
+<li>获取 <code>targetSettings</code> → 调用 <code>GetTargets_Dispose()</code> 获取目标列表</li>
+<li>遍历每个目标：</li>
+<li>Lock 目标获取 <code>AbilitySystem</code></li>
+<li>检查 <code>deadOption</code>：</li>
+<li><code>AllValid(0)</code> → 通过</li>
+<li><code>OnlyAlive(1)</code> → 检查目标是否 alive（0x4E type check），不是 alive 则跳过</li>
+<li>解析 <code>blowOffDistance</code>（含 random range 随机化）</li>
+<li>解析 <code>blowOffHeight</code></li>
+<li>
+<p>调用 <code>this.Process(inputTargetHandle, target, part, blowOffSource, distance, height)</code>
+<strong>Process(...)</strong> → <code>已确认</code>（虚方法，可被子类重写）:</p>
+</li>
+<li>
+<p><strong>默认行为</strong>：以 <code>type=Crush(3)</code>、<code>damageMultiplier=1.0</code> 调用 <code>DoBlowOff()</code></p>
+</li>
+</ol>
+<p><strong>DoBlowOff(...)</strong> → <code>已确认</code>:</p>
+<ol>
+<li>调用 <code>target.BeforeControlledStateApplied(source, part, type, isExtra, actionEnvironment, damageMultiplier)</code></li>
+<li>获取 <code>target.entity._controlledStateCom</code></li>
+<li>通过 <code>AbilityActionUtils::GetDirection()</code> 计算方向向量</li>
+<li>解析 <code>data.totalTime</code> 通过 blackboard</li>
+<li>调用 <code>controlledStateCom.ApplyBlowOff(source, direction, distance, height, totalTime)</code></li>
+<li>调用 <code>target.AfterControlledStateApplied(source, part, type, isExtra, actionEnvironment)</code></li>
+</ol>
+<hr />
+<h2 id="crushaction">CrushAction — 击碎（压碎）<a class="headerlink" href="#crushaction" title="Permanent link">&para;</a></h2>
+<p><strong>C# 类名</strong>: <code>Beyond.Gameplay.Core.CrushAction</code></p>
+<h3 id="data-blowoffenemyactiondata">Data 字段（继承 BlowOffEnemyAction.Data，额外字段）<a class="headerlink" href="#data-blowoffenemyactiondata" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>偏移</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>damageMultiplier</td>
+<td>BlackboardDouble</td>
+<td>0x68</td>
+<td>伤害倍率（通过 blackboard 解析）</td>
+</tr>
+<tr>
+<td>immobilizedTime</td>
+<td>float</td>
+<td>0x70</td>
+<td>定身时间（秒）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="process">Process 重写<a class="headerlink" href="#process" title="Permanent link">&para;</a></h3>
+<p>完整流程：</p>
+<pre class="mermaid"><code>flowchart TD
+    Start["CrushAction 处理单个目标"]
+    Interrupt["用 immobilizedTime 强制中断目标动作"]
+    IsPart{"目标是敌人部位系统？"}
+    Count["读取 buff_physical_no_guard 层数"]
+    NoCount["按 0 层处理"]
+    HasGuard{"层数 &gt; 0？"}
+    AddGuard["添加 buff_physical_no_guard"]
+    Record["记录 PhysicalNoGuard"]
+    Multiplier["从黑板解析 damageMultiplier"]
+    BlowOff["进入 DoBlowOff，类型为 Crush"]
+    End["完成 Crush 施加"]
+
+    Start --&gt; Interrupt --&gt; IsPart
+    IsPart -- "是" --&gt; Count --&gt; HasGuard
+    IsPart -- "否" --&gt; NoCount --&gt; HasGuard
+    HasGuard -- "否" --&gt; AddGuard --&gt; Record --&gt; Multiplier
+    HasGuard -- "是" --&gt; Multiplier
+    Multiplier --&gt; BlowOff --&gt; End</code></pre>
+<h3 id="_3">关键逻辑要点<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>强制中断</strong>: <code>overrideSuperArmorLimit = -1</code> 意味着无视所有超级护甲等级，必定中断目标当前动作。中断后目标进入 <code>immobilizedTime</code> 的定身状态。</li>
+<li><strong>免疫机制</strong>: <code>buff_physical_no_guard</code> 是一个保护性 buff。如果目标已经拥有此 buff（通过之前的 Crush/Fracture 添加或其他来源），则不会重复添加，也不会再次记录事件，但仍会正常执行击飞和伤害。</li>
+<li><strong>物理无保护标记</strong>: 添加 <code>buff_physical_no_guard</code> 的目的是在伤害计算阶段标记此目标"已失去物理保护"，允许后续的物理穿透计算生效。</li>
+<li><strong>伤害倍率</strong>: 与基类不同，CrushAction 不总是用 1.0 的伤害倍率，而是通过 blackboard 动态解析 <code>damageMultiplier</code>，允许配置不同的击碎伤害倍率。</li>
+</ol>
+<hr />
+<h2 id="fractureaction">FractureAction — 破碎（部位破坏）<a class="headerlink" href="#fractureaction" title="Permanent link">&para;</a></h2>
+<p><strong>C# 类名</strong>: <code>Beyond.Gameplay.Core.FractureAction</code></p>
+<h3 id="data-blowoffenemyactiondata_1">Data 字段（继承 BlowOffEnemyAction.Data，额外字段）<a class="headerlink" href="#data-blowoffenemyactiondata_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>偏移</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>immobilizedTime</td>
+<td>float</td>
+<td>0x68</td>
+<td>定身时间（秒）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="crushaction_1">与 CrushAction 的区别<a class="headerlink" href="#crushaction_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>无 damageMultiplier</strong>: FractureAction 不包含伤害倍率字段，使用默认 1.0</li>
+<li><strong>无 buff_physical_no_guard 添加</strong>: FractureAction 不添加免疫 buff</li>
+<li>其余流程类似：中断目标 → 计算方向 → 调用 DoBlowOff(type=Fracture(2))</li>
+</ul>
+<hr />
+<h1 id="doblowoff">DoBlowOff 深度分析<a class="headerlink" href="#doblowoff" title="Permanent link">&para;</a></h1>
+<h2 id="_4">调用链概览<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    N0["BlowOffEnemyAction.DoBlowOff(...)"]
+    N1["target.BeforeControlledStateApplied(...) → 已确认"]
+    N2["AddBuff('buff_physical_no_guard', ...)"]
+    N3["BattleRecorder.RecordPhysicalConsumeNoGuard(...)"]
+    N4["TriggerEvent(0x31/0x32, EventContextWithPartTransferInfo)"]
+    N5["GetPhysicalInflictionBuff(type) → AddBuff"]
+    N6["AbilityActionUtils.GetDirection(...) → 方向向量计算"]
+    N7["controlledStateCom.ApplyBlowOff(...) → 已确认"]
+    N8["EnemyBlowOffComponent.BeforeBlowOff(...) → 已确认"]
+    N9["ControlledStateComponent._ChangeToState(3)"]
+    N10["EnemyBlowOffComponent.ApplyBlowOff(...) → 已确认"]
+    N11["_InitBlowOffTime()"]
+    N12["OnForceTriggerWeakness(...)"]
+    N13["Skill.Interrupt(...)"]
+    N14["StopMove / StopRotate"]
+    N15["AddTag(0x39)"]
+    N16["BaseController.RawSetDirXZ(-direction)"]
+    N17["Buff('buff_common_break_passing_small_') 管理"]
+    N18["_StartMove(height, distance, direction)"]
+    N19["BlowOffFlow Dictionary 管理"]
+    N20["TriggerEvent(0x31) + TriggerEvent(0x3A)"]
+    N21["EnemyAnimationComponent.SetTriggerOneFrame(...)"]
+    N22["target.AfterControlledStateApplied(...) → 已确认"]
+    N23["TriggerEvent(0x32/0x33)"]
+    N24["BattleRecorder.RecordPhysicalInfliction(...)"]
+    N25["SendVoiceTriggerEventOnPhysicalInflictionApplied(...)"]
+    N26["EventManager.SendGlobal(...)"]
+    N27["LevelEventManager.RaiseLevelEvent(...)"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N1 --&gt; N3
+    N1 --&gt; N4
+    N1 --&gt; N5
+    N0 --&gt; N6
+    N0 --&gt; N7
+    N7 --&gt; N8
+    N7 --&gt; N9
+    N7 --&gt; N10
+    N7 --&gt; N11
+    N7 --&gt; N12
+    N7 --&gt; N13
+    N7 --&gt; N14
+    N7 --&gt; N15
+    N7 --&gt; N16
+    N7 --&gt; N17
+    N7 --&gt; N18
+    N7 --&gt; N19
+    N7 --&gt; N20
+    N7 --&gt; N21
+    N0 --&gt; N22
+    N0 --&gt; N23
+    N0 --&gt; N24
+    N0 --&gt; N25
+    N0 --&gt; N26
+    N0 --&gt; N27</code></pre>
+<hr />
+<h2 id="doblowoff_1">DoBlowOff 主函数<a class="headerlink" href="#doblowoff_1" title="Permanent link">&para;</a></h2>
+<h3 id="_5">执行流程<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    N0["2. target.BeforeControlledStateApplied("]
+    N1["source = blowOffSource,"]
+    N2["part = part,"]
+    N3["type = type, // PhysicalInflictionType"]
+    N4["isExtra = data.isExtra,"]
+    N5["actionEnvironment = actionEnvironment,"]
+    N6["damageMultiplier = damageMultiplier"]
+    N7[")"]
+    N8["通知目标'即将受到控制状态'，给目标添加保护性 buff"]
+    N9["3. 获取 target.entity._controlledStateCom"]
+    N10["(通过 entity"]
+    N11["偏移"]
+    N12["controlledState 组件)"]
+    N13["4. 获取 data.directionSettings"]
+    N14["获取 sourceHandle / targetHandle"]
+    N15["AbilityActionUtils::GetDirection("]
+    N16["directionSettings,"]
+    N17["inputTargetHandle,"]
+    N18["sourceHandle,"]
+    N19["targetHandle"]
+    N20["返回 Vector3 direction"]
+    N21["5. 提取 direction.x, direction.z（不读取 y）"]
+    N22["6. 解析 data.totalTime（通过 blackboard）:"]
+    N23["totalTime = ActionBlackboardExtensions::GetValue(data.totalTime, bb)"]
+    N24["7. controlledStateCom.ApplyBlowOff("]
+    N25["source, // 攻击者 AbilitySystem"]
+    N26["direction, // 击飞方向向量"]
+    N27["distance, // 击飞距离"]
+    N28["height, // 击飞高度"]
+    N29["totalTime, // 总时间"]
+    N30["isPureBlowOff=0, // false"]
+    N31["method=0"]
+    N32["8. target.AfterControlledStateApplied("]
+    N33["source, part, type, data.isExtra, actionEnvironment"]
+    N34["通知目标'控制状态已施加完毕'"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6
+    N6 --&gt; N7
+    N7 --&gt; N8
+    N8 --&gt; N9
+    N10 --&gt; N11
+    N11 --&gt; N12
+    N12 --&gt; N13
+    N13 --&gt; N14
+    N14 --&gt; N15
+    N15 --&gt; N16
+    N16 --&gt; N17
+    N17 --&gt; N18
+    N18 --&gt; N19
+    N19 --&gt; N7
+    N7 --&gt; N20
+    N20 --&gt; N21
+    N21 --&gt; N22
+    N22 --&gt; N23
+    N23 --&gt; N24
+    N24 --&gt; N25
+    N25 --&gt; N26
+    N26 --&gt; N27
+    N27 --&gt; N28
+    N28 --&gt; N29
+    N29 --&gt; N30
+    N30 --&gt; N31
+    N31 --&gt; N7
+    N7 --&gt; N32
+    N32 --&gt; N33
+    N33 --&gt; N7
+    N7 --&gt; N34</code></pre>
+<hr />
+<h2 id="controlledstatecomponentapplyblowoff">ControlledStateComponent::ApplyBlowOff<a class="headerlink" href="#controlledstatecomponentapplyblowoff" title="Permanent link">&para;</a></h2>
+<p><strong>返回</strong>: <code>PhysicsStatusApplyResult</code> (enum: Success=1)</p>
+<h3 id="_6">执行流程<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    Start["获取 EnemyBlowOffComponent"]
+    HasComponent{"组件存在？"}
+    Before["BeforeBlowOff"]
+    BeforeOk{"结果为 Success？"}
+    ChangeState["切换到受控状态 3"]
+    ComponentAgain["重新获取 EnemyBlowOffComponent"]
+    StillExists{"组件仍存在？"}
+    Apply["ApplyBlowOff：应用位移、时间和高度"]
+    HasEntity{"实体存在？"}
+    HasMultiAction{"有 multiAction？"}
+    Invoke["触发 multiAction"]
+    IsEnemy{"实体是敌人？"}
+    Delay["玩家角色延迟死亡表现和释放时间"]
+    Success["返回 Success"]
+    Fail["返回失败结果"]
+
+    Start --&gt; HasComponent
+    HasComponent -- "否" --&gt; Fail
+    HasComponent -- "是" --&gt; Before --&gt; BeforeOk
+    BeforeOk -- "否" --&gt; Fail
+    BeforeOk -- "是" --&gt; ChangeState --&gt; ComponentAgain --&gt; StillExists
+    StillExists -- "否" --&gt; Fail
+    StillExists -- "是" --&gt; Apply --&gt; HasEntity
+    HasEntity -- "否" --&gt; Success
+    HasEntity -- "是" --&gt; HasMultiAction
+    HasMultiAction -- "是" --&gt; Invoke --&gt; IsEnemy
+    HasMultiAction -- "否" --&gt; IsEnemy
+    IsEnemy -- "否" --&gt; Delay --&gt; Success
+    IsEnemy -- "是" --&gt; Success</code></pre>
+<h3 id="_7">关键状态<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>_ChangeToState(3)</code>: ControlledState 枚举，值 3 对应"受击飞/控制中"状态</li>
+<li>类型检查 0x4E: 区分 enemy 和玩家角色，玩家角色需要延迟死亡特效</li>
+</ul>
+<hr />
+<h2 id="enemyblowoffcomponentbeforeblowoff">EnemyBlowOffComponent::BeforeBlowOff<a class="headerlink" href="#enemyblowoffcomponentbeforeblowoff" title="Permanent link">&para;</a></h2>
+<p><strong>返回</strong>: <code>PhysicsStatusApplyResult</code></p>
+<h3 id="_8">执行流程<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    Start["初始化击飞时间数据"]
+    TimeOk{"初始化成功？"}
+    CanTag{"实体可添加 blowoff 状态标记？"}
+    Need30{"source 需要事件 0x30？"}
+    Event30["触发 0x30"]
+    Need3B{"source 需要事件 0x3B？"}
+    Event3B["触发 0x3B"]
+    Pure{"isPureBlowOff？"}
+    Need3C{"source 需要事件 0x3C？"}
+    Event3C["触发 0x3C"]
+    Success["返回 Success"]
+    Fail["返回失败结果"]
+
+    Start --&gt; TimeOk
+    TimeOk -- "否" --&gt; Fail
+    TimeOk -- "是" --&gt; CanTag
+    CanTag -- "否" --&gt; Fail
+    CanTag -- "是" --&gt; Need30
+    Need30 -- "是" --&gt; Event30 --&gt; Need3B
+    Need30 -- "否" --&gt; Need3B
+    Need3B -- "是" --&gt; Event3B --&gt; Pure
+    Need3B -- "否" --&gt; Pure
+    Pure -- "是" --&gt; Success
+    Pure -- "否" --&gt; Need3C
+    Need3C -- "是" --&gt; Event3C --&gt; Success
+    Need3C -- "否" --&gt; Success</code></pre>
+<h3 id="_9">事件类型<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Event ID</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x30 (48)</td>
+<td>BeforeBlowOff 主事件</td>
+</tr>
+<tr>
+<td>0x3B (59)</td>
+<td>BeforeBlowOff 辅助事件</td>
+</tr>
+<tr>
+<td>0x3C (60)</td>
+<td>BeforeBlowOff 非纯击飞事件（仅在 !isPureBlowOff 时触发）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="enemyblowoffcomponentapplyblowoff">EnemyBlowOffComponent::ApplyBlowOff<a class="headerlink" href="#enemyblowoffcomponentapplyblowoff" title="Permanent link">&para;</a></h2>
+<h3 id="_10">执行流程<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    N0["1. 惰性 TypeInfo 缓存（首次调用时初始化）"]
+    N1["- AbilitySystemUtils, AbilitySystem, EnemyAnimationComponent"]
+    N2["- Dictionary&amp;lt;BlowOffFlow, float&amp;gt; 的 get/set/Remove 方法"]
+    N3["- Entity::TryGetComponent&amp;lt;EnemyAnimationComponent&amp;gt;"]
+    N4["- ObjectPtr::Lock, get_isValid, op_Implicit"]
+    N5["- ScopeStack::Dispose"]
+    N6["- StringLiteral: 'buff_common_break_passing_small_'"]
+    N7["3. _InitBlowOffTime() // 初始化击飞时间参数"]
+    N8["4. 重置状态:"]
+    N9["this.field[0x5C] = 0 // 清除某个计数器"]
+    N10["this.field[0x58] = 1 // 设置状态为'击飞中'"]
+    N11["5. this.field[0x1D8] = isPureBlowOff // 存储 isPureBlowOff 标记"]
+    N12["entity = [...].entity"]
+    N13["7. 攻击源处理:"]
+    N14["a. ObjectPtr sourcePtr = {blowOffSource}"]
+    N15["b. entity.OnForceTriggerWeakness(sourcePtr) // 强制触发弱点判定"]
+    N16["c. 如果 entity 有 active skill:"]
+    N17["skill.Interrupt(reason=0, context=null) // 中断当前技能"]
+    N18["8. 停止攻击源移动和旋转:"]
+    N19["AbilitySystemUtils::StopMove(source)"]
+    N20["AbilitySystemUtils::StopRotate(source)"]
+    N21["9. 添加标签:"]
+    N22["entity.AddTagIfNotHaving(PredefinedTag=0x39) // tag 57: BlowOff 状态"]
+    N23["10. 计算反方向:"]
+    N24["negDir = Vector3::op_UnaryNegation(dir) // 反向（被击飞方朝向攻击源）"]
+    N25["baseController.RawSetDirXZ(negDir) // 设置实体朝向"]
+    N26["11. 存储方向到组件:"]
+    N27["this.dir_xz = dir // 偏移 0x1B8, 0x1C0"]
+    N28["12. 'break passing small' Buff 管理:"]
+    N29["a. 检查 this.buff (偏移 0x1C8) 是否有效"]
+    N30["b. 如果有效（之前存在的 buff）:"]
+    N31["Lock 获取 Buff 引用"]
+    N32["buff.MarkFinish("]
+    N33["markFinish=true,"]
+    N34["serverActionParams=0x64 (100), // 参数"]
+    N35["reason=0x64 (100), // 结束原因"]
+    N36["source=null, // 无源"]
+    N37["skillCastInfo=ref_null"]
+    N38[")"]
+    N39["清除 buff 引用（设为 null）"]
+    N40["c. 重新添加 buff:"]
+    N41["sourceEntity = entity[0x128]"]
+    N42["AddBuff('buff_common_break_passing_small_', sourceEntity)"]
+    N43["存储到 this.buff (偏移 0x1C8)"]
+    N44["13. 开始移动:"]
+    N45["this._StartMove(height, distance, dir)"]
+    N46["真正的物理移动计算，使用距离、高度、方向"]
+    N47["14. BlowOffFlow 字典管理:"]
+    N48["a. flowDict = this[0x30] // Dictionary&amp;lt;BlowOffFlow, float&amp;gt;"]
+    N49["b. baseSpeed = flowDict.get_Item(BlowOffFlow=1) // 获取基础速度"]
+    N50["c. baseSpeed /= this.field[0x1DC] // 除以某个时间系数"]
+    N51["d. adjustedTime = totalTime - CONSTANT // 减去固定偏置"]
+    N52["e. 如果 adjustedTime &amp;gt; baseSpeed:"]
+    N53["flowDict.set_Item(BlowOffFlow=4, adjustedTime * this.field[0x1DC])"]
+    N54["// Key=4 存储调整后的时间"]
+    N55["f. 否则:"]
+    N56["flowDict.Remove(BlowOffFlow=4)"]
+    N57["// 不满足条件则删除 Key=4"]
+    N58["15. Event 触发（非纯击飞时 isPureBlowOff=false）:"]
+    N59["a. [Event 0x31 - BeforePhysicalInfliction]:"]
+    N60["获取 entity -&amp;gt; source as AbilitySystem"]
+    N61["source.NeedTriggerEvent(0x31)?"]
+    N62["Allocate&amp;lt;BattlePhysicalContext&amp;gt;"]
+    N63["EventContextWithPartTransferInfo.CopyEnemyPartTransferInfoFrom(...)"]
+    N64["source.TriggerEvent(0x31, context)"]
+    N65["Dispose ScopeStack"]
+    N66["b. [Event 0x3A - AfterPhysicalInflictionApplied]:"]
+    N67["source.NeedTriggerEvent(0x3A)?"]
+    N68["设置 source 属性"]
+    N69["source.TriggerEvent(0x3A, context)"]
+    N70["16. 动画触发:"]
+    N71["entity.TryGetComponent&amp;lt;EnemyAnimationComponent&amp;gt;(out com, showWarning=false)"]
+    N72["如果成功:"]
+    N73["com.SetTriggerOneFrame(paramHash, value=true, clearOnLateUpdate=false)"]
+    N74["paramHash 来自 EnemyAnimationComponent 类型的某个参数 hash"]
+    N75["17. 最终调用:"]
+    N76["sub_180042C50(0x0A, this, ...) // 计时器/延迟回调"]
+    N77["__Gen_Wrap_2865(this, blowOffSource, dir, distance, height, totalTime, isPureBlowOff)"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6
+    N6 --&gt; N7
+    N7 --&gt; N8
+    N8 --&gt; N9
+    N9 --&gt; N10
+    N10 --&gt; N11
+    N11 --&gt; N12
+    N12 --&gt; N13
+    N13 --&gt; N14
+    N14 --&gt; N15
+    N15 --&gt; N16
+    N16 --&gt; N17
+    N17 --&gt; N18
+    N18 --&gt; N19
+    N19 --&gt; N20
+    N20 --&gt; N21
+    N21 --&gt; N22
+    N22 --&gt; N23
+    N23 --&gt; N24
+    N24 --&gt; N25
+    N25 --&gt; N26
+    N26 --&gt; N27
+    N27 --&gt; N28
+    N28 --&gt; N29
+    N29 --&gt; N30
+    N30 --&gt; N31
+    N31 --&gt; N32
+    N32 --&gt; N33
+    N33 --&gt; N34
+    N34 --&gt; N35
+    N35 --&gt; N36
+    N36 --&gt; N37
+    N37 --&gt; N38
+    N38 --&gt; N39
+    N39 --&gt; N40
+    N40 --&gt; N41
+    N41 --&gt; N42
+    N42 --&gt; N43
+    N43 --&gt; N44
+    N44 --&gt; N45
+    N45 --&gt; N46
+    N46 --&gt; N47
+    N47 --&gt; N48
+    N48 --&gt; N49
+    N49 --&gt; N50
+    N50 --&gt; N51
+    N51 --&gt; N52
+    N52 --&gt; N53
+    N53 --&gt; N54
+    N54 --&gt; N55
+    N55 --&gt; N56
+    N56 --&gt; N57
+    N57 --&gt; N58
+    N58 --&gt; N59
+    N59 --&gt; N60
+    N60 --&gt; N61
+    N61 --&gt; N62
+    N62 --&gt; N63
+    N63 --&gt; N64
+    N64 --&gt; N65
+    N65 --&gt; N66
+    N66 --&gt; N67
+    N67 --&gt; N62
+    N62 --&gt; N68
+    N68 --&gt; N69
+    N69 --&gt; N65
+    N65 --&gt; N70
+    N70 --&gt; N71
+    N71 --&gt; N72
+    N72 --&gt; N73
+    N73 --&gt; N74
+    N74 --&gt; N75
+    N75 --&gt; N76
+    N76 --&gt; N77</code></pre>
+<h3 id="buff">关键 Buff<a class="headerlink" href="#buff" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Buff ID</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>buff_common_break_passing_small_</code></td>
+<td>击飞穿透标记，在击飞期间授予目标，击飞结束后移除</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="beforecontrolledstateapplied">BeforeControlledStateApplied<a class="headerlink" href="#beforecontrolledstateapplied" title="Permanent link">&para;</a></h2>
+<h3 id="_11">执行流程<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    Start["BeforeControlledStateApplied"]
+    NeedSource{"输出方需要 0x31 前置事件？"}
+    SourceEvent["携带部位转换信息触发 0x31"]
+    CheckGuard["检查目标 buff_physical_no_guard 层数"]
+    HasGuard{"层数 &gt; 0？"}
+    AddGuard["添加 buff_physical_no_guard"]
+    GuardInfo["附带 dmg_multiplier"]
+    RecordGuard["记录 consume no-guard"]
+    NeedTarget{"承受方需要 0x32 前置事件？"}
+    TargetEvent["携带部位转换信息触发 0x32"]
+    MapBuff["按 PhysicalInflictionType 选择异常 Buff"]
+    AddInfliction["添加对应物理异常 Buff"]
+
+    Start --&gt; NeedSource
+    NeedSource -- "是" --&gt; SourceEvent --&gt; CheckGuard
+    NeedSource -- "否" --&gt; CheckGuard
+    CheckGuard --&gt; HasGuard
+    HasGuard -- "否" --&gt; AddGuard --&gt; GuardInfo --&gt; RecordGuard --&gt; NeedTarget
+    HasGuard -- "是" --&gt; NeedTarget
+    NeedTarget -- "是" --&gt; TargetEvent --&gt; MapBuff
+    NeedTarget -- "否" --&gt; MapBuff
+    MapBuff --&gt; AddInfliction</code></pre>
+<h3 id="buff_1">物理异常 Buff 映射<a class="headerlink" href="#buff_1" title="Permanent link">&para;</a></h3>
+<p><code>GetPhysicalInflictionBuff(type)</code> 返回对应类型的 buff:</p>
+<table>
+<thead>
+<tr>
+<th>PhysicalInflictionType</th>
+<th>对应 Buff</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Airborne (0)</td>
+<td>buff_physical_airborne</td>
+</tr>
+<tr>
+<td>KnockDown (1)</td>
+<td>buff_physical_knockdown</td>
+</tr>
+<tr>
+<td>Fracture (2)</td>
+<td>buff_physical_fracture</td>
+</tr>
+<tr>
+<td>Crush (3)</td>
+<td>buff_physical_crush</td>
+</tr>
+</tbody>
+</table>
+<h3 id="addbuffoption">AddBuffOption 详情<a class="headerlink" href="#addbuffoption" title="Permanent link">&para;</a></h3>
+<p>在添加 <code>buff_physical_no_guard</code> 时，会传递 <code>AddBuffOption</code>:</p>
+<ul>
+<li><code>ownerInfo</code> 包含一个 <code>Blackboard.DataPair(key="dmg_multiplier", value=damageMultiplier)</code></li>
+<li>这意味着物理无保护 buff 会携带伤害倍率信息</li>
+</ul>
+<hr />
+<h2 id="aftercontrolledstateapplied">AfterControlledStateApplied<a class="headerlink" href="#aftercontrolledstateapplied" title="Permanent link">&para;</a></h2>
+<h3 id="_12">签名<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<p>注意：与 Before 版本不同，After 版本<strong>没有</strong> <code>damageMultiplier</code> 参数。</p>
+<h3 id="_13">执行流程<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    Start["AfterControlledStateApplied"]
+    Need32{"承受方需要 0x32 后置事件？"}
+    Event32["携带部位转换信息触发 0x32"]
+    Need33{"承受方需要 0x33 后置事件？"}
+    Event33["触发 0x33"]
+    Record["记录物理异常施加"]
+    Voice["触发物理异常语音事件"]
+    Global["广播全局物理异常事件"]
+    NeedLevel{"关卡需要对应事件？"}
+    Level["带 source 与 physical_infliction_type 抛出关卡事件"]
+    End["完成后置处理"]
+
+    Start --&gt; Need32
+    Need32 -- "是" --&gt; Event32 --&gt; Need33
+    Need32 -- "否" --&gt; Need33
+    Need33 -- "是" --&gt; Event33 --&gt; Record
+    Need33 -- "否" --&gt; Record
+    Record --&gt; Voice --&gt; Global --&gt; NeedLevel
+    NeedLevel -- "是" --&gt; Level --&gt; End
+    NeedLevel -- "否" --&gt; End</code></pre>
+<hr />
+<h2 id="_14">完整数据流图<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    Start["BlowOffEnemyAction 选中攻击者和目标"]
+    Loop["逐个目标处理"]
+    Before["BeforeControlledStateApplied：事件与异常 Buff"]
+    Direction["计算击飞方向"]
+    Apply["ControlledStateComponent.ApplyBlowOff"]
+    State["切换受控状态并应用物理移动"]
+    After["AfterControlledStateApplied：记录、广播、关卡事件"]
+    End["物理异常施加完成"]
+
+    Start --&gt; Loop --&gt; Before --&gt; Direction --&gt; Apply --&gt; State --&gt; After --&gt; End</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

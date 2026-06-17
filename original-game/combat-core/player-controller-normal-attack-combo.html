@@ -1,0 +1,1037 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>PlayerController 普攻连段与打断缓存 - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#playercontroller" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PlayerController 普攻连段与打断缓存
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../character-cases/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#playercontroller_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PlayerController 只生成普攻命令
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        命令执行先刷新下一技能请求
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        时间限制与允许窗口
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skilldata-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        普攻段数来自 SkillData mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        打断后为什么不重置
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cache-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        冲刺与完美闪避的特殊 cache time
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目前保留的边界
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="playercontroller">PlayerController 普攻连段与打断缓存<a class="headerlink" href="#playercontroller" title="Permanent link">&para;</a></h1>
+<h2 id="_1">结论<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>普攻连段没有存在 <code>PlayerController</code> 里。<code>PlayerController</code> 只负责把输入转换成
+<code>AttackCommand</code>，以及在按住/续按窗口内继续补发 <code>AttackCommand</code>。
+真正决定“下一次普攻是哪一段”的状态在 <code>AbilitySystem.ComboController</code>:</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["PlayerController.CastNormalAttack"]
+    N1["PlayerCommandController.CreateCommand(Attack)"]
+    N2["CharacterMainCtrlSystem.OnExecutePlayerCommand(Attack)"]
+    N3["AbilitySystem.RefreshNextSkillRequest(Attack)"]
+    N4["ComboController.m_nextSkillRequest = { nextSkillId, remainingTime, allowToCastNextSkill }"]
+    N5["CenterAttackState._TryCastAttack()"]
+    N6["AbilitySystem.GetNextAttackId()"]
+    N7["ComboController.nextSkillId"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6
+    N6 --&gt; N7</code></pre>
+<p>因此冲刺、下落攻击、战技、连携技打断当前普攻时，段数不靠
+<code>PlayerController</code> 里的计数器保存，而靠技能时间轴不断注册的
+<code>ComboController</code> mapping/allow 窗口继续推进。
+这里需要区分短期请求缓存和长期连段状态：<code>NextSkillRequest</code> 不是一个能无条件跨状态
+保留的长期变量。<code>CenterAttackState.OnLeave()</code> 会调用 <code>AbilitySystem.ClearSkillRequest()</code>；
+<code>ComboCacheAction.OnEnd()</code> 也会移除自己的 mapping handle，并且当
+<code>cacheEndByAction == true</code> 时，会清掉由该 modifier 产生的请求。也就是说“打断后不重置”
+更准确地说是: 技能数据在打断前后仍能提供正确的下一段 mapping/allow 窗口，或者打断动作
+自身重新注册了后续 mapping，玩家输入再在 cache time 内刷新/消费它。</p>
+<h2 id="playercontroller_1">PlayerController 只生成普攻命令<a class="headerlink" href="#playercontroller_1" title="Permanent link">&para;</a></h2>
+<p><code>PlayerController.CastNormalAttack()</code> 的职责很薄，实际走到
+<code>CreateNormalAttackCommand()</code>:</p>
+<p>注意普攻输入使用的是 <code>InputActionType.Skills</code> 开关；如果全局输入屏蔽或技能类 action
+被禁用，普攻命令不会被创建。
+<code>StartCastNormalAttack()</code> 与 <code>EndCastNormalAttack()</code> 只维护“持续按住/触屏续普攻”的本地状态:</p>
+<p><code>_TickNormalAttack(deltaTime)</code> 每帧递减这些 timer。只要还在普攻施放中，或 keep timer
+仍有效，就继续创建 <code>AttackCommand</code>:</p>
+<p>这一层解释的是“为什么按住/续按可以继续出普攻命令”，不是“为什么出第三段”。
+段数选择在后面的 <code>ComboController</code>。</p>
+<h2 id="_2">命令执行先刷新下一技能请求<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p><code>PlayerCommandController.Execute(cmdType)</code> 会通知
+<code>CharacterMainCtrlSystem.OnExecutePlayerCommand(cmdType)</code>。
+<code>OnExecutePlayerCommand</code> 的第一步就是把玩家命令交给当前主控的 <code>AbilitySystem</code>:</p>
+<p>关键点是顺序: 状态机切换、冲刺、跳跃之前，先尝试刷新
+<code>ComboController.m_nextSkillRequest</code>。
+UltimateSkill / 显式 Skill 会在 center state transition 前先刷新 request，后续 state cast
+helper 复用该 request；显式 Skill cast 结束后会清理 request，避免输入缓存泄漏到后续命令。
+<code>ComboController.RefreshNextSkillRequest(cmdType)</code> 会把 <code>PlayerCommandConfig.CmdType</code>
+映射到 <code>BattleCommandType</code>:</p>
+<table>
+<thead>
+<tr>
+<th>玩家命令</th>
+<th>BattleCommandType</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Attack</code></td>
+<td><code>Attack</code></td>
+</tr>
+<tr>
+<td><code>Dash</code></td>
+<td><code>Dash</code></td>
+</tr>
+<tr>
+<td><code>Jump</code></td>
+<td><code>Jump</code></td>
+</tr>
+<tr>
+<td><code>Skill</code> 且输入技能是当前普通战技</td>
+<td><code>NormalSkill</code></td>
+</tr>
+<tr>
+<td><code>Skill</code> 且输入技能是当前连携技</td>
+<td><code>ComboSkill</code></td>
+</tr>
+<tr>
+<td><code>Skill</code> 但不是上述两者</td>
+<td>直接用输入的 <code>skillId</code></td>
+</tr>
+</tbody>
+</table>
+<p>找到有效 mapping 后，它会写入:</p>
+<p>创建请求时 <code>allowToCastNextSkill</code> 初始为 <code>false</code>。也就是说玩家输入已经被缓存，
+但当前技能是否能被它打断，要等 <code>ComboController.Tick()</code> 每帧重新判定。</p>
+<h2 id="_3">时间限制与允许窗口<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p><code>ComboController.Tick()</code> 对 <code>m_nextSkillRequest</code> 做两件事:</p>
+<p><code>ComboController.nextSkillId</code> 只有在请求存在且 <code>allowToCastNextSkill == true</code> 时才返回
+真实技能 id；否则返回空字符串:</p>
+<p><code>_AllowNextSkill(skillId)</code> 会从当前 <code>AbilitySystem</code> 的技能表取出目标 <code>Skill</code>，
+然后调用 <code>AbilitySystem.CheckCanInterruptCurSkill(newSkill)</code>。实际“哪一帧开始可以接下一段”
+由技能动作窗口控制，常见配置是:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w"> </span><span class="nt">&quot;_startFrame&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w"> </span><span class="nt">&quot;_endFrame&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">27</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w"> </span><span class="nt">&quot;$type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Beyond.Gameplay.Core.AllowNextSkillAction+Data, Gameplay.Beyond&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w"> </span><span class="nt">&quot;allowedSkillIdList&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;chr_0004_pelica_attack2&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">}</span>
+</code></pre></div>
+<p>所以这里有两个窗口:</p>
+<ul>
+<li><code>AllowNextSkillAction</code> 写入“当前技能从哪一帧开始允许被这些 skillId 打断”。</li>
+</ul>
+<p><code>AbilitySystem.CheckCanInterruptCurSkill(newSkill)</code> 会先遍历
+<code>ComboController.allowedNextSkillPacks</code>，只要任一 pack 的 <code>skillList</code> 包含
+<code>newSkill.skillId</code> 就直接允许打断。否则再走“是否等于当前普通战技/连携技 id”、
+<code>skillInterruptPriority</code> 与当前技能 <code>canInterrupt</code> 的通用判断。
+请求能否真正施放，要同时满足:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>请求未过期 remainingTime &gt; 0
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a> &amp;&amp; 目标 skillId 仍可用
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a> &amp;&amp; 当前技能允许被该 skillId 打断
+</code></pre></div>
+<h2 id="skilldata-mapping">普攻段数来自 SkillData mapping<a class="headerlink" href="#skilldata-mapping" title="Permanent link">&para;</a></h2>
+<p><code>ComboCacheAction.Data</code> 的 类型信息 字段:</p>
+<p><code>AddMappingModifier</code> 会把 modifier 加进按 <code>BattleCommandType</code> 分组的优先队列，然后
+<code>_UpdateRealEffectedMapping()</code> 重建 <code>m_realCommandMapping</code>: 每个命令优先取 modifier
+队列的最高优先级项；如果该命令没有 modifier，就回退到基础 mapping。
+<code>ComboCacheAction.OnEnd()</code> 不是只清本地列表:</p>
+<p>而 <code>MappingModifier.Handle.RemoveModifier()</code> 会:</p>
+<p>这里可以对应上 JSON 字段: <code>cacheEndByAction</code> 实际传给
+<code>clearSkillRequestOnRemove</code>，<code>clearOffsetTargetSkillIdOnEnd</code> 实际传给
+<code>clearOffsetTargetSkillIdOnRemove</code>。
+普通攻击段数不是数字计数器，而是技能时间轴里的 mapping 链。
+例如 <code>chr_0004_pelica_attack1.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w"> </span><span class="nt">&quot;_startFrame&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w"> </span><span class="nt">&quot;_endFrame&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">27</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w"> </span><span class="nt">&quot;$type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Beyond.Gameplay.Core.ComboCacheAction+Data, Gameplay.Beyond&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w"> </span><span class="nt">&quot;mappingDataList&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w"> </span><span class="nt">&quot;cmdType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Attack&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w"> </span><span class="nt">&quot;skillId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chr_0004_pelica_attack2&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w"> </span><span class="nt">&quot;cacheEndByAction&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w"> </span><span class="nt">&quot;overrideCacheTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w"> </span><span class="p">]</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>chr_0004_pelica_attack2.json</code> 再把 <code>Attack</code> 映射到第三段:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w"> </span><span class="nt">&quot;_startFrame&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w"> </span><span class="nt">&quot;_endFrame&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">28</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w"> </span><span class="nt">&quot;$type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Beyond.Gameplay.Core.ComboCacheAction+Data, Gameplay.Beyond&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w"> </span><span class="nt">&quot;mappingDataList&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w"> </span><span class="nt">&quot;cmdType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Attack&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w"> </span><span class="nt">&quot;skillId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chr_0004_pelica_attack3&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w"> </span><span class="nt">&quot;cacheEndByAction&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w"> </span><span class="nt">&quot;overrideCacheTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w"> </span><span class="p">]</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="p">}</span>
+</code></pre></div>
+<p>当玩家在这个窗口内按下/续按普攻时，<code>RefreshNextSkillRequest(Attack)</code> 会把当前
+<code>m_realCommandMapping[Attack]</code> 快照成 <code>NextSkillRequest.nextSkillId</code>。
+这个快照有时间限制，也会在状态/动作结束时被清理；它不是“永久保存的段数”。
+战技/连携技也是同一套 mapping 系统。<code>RefreshNextSkillRequest(Skill)</code> 会先读取当前
+<code>SkillCommand</code> 的输入 <code>skillId</code>，如果它等于当前普通战技就查 <code>NormalSkill</code> mapping，
+如果等于当前连携技就查 <code>ComboSkill</code> mapping。例如 <code>chr_0004_pelica_normal_skill.json</code>
+会在自己的窗口里写入:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w"> </span><span class="nt">&quot;cmdType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NormalSkill&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w"> </span><span class="nt">&quot;skillId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chr_0004_pelica_normal_skill&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w"> </span><span class="nt">&quot;overrideCacheTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w"> </span><span class="nt">&quot;cacheTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.3</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">}</span>
+</code></pre></div>
+<ul>
+<li>打断前的 mapping/allow 窗口仍在有效帧内，玩家输入先刷新出下一段请求，然后被状态消费。</li>
+<li>打断动作自己的 SkillData 继续注册新的 mapping/allow 窗口，后续输入再生成下一段请求。</li>
+</ul>
+<p>如果这些 request/mapping 都过期或被清掉，才会回到普攻链起点。</p>
+<h2 id="_4">打断后为什么不重置<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>更精确地看，运行时有三层:</p>
+<pre class="mermaid"><code>flowchart TD
+    Cache["SkillData.ComboCacheAction"]
+    Queue["m_mappingModifiers 优先队列"]
+    Effective["m_realCommandMapping&lt;br/&gt;当前实际生效 skillId"]
+    Input["玩家输入 Attack"]
+    Request["RefreshNextSkillRequest&lt;br/&gt;生成 nextSkillRequest"]
+    AllowAction["SkillData.AllowNextSkillAction"]
+    Allowed["allowedNextSkillPacks"]
+    CanCast{"CheckCanInterruptCurSkill(newSkill)"}
+    Cast["释放下一段普攻"]
+    Wait["等待后续 allow / 超时清理"]
+    Cache --&gt; Queue --&gt; Effective
+    Effective --&gt; Input --&gt; Request
+    AllowAction --&gt; Allowed
+    Request --&gt; CanCast
+    Allowed --&gt; CanCast
+    CanCast --&gt;|允许| Cast
+    CanCast --&gt;|不允许| Wait</code></pre>
+<p><code>AbilitySystem.ClearSkillRequest()</code> 最终清的是 <code>ComboController.m_nextSkillRequest</code>；
+如果请求里带了 <code>SkillCastInputData</code>，会先 <code>Dispose()</code>，然后把 nullable 区域清零。
+按 modifier 清请求时也类似:</p>
+<p>所以下一次进入 <code>CenterAttackState</code> 时，<code>_TryCastAttack()</code> 仍然是问 AbilitySystem:</p>
+<p><code>AbilitySystem.GetNextAttackId(target)</code> 如果没有特殊重置条件，就返回
+<code>m_comboController.nextSkillId</code>。而 <code>nextSkillId</code> 只在 <code>allowToCastNextSkill == true</code>
+时暴露。
+因此“被冲刺/战技/下落攻击打断后继续下一段”的实现基础不是一个持久 combo index，而是
+SkillData 在合适帧段注册出的 mapping 链。例如:</p>
+<ul>
+<li>
+<p><code>chr_0004_pelica_attack2.json</code> 在 <code>0..28</code> 帧注册 <code>Attack -&gt; chr_0004_pelica_attack3</code>，
+ 并在 <code>18..28</code> 帧允许 <code>chr_0004_pelica_attack3</code> 打断。</p>
+</li>
+<li>
+<p><code>chr_0004_pelica_dash_attack.json</code> 自己又在 <code>0..20</code> 帧注册
+ <code>Attack -&gt; chr_0004_pelica_attack4</code>，并在 <code>10..20</code> 帧允许该技能。</p>
+</li>
+<li>
+<p><code>chr_0002_endminm_dodge.json</code> 在闪避动作中注册
+ <code>Attack -&gt; chr_0002_endminm_dash_attack</code>，并在后续帧允许这个 dash attack。
+具体某个角色“第二段结束后被哪个动作打断，下一次是否从第三段继续”，要落到该角色
+相关技能 JSON 的 <code>ComboCacheAction</code> / <code>AllowNextSkillAction</code> 窗口上判断。底层机制已经明确:
+mapping/request/allow 都是 action 窗口驱动，action 结束和状态离开都会触发相应清理。
+如果这段时间太久，<code>ComboController.Tick()</code> 会把 <code>remainingTime</code> 扣到 0 并清空请求；
+这就是“普攻能否连上有时间限制”的实现点。</p>
+</li>
+</ul>
+<h2 id="cache-time">冲刺与完美闪避的特殊 cache time<a class="headerlink" href="#cache-time" title="Permanent link">&para;</a></h2>
+<p><code>ComboController._GetCacheTime(cmdType, modifier)</code> 对 <code>Attack</code> 有额外分支:</p>
+<p><code>BattleCommandMappingConfig</code> 中还有这些相关字段:</p>
+<p>这说明冲刺/完美闪避期间接普攻不是单纯复用普通 mapping 时间，而是有单独的
+Attack cache/allow 配置。</p>
+<h2 id="_5">目前保留的边界<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<p>本轮没有继续模拟物理落地、空中速度、碰撞或具体下落攻击触发条件。这里只确认:</p>
+<ul>
+<li><code>OnExecutePlayerCommand(Jump)</code> 会在部分状态下创建 <code>Jump</code> offset。</li>
+<li>状态机存在 <code>PlungingAttack -&gt; Attack/Dash/Skill/Free</code> 等转换。</li>
+<li>下落攻击结束后能否接上哪一段，仍通过 <code>ComboController</code> 的 mapping/request 机制决定。</li>
+</ul>
+<p>如果要继续确认“下落攻击从空中状态到落地攻击结束的精确物理触发帧”，需要进入
+movement/physics 相关函数，这部分应单独分析。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

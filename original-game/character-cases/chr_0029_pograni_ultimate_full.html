@@ -1,0 +1,2054 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>chr_0029 骏卫 (Pograni) 终结技完整流程 - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chr_0029-pograni" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              chr_0029 骏卫 (Pograni) 终结技完整流程
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        时间轴总览
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据入口
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        主 skill 阶段
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="主 skill 阶段">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CG / 防护阶段
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spawnabilityentity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        初始 SpawnAbilityEntity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abilityentitytable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AbilityEntityTable 模板
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#abilityentity-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        初始 AbilityEntity skill
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="初始 AbilityEntity skill">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        抢锁逻辑
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#buff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        主 buff 黑板写入
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#buff_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        主 buff：连段系统的根
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="主 buff：连段系统的根">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#duringbuffenable-aura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DuringBuffEnable：给敌人挂 aura
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#onbuffstart-count-buff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OnBuffStart：创建 count buff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#onbufffinish" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OnBuffFinish：清理效果层
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aura-buff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        敌人 aura buff：真正的调度器
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="敌人 aura buff：真正的调度器">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#timed-marker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        防重复 timed marker
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#count-1-attack2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        count &gt; 1：生成 attack2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#count-1-final-rush" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        count == 1：进入 final rush
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attack2-abilityentity-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        attack2 AbilityEntity skill
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="attack2 AbilityEntity skill">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        phase 选择
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        每段攻击
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#final_rush-buff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        final_rush buff
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#finish4-abilityentity-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        finish4 AbilityEntity skill
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        总倍率与收益
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        精简调用栈
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="chr_0029-pograni">chr_0029 骏卫 (Pograni) 终结技完整流程<a class="headerlink" href="#chr_0029-pograni" title="Permanent link">&para;</a></h1>
+<h2 id="_1">时间轴总览<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>timeline
+    title chr_0029_pograni_ultimate_skill
+    0f : CG / 时停 / 运镜 / 无敌 / 霸体
+    74f : 生成初始 AbilityEntity x4
+    76f : Rush 伤害 400% ATK
+        : 15 失衡
+        : 击飞与物理异常触发入口
+    82f : 主 skill 直接伤害窗口结束
+    后续 : 敌人 aura 监听受击事件
+         : count 驱动 attack2 追击与 finish4 终结</code></pre>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>关键行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>初始 AE</td>
+<td><code>3-17f</code> 抢锁，首个成功者给骏卫创建主 buff</td>
+</tr>
+<tr>
+<td>主 buff</td>
+<td><code>DuringBuffEnable</code> 给敌人挂 aura buff</td>
+</tr>
+<tr>
+<td>count buff</td>
+<td><code>OnBuffStart</code> 创建 5 层 count buff</td>
+</tr>
+<tr>
+<td>aura 监听</td>
+<td>监听 <code>OnBeforeTakePhysicalInfliction</code> / <code>OnBeforeTakeDamage</code></td>
+</tr>
+<tr>
+<td>追击</td>
+<td>count 从 5 递减到 1，依次生成 4 次 attack2</td>
+</tr>
+<tr>
+<td>终结</td>
+<td>count 到 1 后创建 <code>final_rush</code>，再生成 finish4 x4</td>
+</tr>
+<tr>
+<td>结束</td>
+<td>finish4 造成终结伤害并结束主 buff</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">结论<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>骏卫大招不是一个单一 timeline 技能。它的完整伤害链由 4 层系统组成：</p>
+<pre class="mermaid"><code>flowchart TD
+    Cast["主 skill"]
+    Spawn["生成初始 AbilityEntity x4"]
+    Race{"任一 AE 抢锁成功"}
+    RaceFail["其余 AE 检查失败&lt;br/&gt;跳过 CreateBuff"]
+    Buff["创建主 buff"]
+    Count["创建 count buff&lt;br/&gt;初始 5 层"]
+    Aura["敌人获得 aura buff&lt;br/&gt;监听受击事件"]
+    Hit{"触发受击事件"}
+    CountCheck{"count 层数"}
+    Attack2["生成 attack2&lt;br/&gt;先 spawn 后扣 1 层"]
+    FinalRush["创建 final_rush&lt;br/&gt;扣最后 1 层"]
+    Finish4["生成 finish4 x4&lt;br/&gt;终结伤害并结束主 buff"]
+    NoAction["不生成追击"]
+
+    Cast --&gt; Spawn --&gt; Race
+    Race --&gt;|成功| Buff --&gt; Count --&gt; Aura
+    Race --&gt;|失败| RaceFail
+    Aura --&gt; Hit
+    Hit --&gt; CountCheck
+    CountCheck --&gt;|count &gt; 1| Attack2 --&gt; Aura
+    CountCheck --&gt;|count == 1| FinalRush --&gt; Finish4
+    CountCheck --&gt;|count == 0| NoAction</code></pre>
+<p>如果只执行 <code>chr_0029_pograni_ultimate_skill</code> 的 timeline，只能覆盖 CG、初始召唤和 Rush 段，无法自然得到完整 <code>attack2 x4 + finish4</code>。完整模拟必须实现 <code>SpawnAbilityEntity</code>、AbilityEntity skill tick、AuraAction、buff timeline、受击事件回调和 count 驱动。</p>
+<h2 id="_3">数据入口<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>数据</th>
+<th>文件/ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主大招</td>
+<td><code>chr_0029_pograni_ultimate_skill</code></td>
+</tr>
+<tr>
+<td>初始 AE 模板</td>
+<td><code>abilityentity_chr_0029_pograni_ultimate_skill</code></td>
+</tr>
+<tr>
+<td>初始 AE skill</td>
+<td><code>chr_0029_pograni_ultimate_skill_abilityentity</code></td>
+</tr>
+<tr>
+<td>追击 AE skill</td>
+<td><code>chr_0029_pograni_ultimate_skill_abilityentity_attack2</code></td>
+</tr>
+<tr>
+<td>终结 AE skill</td>
+<td><code>chr_0029_pograni_ultimate_skill_abilityentity_finish4</code></td>
+</tr>
+<tr>
+<td>主 buff</td>
+<td><code>buff_chr_0029_pograni_ultimate_skill</code></td>
+</tr>
+<tr>
+<td>count buff</td>
+<td><code>buff_chr_0029_pograni_ultimate_skill_count</code></td>
+</tr>
+<tr>
+<td>敌人 aura buff</td>
+<td><code>buff_chr_0029_pograni_ultimate_skill_abilityentity_inaura</code></td>
+</tr>
+<tr>
+<td>终结调度 buff</td>
+<td><code>buff_chr_0029_pograni_ultimate_skill_finall_rush</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="skill">主 skill 阶段<a class="headerlink" href="#skill" title="Permanent link">&para;</a></h2>
+<p>主大招 <code>chr_0029_pograni_ultimate_skill</code>：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th style="text-align: right;">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>消耗</td>
+<td style="text-align: right;"><code>100 USP</code></td>
+</tr>
+<tr>
+<td>持续</td>
+<td style="text-align: right;"><code>210f</code></td>
+</tr>
+<tr>
+<td>Rush 倍率</td>
+<td style="text-align: right;"><code>atk_scale_rush = 4.0</code></td>
+</tr>
+<tr>
+<td>追击倍率</td>
+<td style="text-align: right;"><code>atk_scale_trigger = 2.0</code></td>
+</tr>
+<tr>
+<td>终结倍率</td>
+<td style="text-align: right;"><code>atk_scale_final = 4.0</code></td>
+</tr>
+<tr>
+<td>追击 ATB</td>
+<td style="text-align: right;"><code>atb_trigger = 15.0</code></td>
+</tr>
+<tr>
+<td>终结 ATB</td>
+<td style="text-align: right;"><code>atb_final = 50.0</code></td>
+</tr>
+<tr>
+<td>Rush 失衡</td>
+<td style="text-align: right;"><code>poise_rush = 15.0</code></td>
+</tr>
+<tr>
+<td>终结失衡</td>
+<td style="text-align: right;"><code>poise_final = 15.0</code></td>
+</tr>
+<tr>
+<td>后续窗口</td>
+<td style="text-align: right;"><code>duration = 30.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="cg">CG / 防护阶段<a class="headerlink" href="#cg" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">帧</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><code>0-75f</code></td>
+<td><code>UltimateShowAction</code>、<code>UltimateTimeAction</code>、<code>HideUIAction</code>、运镜</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>0-90f</code></td>
+<td><code>buff_common_damage_immune_medium</code>，提供无敌</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>0-90f</code></td>
+<td><code>SetSuperArmorAction</code>，提供霸体/抗打断</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>0-3f</code></td>
+<td>清理上一次残留的 soldier AE 和主 buff</td>
+</tr>
+</tbody>
+</table>
+<h3 id="spawnabilityentity">初始 SpawnAbilityEntity<a class="headerlink" href="#spawnabilityentity" title="Permanent link">&para;</a></h3>
+<p><code>74-77f</code> 主 skill 连续生成 4 个 AbilityEntity。
+共用字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>abilityEntityId</code></td>
+<td><code>abilityentity_chr_0029_pograni_ultimate_skill</code></td>
+</tr>
+<tr>
+<td><code>abilityEntitySkillId</code></td>
+<td><code>chr_0029_pograni_ultimate_skill_abilityentity</code></td>
+</tr>
+<tr>
+<td><code>setAbilityEntitySource</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>abilityEntitySource</code></td>
+<td><code>ActionOwner</code>，即骏卫</td>
+</tr>
+<tr>
+<td><code>setAbilityEntityTarget</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>abilityEntityTarget</code></td>
+<td>当前目标</td>
+</tr>
+<tr>
+<td><code>assignBlackboard</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>saveToContext</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>inheritSourceSkillCastId</code></td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<p>4 个出生点：</p>
+<table>
+<thead>
+<tr>
+<th>contextKey</th>
+<th>bornPosOffset</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ae1</code></td>
+<td><code>(-5.06, 0, 0.57)</code></td>
+</tr>
+<tr>
+<td><code>ae2</code></td>
+<td><code>(-5.13, 0, 8.85)</code></td>
+</tr>
+<tr>
+<td><code>ae3</code></td>
+<td><code>(4.42, 0, 9.99)</code></td>
+</tr>
+<tr>
+<td><code>ae4</code></td>
+<td><code>(5.33, 0, 1.84)</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>assignBlackboard=true</code> 很关键。主 skill 的 <code>atk_scale_trigger</code>、<code>atk_scale_final</code>、<code>atb_trigger</code>、<code>atb_final</code>、<code>poise_final</code>、<code>duration</code> 会传入 AE skill，后续再写入主 buff。</p>
+<h2 id="abilityentitytable">AbilityEntityTable 模板<a class="headerlink" href="#abilityentitytable" title="Permanent link">&para;</a></h2>
+<p><code>abilityentity_chr_0029_pograni_ultimate_skill</code> 是一个带技能系统的 AbilityEntity，而不是普通 projectile。
+关键模板字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>值/含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>abilityentity_chr_0029_pograni_ultimate_skill</code></td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td><code>50.0</code></td>
+</tr>
+<tr>
+<td><code>bornTag</code></td>
+<td><code>Immune/Damage</code>、不可选中、<code>Skill/Character/chr_0029_pgrani/Soldier</code></td>
+</tr>
+<tr>
+<td><code>hasSkill</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>detectedRadius</code></td>
+<td><code>0.2</code></td>
+</tr>
+<tr>
+<td><code>detectedHeight</code></td>
+<td><code>0.4</code></td>
+</tr>
+</tbody>
+</table>
+<p>技能列表：</p>
+<table>
+<thead>
+<tr>
+<th>active skill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chr_0029_pograni_ultimate_skill_abilityentity</code></td>
+</tr>
+<tr>
+<td><code>chr_0029_pograni_ultimate_skill_abilityentity_attack2</code></td>
+</tr>
+<tr>
+<td><code>chr_0029_pograni_ultimate_skill_abilityentity_finish1</code></td>
+</tr>
+<tr>
+<td><code>chr_0029_pograni_ultimate_skill_abilityentity_finish2</code></td>
+</tr>
+<tr>
+<td><code>chr_0029_pograni_ultimate_skill_abilityentity_finish3</code></td>
+</tr>
+<tr>
+<td><code>chr_0029_pograni_ultimate_skill_abilityentity_finish4</code></td>
+</tr>
+</tbody>
+</table>
+<p>后续所有 <code>attack2</code> / <code>finish4</code> 仍然使用同一个 AbilityEntity 模板，只是 <code>abilityEntitySkillId</code> 不同。</p>
+<h2 id="abilityentity-skill">初始 AbilityEntity skill<a class="headerlink" href="#abilityentity-skill" title="Permanent link">&para;</a></h2>
+<p>初始 skill：<code>chr_0029_pograni_ultimate_skill_abilityentity</code>。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th style="text-align: right;">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>skillSpecification</code></td>
+<td style="text-align: right;"><code>CharacterUltimateSkill</code></td>
+</tr>
+<tr>
+<td><code>durationFrame</code></td>
+<td style="text-align: right;"><code>300f</code></td>
+</tr>
+</tbody>
+</table>
+<p>关键 timeline：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">帧</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><code>1-7f</code></td>
+<td><code>MoveToAction</code>，士兵冲向目标</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>3-17f</code></td>
+<td><code>CheckBuffStackNum</code> 检查骏卫身上主 buff 层数是否等于 <code>0</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>3-17f</code></td>
+<td>成功者创建 <code>buff_chr_0029_pograni_ultimate_skill</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>50-53f</code></td>
+<td><code>FinishOwnerAction</code>，初始 AE 自毁</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">抢锁逻辑<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<p>4 个初始 AE 都会执行同一段 <code>3-17f</code> 逻辑，但只有第一个看到 <code>buff_chr_0029_pograni_ultimate_skill == 0</code> 的 AE 会成功创建主 buff。
+这等价于竞争锁：</p>
+<pre class="mermaid"><code>flowchart TD
+    Start["AE1/AE2/AE3/AE4 同时进入 3-17f 检查窗口"]
+    Loop["取一个 AE 执行 CheckBuffStackNum"]
+    HasMain{"骏卫已有主 buff？"}
+    Create["创建主 buff"]
+    Skip["跳过 CreateBuff"]
+    More{"还有 AE 未检查？"}
+    End["检查窗口结束"]
+
+    Start --&gt; Loop --&gt; HasMain
+    HasMain -- "否" --&gt; Create --&gt; More
+    HasMain -- "是" --&gt; Skip --&gt; More
+    More -- "是" --&gt; Loop
+    More -- "否" --&gt; End</code></pre>
+<h3 id="buff">主 buff 黑板写入<a class="headerlink" href="#buff" title="Permanent link">&para;</a></h3>
+<p>初始 AE 创建主 buff 时，从自身黑板写入：</p>
+<table>
+<thead>
+<tr>
+<th>主 buff key</th>
+<th>来源 key</th>
+<th style="text-align: right;">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>duration</code></td>
+<td><code>duration</code></td>
+<td style="text-align: right;"><code>30.0</code></td>
+</tr>
+<tr>
+<td><code>atk_scale_trigger</code></td>
+<td><code>atk_scale_trigger</code></td>
+<td style="text-align: right;"><code>2.0</code></td>
+</tr>
+<tr>
+<td><code>atk_scale_final</code></td>
+<td><code>atk_scale_final</code></td>
+<td style="text-align: right;"><code>4.0</code></td>
+</tr>
+<tr>
+<td><code>atb_trigger</code></td>
+<td><code>atb_trigger</code></td>
+<td style="text-align: right;"><code>15.0</code></td>
+</tr>
+<tr>
+<td><code>atb_final</code></td>
+<td><code>atb_final</code></td>
+<td style="text-align: right;"><code>50.0</code></td>
+</tr>
+<tr>
+<td><code>poise_final</code></td>
+<td><code>poise_final</code></td>
+<td style="text-align: right;"><code>15.0</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="buff_1">主 buff：连段系统的根<a class="headerlink" href="#buff_1" title="Permanent link">&para;</a></h2>
+<p>主 buff：<code>buff_chr_0029_pograni_ultimate_skill</code>。
+主 buff 有两个核心事件。</p>
+<h3 id="duringbuffenable-aura">DuringBuffEnable：给敌人挂 aura<a class="headerlink" href="#duringbuffenable-aura" title="Permanent link">&para;</a></h3>
+<p><code>DuringBuffEnable</code> 执行 <code>AuraAction</code>：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auraDebugName</code></td>
+<td><code>pograni_ultimate</code></td>
+</tr>
+<tr>
+<td><code>auraType</code></td>
+<td><code>GlobalAura</code></td>
+</tr>
+<tr>
+<td><code>auraRoot</code></td>
+<td><code>Owner</code>，即骏卫</td>
+</tr>
+<tr>
+<td>范围</td>
+<td>球形半径 <code>50</code></td>
+</tr>
+<tr>
+<td>目标</td>
+<td><code>EnemyAll</code>，反阵营，存活目标</td>
+</tr>
+<tr>
+<td>输入 buff</td>
+<td><code>buff_chr_0029_pograni_ultimate_skill_abilityentity_inaura</code></td>
+</tr>
+<tr>
+<td>buffSource</td>
+<td><code>ActionOwner</code></td>
+</tr>
+</tbody>
+</table>
+<p>这个 aura 会把 <code>buff_chr_0029_pograni_ultimate_skill_abilityentity_inaura</code> 挂到敌人身上。
+注意：后续追击调度器在敌人身上，不在骏卫身上。这是完整链路里最容易漏掉的一环。</p>
+<h3 id="onbuffstart-count-buff">OnBuffStart：创建 count buff<a class="headerlink" href="#onbuffstart-count-buff" title="Permanent link">&para;</a></h3>
+<p><code>OnBuffStart</code> 创建：
+<code>buff_chr_0029_pograni_ultimate_skill_count</code></p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>目标</td>
+<td><code>Source</code>，即骏卫</td>
+</tr>
+<tr>
+<td><code>asChildBuff</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>count</code></td>
+<td>从主 buff 黑板 <code>count</code> 读取，默认主 buff 为 <code>5.0</code></td>
+</tr>
+<tr>
+<td>写入黑板</td>
+<td><code>duration</code></td>
+</tr>
+</tbody>
+</table>
+<p>因此完整连段的起始 count 是 <code>5</code>。</p>
+<h3 id="onbufffinish">OnBuffFinish：清理效果层<a class="headerlink" href="#onbufffinish" title="Permanent link">&para;</a></h3>
+<p><code>OnBuffFinish</code> 会通过 <code>FinishBuffAdvanced</code> 清理：
+<code>buff_chr_0029_pograni_ultimate_skill_effect_layer</code></p>
+<h2 id="aura-buff">敌人 aura buff：真正的调度器<a class="headerlink" href="#aura-buff" title="Permanent link">&para;</a></h2>
+<p>敌人 aura buff：<code>buff_chr_0029_pograni_ultimate_skill_abilityentity_inaura</code>。
+这个 buff 自身没有 <code>buffEventAction</code>，而是通过 <code>abilityEventAction</code> 监听事件。
+监听事件：</p>
+<table>
+<thead>
+<tr>
+<th>abilityEvent</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OnBeforeTakePhysicalInfliction</code></td>
+<td>物理异常触发前，例如 Rush 的击飞/物理异常入口</td>
+</tr>
+<tr>
+<td><code>OnBeforeTakeDamage</code></td>
+<td>受伤前，额外检查指定 <code>damageDecorateMask</code></td>
+</tr>
+</tbody>
+</table>
+<p>两套事件逻辑基本一致，都是：检查防重复 marker、检查 count、根据 count 生成下一段 AE 或进入终结。</p>
+<h3 id="timed-marker">防重复 timed marker<a class="headerlink" href="#timed-marker" title="Permanent link">&para;</a></h3>
+<p>关键 marker：
+<code>chr_0029_pograni_soldier_attacked</code>
+每次触发前先执行 <code>CheckTimedMarkerCondition</code>。成功触发后执行 <code>CreateTimedMarker</code>，防止同一次受击/异常把 aura 逻辑重复跑多次。</p>
+<h3 id="count-1-attack2">count &gt; 1：生成 attack2<a class="headerlink" href="#count-1-attack2" title="Permanent link">&para;</a></h3>
+<p>当骏卫身上的 <code>buff_chr_0029_pograni_ultimate_skill_count &gt; 1</code>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">顺序</th>
+<th>action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td><code>CheckTimedMarkerCondition</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td><code>CheckBuffStackNumAdvanced(count &gt; 1)</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td><code>SpawnAbilityEntity</code>，skill = <code>chr_0029_pograni_ultimate_skill_abilityentity_attack2</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td><code>FinishBuffAdvanced</code>，移除 1 层 count</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td><code>CreateTimedMarker</code></td>
+</tr>
+</tbody>
+</table>
+<p>注意顺序是先 spawn，后扣 count。因此 attack2 启动时读到的是扣层前的 count。</p>
+<h3 id="count-1-final-rush">count == 1：进入 final rush<a class="headerlink" href="#count-1-final-rush" title="Permanent link">&para;</a></h3>
+<p>当骏卫身上的 count 等于 <code>1</code>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">顺序</th>
+<th>action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td><code>CheckTimedMarkerCondition</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td><code>CheckBuffStackNumAdvanced(count == 1)</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td><code>FinishBuffAdvanced</code>，移除最后 1 层 count</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td><code>CreateBuff</code>，创建 <code>buff_chr_0029_pograni_ultimate_skill_finall_rush</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td><code>CreateTimedMarker</code></td>
+</tr>
+</tbody>
+</table>
+<p>count 变化：</p>
+<pre class="mermaid"><code>flowchart TD
+    N0["5"]
+    N1["spawn attack2 phase#1"]
+    N2["4"]
+    N3["spawn attack2 phase#2"]
+    N4["3"]
+    N5["spawn attack2 phase#3"]
+    N6["2"]
+    N7["spawn attack2 phase#4"]
+    N8["1"]
+    N9["create final_rush"]
+    N10["0"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6
+    N6 --&gt; N7
+    N7 --&gt; N8
+    N8 --&gt; N9
+    N9 --&gt; N10</code></pre>
+<h2 id="attack2-abilityentity-skill">attack2 AbilityEntity skill<a class="headerlink" href="#attack2-abilityentity-skill" title="Permanent link">&para;</a></h2>
+<p>追击 skill：<code>chr_0029_pograni_ultimate_skill_abilityentity_attack2</code>。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th style="text-align: right;">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>skillSpecification</code></td>
+<td style="text-align: right;"><code>CharacterUltimateSkill</code></td>
+</tr>
+<tr>
+<td><code>durationFrame</code></td>
+<td style="text-align: right;"><code>400f</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase">phase 选择<a class="headerlink" href="#phase" title="Permanent link">&para;</a></h3>
+<p>skill 开头有 <code>IfElse + CheckBuffStackNumAdvanced + JumpToAction</code>，根据当前 count 跳到不同 phase。
+因为 aura 是先 spawn 后扣 count，所以这里看到的是扣层前 count。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">attack2 启动时 count</th>
+<th>phase</th>
+<th style="text-align: right;">起始帧</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><code>5</code></td>
+<td>第 1 段</td>
+<td style="text-align: right;"><code>0f</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>4</code></td>
+<td>第 2 段</td>
+<td style="text-align: right;"><code>100f</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>3</code></td>
+<td>第 3 段</td>
+<td style="text-align: right;"><code>200f</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>2</code></td>
+<td>第 4 段</td>
+<td style="text-align: right;"><code>300f</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_5">每段攻击<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>phase</th>
+<th style="text-align: right;">攻击帧</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-align: right;"><code>9-13f</code></td>
+<td><code>FindTarget</code>、<code>ObtainCost</code>、<code>Damage</code>、受击动画、HitStop</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;"><code>108-112f</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td>3</td>
+<td style="text-align: right;"><code>209-213f</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td>4</td>
+<td style="text-align: right;"><code>307-311f</code></td>
+<td>同上</td>
+</tr>
+</tbody>
+</table>
+<p>伤害/资源：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th style="text-align: right;">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>atk_scale_trigger</code></td>
+<td style="text-align: right;"><code>2.0</code></td>
+</tr>
+<tr>
+<td><code>atb_trigger</code></td>
+<td style="text-align: right;"><code>15.0</code></td>
+</tr>
+<tr>
+<td>单段倍率</td>
+<td style="text-align: right;"><code>200% ATK</code></td>
+</tr>
+<tr>
+<td>四段合计</td>
+<td style="text-align: right;"><code>800% ATK</code></td>
+</tr>
+<tr>
+<td>四段 ATB</td>
+<td style="text-align: right;"><code>60</code></td>
+</tr>
+</tbody>
+</table>
+<p>每段 attack2 后还有对应的 <code>FinishOwnerAction</code> 和 <code>InterruptCurSkillAction</code>，用于结束当前 AE 和收束该段技能。</p>
+<h2 id="final_rush-buff">final_rush buff<a class="headerlink" href="#final_rush-buff" title="Permanent link">&para;</a></h2>
+<p>当 aura 判断 count 为 <code>1</code> 时，它不会直接 spawn finish4，而是创建：
+<code>buff_chr_0029_pograni_ultimate_skill_finall_rush</code>
+这个 buff 使用 <code>timelineActions</code> 调度终结 AE。
+<code>0-3f</code> spawn 4 个 finish4 AE：</p>
+<table>
+<thead>
+<tr>
+<th>bornPosOffset</th>
+<th>skill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>(2, 0, -2)</code></td>
+<td><code>chr_0029_pograni_ultimate_skill_abilityentity_finish4</code></td>
+</tr>
+<tr>
+<td><code>(-2, 0, -2)</code></td>
+<td><code>chr_0029_pograni_ultimate_skill_abilityentity_finish4</code></td>
+</tr>
+<tr>
+<td><code>(-2, 0, 2)</code></td>
+<td><code>chr_0029_pograni_ultimate_skill_abilityentity_finish4</code></td>
+</tr>
+<tr>
+<td><code>(2, 0, 2)</code></td>
+<td><code>chr_0029_pograni_ultimate_skill_abilityentity_finish4</code></td>
+</tr>
+</tbody>
+</table>
+<p>传入黑板：</p>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th style="text-align: right;">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>atk_scale_final</code></td>
+<td style="text-align: right;"><code>4.0</code></td>
+</tr>
+<tr>
+<td><code>atb_final</code></td>
+<td style="text-align: right;"><code>50.0</code></td>
+</tr>
+<tr>
+<td><code>poise_final</code></td>
+<td style="text-align: right;"><code>15.0</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="finish4-abilityentity-skill">finish4 AbilityEntity skill<a class="headerlink" href="#finish4-abilityentity-skill" title="Permanent link">&para;</a></h2>
+<p>终结 skill：<code>chr_0029_pograni_ultimate_skill_abilityentity_finish4</code>。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th style="text-align: right;">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>skillSpecification</code></td>
+<td style="text-align: right;"><code>CharacterUltimateSkill</code></td>
+</tr>
+<tr>
+<td><code>durationFrame</code></td>
+<td style="text-align: right;"><code>81f</code></td>
+</tr>
+</tbody>
+</table>
+<p>关键 timeline：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">帧</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><code>0-25f</code></td>
+<td>多段 <code>SelfRotate</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>25-29f</code></td>
+<td><code>FindTarget("tar")</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>25-52f</code></td>
+<td><code>IfElse(CheckTimedMarkerCondition)</code>，防止多个 finish4 重复造成完整终结</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>25-29f</code></td>
+<td>成功分支执行 <code>ObtainCost(atb_final)</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>25-29f</code></td>
+<td>成功分支执行 <code>Damage(atk_scale_final)</code> 和 <code>Poise(poise_final)</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>25-29f</code></td>
+<td><code>TakeDownAction</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>31-38f</code></td>
+<td><code>FinishBuffAdvanced</code>，结束 <code>buff_chr_0029_pograni_ultimate_skill</code></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>75-78f</code></td>
+<td><code>FinishOwnerAction</code>，终结 AE 自毁</td>
+</tr>
+</tbody>
+</table>
+<p>终结效果：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th style="text-align: right;">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>伤害</td>
+<td style="text-align: right;"><code>400% ATK</code></td>
+</tr>
+<tr>
+<td>失衡</td>
+<td style="text-align: right;"><code>15</code></td>
+</tr>
+<tr>
+<td>ATB</td>
+<td style="text-align: right;"><code>50</code></td>
+</tr>
+<tr>
+<td>控制</td>
+<td style="text-align: right;">击倒</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_6">总倍率与收益<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<p>完整触发后的理论总计：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th style="text-align: right;">倍率</th>
+<th style="text-align: right;">失衡</th>
+<th style="text-align: right;">ATB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rush</td>
+<td style="text-align: right;"><code>400%</code></td>
+<td style="text-align: right;"><code>15</code></td>
+<td style="text-align: right;"><code>0</code></td>
+</tr>
+<tr>
+<td>attack2 x4</td>
+<td style="text-align: right;"><code>800%</code></td>
+<td style="text-align: right;"><code>0</code></td>
+<td style="text-align: right;"><code>60</code></td>
+</tr>
+<tr>
+<td>finish4</td>
+<td style="text-align: right;"><code>400%</code></td>
+<td style="text-align: right;"><code>15</code></td>
+<td style="text-align: right;"><code>50</code></td>
+</tr>
+<tr>
+<td>总计</td>
+<td style="text-align: right;"><code>1600%</code></td>
+<td style="text-align: right;"><code>30</code></td>
+<td style="text-align: right;"><code>110</code></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>对骏卫大招的影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SpawnAbilityEntity</code> 完整 schema</td>
+<td>必须解析 <code>abilityEntityId</code>、<code>abilityEntitySkillId</code>、source、target、<code>assignBlackboard</code>、context</td>
+</tr>
+<tr>
+<td>AbilityEntity runtime</td>
+<td>需要创建可 tick 的 AE 实体，能持有 source/target/owner 和 skill</td>
+</tr>
+<tr>
+<td>AbilityEntityTable</td>
+<td>根据 <code>abilityEntityId</code> 初始化模板 tag、duration、active skill bundle</td>
+</tr>
+<tr>
+<td><code>AuraAction</code></td>
+<td>主 buff 必须能给敌人挂 <code>abilityentity_inaura</code></td>
+</tr>
+<tr>
+<td><code>abilityEventAction</code></td>
+<td>敌人 aura 必须监听 <code>OnBeforeTakePhysicalInfliction</code> 和 <code>OnBeforeTakeDamage</code></td>
+</tr>
+<tr>
+<td><code>CheckBuffStackNumAdvanced</code></td>
+<td>aura 和 attack2 都依赖 count 判断</td>
+</tr>
+<tr>
+<td><code>JumpToAction</code></td>
+<td>attack2 必须按 count 跳到 0/100/200/300 phase</td>
+</tr>
+<tr>
+<td><code>CreateTimedMarker</code> / <code>CheckTimedMarkerCondition</code></td>
+<td>防止同一触发重复 spawn attack2 或重复 final damage</td>
+</tr>
+<tr>
+<td><code>BuffData.timelineActions</code></td>
+<td><code>final_rush</code> 必须能在 buff timeline 内 spawn finish4</td>
+</tr>
+<tr>
+<td><code>FinishOwnerAction</code></td>
+<td>AE 生命周期需要正确结束</td>
+</tr>
+<tr>
+<td><code>TakeDownAction</code></td>
+<td>终结控制效果</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_7">精简调用栈<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    N0["chr_0029_pograni_ultimate_skill"]
+    N1["SpawnAbilityEntity x4"]
+    N2["chr_0029_pograni_ultimate_skill_abilityentity"]
+    N3["CheckBuffStackNum(main buff == 0)"]
+    N4["CreateBuff(buff_chr_0029_pograni_ultimate_skill)"]
+    N5["DuringBuffEnable AuraAction"]
+    N6["enemy gains buff_chr_0029_pograni_ultimate_skill_abilityentity_inaura"]
+    N7["OnBuffStart CreateBuff(count x5)"]
+    N8["enemy OnBeforeTakePhysicalInfliction / OnBeforeTakeDamage"]
+    C{"count 层数"}
+    N9["生成 attack2&lt;br/&gt;随后移除 1 层 count"]
+    N10["attack2 读取扣层前 count&lt;br/&gt;JumpTo 对应 phase"]
+    N11["attack2 造成 200%&lt;br/&gt;并获得 15 ATB"]
+    N13["移除最后 1 层 count&lt;br/&gt;创建 final_rush"]
+    N14["final_rush timeline&lt;br/&gt;SpawnAbilityEntity(finish4) x4"]
+    N15["finish4: 400% + 15 poise + 50 ATB + TakeDown"]
+    N16["finish4 结束主 buff"]
+    N0 --&gt; N1
+    N1 --&gt; N2
+    N2 --&gt; N3
+    N3 --&gt; N4
+    N4 --&gt; N5
+    N5 --&gt; N6
+    N6 --&gt; N7
+    N7 --&gt; N8
+    N8 --&gt; C
+    C --&gt;|count &gt; 1| N9
+    N9 --&gt; N10
+    N10 --&gt; N11
+    N11 --&gt; N8
+    C --&gt;|count == 1| N13
+    C --&gt;|count == 0| N8
+    N13 --&gt; N14
+    N14 --&gt; N15
+    N15 --&gt; N16</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
