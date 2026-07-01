@@ -1,0 +1,8391 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="明日方舟：终末地战斗模拟器原游戏机制技术报告">
+      
+      
+      
+      
+        <link rel="prev" href="eny_0058_agdisk.html">
+      
+      
+        <link rel="next" href="eny_0091_wgshoal.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>天鼓 hsbear - Perlica Battle System Notes - 原游戏解析</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#hsbear" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-header__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Perlica Battle System Notes - 原游戏解析
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              天鼓 hsbear
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../index.html" title="Perlica Battle System Notes - 原游戏解析" class="md-nav__button md-logo" aria-label="Perlica Battle System Notes - 原游戏解析" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Perlica Battle System Notes - 原游戏解析
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    版权声明
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    原游戏解析
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    原游戏解析
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    报告导读
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    报告导读
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../system-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统关系总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../data-resources/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 章：数据与资源
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    第 1 章：数据与资源
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-resources/data-manager-config-loading.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DataManager 配置读取路径
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-resources/character-template-data-management.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CharacterTemplateData 管理链路
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-resources/character-template-data-asset-location.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    角色 data_chr_*.asset 定位链路
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-resources/ability-entity-table-analysis.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AbilityEntityTable 加载与解析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../data-resources/reference/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    类级参考
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2_6" id="__nav_3_2_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    类级参考
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-resources/reference/data-manager.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DataManager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../combat-core/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章：战斗主循环与控制
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    第 2 章：战斗主循环与控制
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/combat-control-system.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    战斗控制系统主线
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/player-controller.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PlayerController 控制链路
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/player-controller-main-character.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PlayerController mainCharacter 维护
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/squad-manager-main-character.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SquadManager / Squad 主控维护
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/check-main-character-condition.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CheckMainCharacterCondition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/ai/group-ai-system.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GroupAISystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../combat-core/player-squad-combo/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Player / Squad / Combo 类级参考
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_3_8" id="__nav_3_3_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Player / Squad / Combo 类级参考
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/player-squad-combo/char-bag-system.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CharBagSystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/player-squad-combo/inventory-system.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InventorySystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/player-squad-combo/player-command-controller.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PlayerCommandController
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/player-squad-combo/player-controller.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PlayerController
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/player-squad-combo/squad-manager.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SquadManager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/player-squad-combo/squad.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Squad
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../ability-skill/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章：技能、连段与资源
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    第 3 章：技能、连段与资源
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/atb-usp-system.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ATB 与 USP 资源管理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/ability-system-normal-attack-lists.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AbilitySystem 普攻技能列表来源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/combo-controller-actions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ComboController / AllowNextSkillAction / ComboCacheAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/player-controller-normal-attack-combo.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PlayerController 普攻连段与打断缓存
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_6" id="__nav_3_4_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    运行时对象参考
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    运行时对象参考
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/reference/entity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Entity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/reference/base-component.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BaseComponent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/reference/ability-system.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AbilitySystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/reference/ability.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/reference/skill.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/reference/timeline-action-processor.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TimelineActionProcessor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/reference/ability-entity-controller.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AbilityEntityController
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/reference/projectile-component.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ProjectileComponent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_7" id="__nav_3_4_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AbilitySystem 子模块参考
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AbilitySystem 子模块参考
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/reference/ability-system-combo-controller.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ComboController
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/reference/ability-system-poise-controller.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PoiseController
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/reference/ability-system-shield-controller.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ShieldController
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/reference/ability-system-tactical-item-controller.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TacticalItemController
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/reference/ability-system-tactical-item.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TacticalItem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ability-skill/reference/multi-tag-handle.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MultiTagHandle
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../actions/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章：Action 执行语义
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    第 4 章：Action 执行语义
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/action-classification.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Action 类型分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/aura-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AuraAction 逻辑分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../actions/targeting/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Targeting
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_5_4" id="__nav_3_5_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Targeting
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/targeting/battle-manager-targeting.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BattleManager Targeting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/targeting/selector-utils.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SelectorUtils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/targeting/skill-saved-target.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill Saved Target
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/targeting/target-actions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Target Actions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/targeting/target-handle.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TargetHandle / TargetHandleView
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../actions/damage-infliction/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    伤害与元素附着
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_5_5" id="__nav_3_5_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_5_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    伤害与元素附着
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/damage-infliction/damage-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DamageAction 定量分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/damage-infliction/channeling-damage-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ChannelingDamageAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/damage-infliction/spell-infliction-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SpellInfliction Action
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/damage-infliction/reference/ability-system-damage-contexts.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AbilitySystem Damage / Infliction Contexts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/damage-infliction/reference/damage-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DamageAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/damage-infliction/reference/heal-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HealAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/damage-infliction/reference/on-physical-no-guard-event.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OnPhysicalNoGuard Level Event
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/damage-infliction/reference/on-physical-no-guard-start.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OnPhysicalNoGuardStart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/damage-infliction/reference/on-spell-infliction-start.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OnSpellInflictionStart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/damage-infliction/reference/save-damage-context.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SaveDamageContext
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/damage-infliction/reference/spell-infliction-on-char.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SpellInflictionOnChar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/damage-infliction/reference/spell-infliction.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SpellInfliction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5_6" id="__nav_3_5_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    控制与击飞
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_5_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    控制与击飞
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/control/knockback-control-actions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    击飞与控制 Action 总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/control/airborne-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AirborneAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/control/knockdown-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    KnockDownAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/control/crush-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Crush / BlowOffEnemy / Fracture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../actions/reference/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Action 类级参考
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_5_7" id="__nav_3_5_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_5_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Action 类级参考
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/ability-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AbilityAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/aura-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AuraAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/cast-skill-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CastSkill
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/channeling-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ChannelingAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/do-once-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DoOnceAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/for-each-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ForEachAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/force-trigger-weakness.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ForceTriggerWeakness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/if-else-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IfElseAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/launch-projectile.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LaunchProjectile
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/modify-dynamic-blackboard.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ModifyDynamicBlackboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/obtain-cost-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ObtainCostAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/random-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RandomAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/read-skill-setting-data.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ReadSkillSettingData
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/sequence-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SequenceAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/set-weakness-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SetWeaknessAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/simple-calc-bb-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SimpleCalcBBAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/spawn-ability-entity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SpawnAbilityEntity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/switch-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SwitchAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/tick-interval-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TickIntervalAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../actions/reference/togglable-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TogglableAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../buff-attributes/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章：Buff、属性与异常
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    第 5 章：Buff、属性与异常
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/buff-class-analysis.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buff 类族分析报告
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/attributes-calculator-analysis.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AttributesCalculator 属性计算
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/shatter-reaction-system.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    碎冰反应系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/spell-infliction-enhance-system.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    元素异常增强系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../buff-attributes/reference/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buff / GlobalBuff 类级参考
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_6_6" id="__nav_3_6_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_6_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Buff / GlobalBuff 类级参考
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/reference/buff-container.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BuffContainer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/reference/buff-stacking-group.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BuffStackingGroup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/reference/buff.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Buff
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/reference/global-buff-stacking-group.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GlobalBuffStackingGroup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/reference/global-buff.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GlobalBuff
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../buff-attributes/reference/timed-marker.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TimedMarker / GlobalTimedMarker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../time-system/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章：时间系统
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    第 6 章：时间系统
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../time-system/actions/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Action/Data
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_7_2" id="__nav_3_7_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_7_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Action/Data
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/actions/hit-stop-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HitStopAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/actions/time-dilation-action-data.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TimeDilationAction.Data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/actions/time-dilation-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TimeDilationAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/actions/ultimate-time-action.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UltimateTimeAction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../time-system/runtime/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_7_3" id="__nav_3_7_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_7_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Runtime
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/runtime/time-dilation-manager.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TimeDilationManager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/runtime/time-dilation-instance.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TimeDilationInstance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/runtime/entity-time-dilation-inst.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EntityTimeDilationInst
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/runtime/global-time-dilation-inst.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GlobalTimeDilationInst
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/runtime/time-dilation-handle.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TimeDilationHandle
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/runtime/poise-break-data.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PoiseBreakData
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/runtime/poise-break-time-stop-instance.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PoiseBreakTimeStopInstance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/runtime/time-scale-component.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TickComponent Additional TimeScale
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_7_4" id="__nav_3_7_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Config
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_7_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Config
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/config/time-dilation-config.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TimeDilationConfig
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/config/hit-stop-config.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HitStopConfig
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../time-system/tick/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tick
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_7_5" id="__nav_3_7_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_7_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tick
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/base-tick-manager.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BaseTickManager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/base-world-manager.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BaseWorldManager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/battle-manager.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BattleManager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/tick-root.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TickRoot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/tick-function.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TickFunction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/tick-group.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TickGroup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/tick-component.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TickComponent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/tick-exclusive-quality-helper.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TickExclusiveQualityHelper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/tick-owner-info.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TickOwnerInfo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/tick-owner-info-group.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TickOwnerInfoGroup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/tick-owner-info-container.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TickOwnerInfoContainer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/time-manager.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TimeManager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/timer-group.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TimerGroup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/periodic-timer.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PeriodicTimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/precise-periodic-timer.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PrecisePeriodicTimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/tick/multi-periodic-timer.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MultiPeriodicTimer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-system/original-index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    类索引
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_8" id="__nav_3_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章：战斗记录与外围系统
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    第 7 章：战斗记录与外围系统
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/battle-manager/battle-recorder.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BattleRecorder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/battle-manager/server-reporter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ServerReporter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/battle-manager/combo-skill-pause-handle.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ComboSkillPauseHandle
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/battle-manager/slot-controller.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SlotController
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/battle-manager/gameplay-misc-setting.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GameplayMiscSetting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../combat-core/battle-manager/item-buff-bundle.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ItemBuffBundle
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../character-cases/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 8 章：角色与技能案例
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_9" id="__nav_3_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    第 8 章：角色与技能案例
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../character-cases/chr_0029_pograni_ultimate_full.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    骏卫终结技完整流程
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../character-cases/chr_0029_pograni_ultimate_skill.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    骏卫终结技
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../character-cases/chr_0029_pograni_ultimate_skill_abilityentity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    骏卫终结技 — AbilityEntity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../character-cases/chr_0029_pograni_attack2_trigger.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    骏卫追击 attack2 触发条件
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../character-cases/chr_0029_pograni_normal_skill.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    骏卫战技
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../character-cases/chr_0029_pograni_talent1.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    骏卫天赋1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../character-cases/chr_0017_yvonne_ultimate_skill.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Yvonne 终结技流程
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_10" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 9 章：敌人 AI 玩家指南
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_10" id="__nav_3_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    第 9 章：敌人 AI 玩家指南
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="eny_0023_aghornb.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    角兽 aghornb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="eny_0045_agtrinit.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agtrinit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="eny_0046_lbshamman_hdg016.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    巫师 lbshamman（indie_hard016_s）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="eny_0058_agdisk.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    盘形敌人 agdisk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    天鼓 hsbear
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="eny_0082_hsbear.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    天鼓 hsbear
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        索敌机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="索敌机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础结论
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        它什么时候会打其他队员？
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        和通用仇恨/brain 的关系
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技能派生机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="技能派生机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础版整体循环
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        权重/概率读法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础版普通状态怎么选招？
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="基础版普通状态怎么选招？">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        随机队员调位/偷袭池
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        主技能距离池
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        调位/移动子树内部权重（基础版和 S 版通用）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础版普通技能机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础版愤怒怎么触发？
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础版愤怒出招权重/顺序
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础版愤怒技能机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础版位移和派生命中链
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s-indie_hard018_s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        高难 S 版 indie_hard018_s 的额外机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="高难 S 版 indie_hard018_s 的额外机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        气旋本身干什么？
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#skill06_hdg018" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        skill06_hdg018 怎么把气旋变成护盾？
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        愤怒护盾期间发生什么？
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        高难 S 版平静态出招
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="高难 S 版平静态出招">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#s-skill06" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S 版 skill06 触发门槛
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S 版随机队员调位/偷袭池
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S 版主技能距离池
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        高难 S 版平静态技能机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        高难 S 版愤怒态出招权重
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        高难 S 版愤怒态技能机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        高难 S 版位移和派生命中链
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        玩家应对重点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        动画视频对照
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="eny_0091_wgshoal.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    wgshoal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_11" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../reference/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    补充参考
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    补充参考
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        索敌机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="索敌机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础结论
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        它什么时候会打其他队员？
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        和通用仇恨/brain 的关系
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        技能派生机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="技能派生机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础版整体循环
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        权重/概率读法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础版普通状态怎么选招？
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="基础版普通状态怎么选招？">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        随机队员调位/偷袭池
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        主技能距离池
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        调位/移动子树内部权重（基础版和 S 版通用）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础版普通技能机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础版愤怒怎么触发？
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础版愤怒出招权重/顺序
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础版愤怒技能机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础版位移和派生命中链
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s-indie_hard018_s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        高难 S 版 indie_hard018_s 的额外机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="高难 S 版 indie_hard018_s 的额外机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        气旋本身干什么？
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#skill06_hdg018" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        skill06_hdg018 怎么把气旋变成护盾？
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        愤怒护盾期间发生什么？
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        高难 S 版平静态出招
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="高难 S 版平静态出招">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#s-skill06" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S 版 skill06 触发门槛
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S 版随机队员调位/偷袭池
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S 版主技能距离池
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        高难 S 版平静态技能机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        高难 S 版愤怒态出招权重
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        高难 S 版愤怒态技能机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        高难 S 版位移和派生命中链
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        玩家应对重点
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        动画视频对照
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="hsbear">天鼓 hsbear<a class="headerlink" href="#hsbear" title="Permanent link">&para;</a></h1>
+<p>本页把同一类怪物 <code>eny_0082_hsbear</code> 合并为一篇：基础版 <code>aiconf_eny_0082_hsbear</code> 与高难 S 版 <code>aiconf_eny_0082_hsbear_hdg018</code> / <code>indie_hard018_s</code> 都放在这里。结构固定为两部分：<strong>索敌机制</strong>与<strong>技能派生机制</strong>。</p>
+<p>资料来源：</p>
+<ul>
+<li><code>technical-report/enemy-ai/aiconf_eny_0082_hsbear_targeting.player.zh.md</code></li>
+<li><code>technical-report/enemy-ai/aiconf_eny_0082_hsbear_skill_derivation.player.zh.md</code></li>
+<li><code>technical-report/enemy-ai/aiconf_eny_0082_hsbear_hdg018_skill_derivation.player.zh.md</code></li>
+<li><code>technical-report/enemy-ai/aiconf_eny_0082_hsbear_hdg018_skill_derivation.zh.md</code></li>
+</ul>
+<h2 id="_1">索敌机制<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h3 id="_2">基础结论<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p><code>eny_0082_hsbear</code> 的索敌很直接：<strong>进入战斗后，它的大多数实际出招都盯当前主控角色。</strong></p>
+<p>它每轮战斗树开头会做三件事：</p>
+<ol>
+<li><code>GetMainCharacter -&gt; Target</code>：把主要目标 <code>Target</code> 写成当前主控角色。</li>
+<li><code>EnemyGetTargetFromBrain -&gt; SubTarget</code>：再读一次系统 brain 目标，但这份目标在当前主战斗树里基本只是保存为 <code>SubTarget</code>。</li>
+<li><code>GetRandomMember -&gt; RandomMember</code>：随机取一个队伍成员，给少数冲刺、侧移或派生攻击分支使用。</li>
+</ol>
+<p>所以玩家视角可以这样理解：</p>
+<table>
+<thead>
+<tr>
+<th>现象</th>
+<th>实际含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>大多数技能都朝当前操控角色放</td>
+<td>主战斗树每轮都会重新把 <code>Target</code> 写成主控角色。</td>
+</tr>
+<tr>
+<td>换主控后它很快转向新主控</td>
+<td>下一轮行为树刷新时，<code>Target</code> 会变成新的主控角色。</td>
+</tr>
+<tr>
+<td>它偶尔突然冲向别的干员</td>
+<td>多数是 <code>RandomMember</code> 分支，不代表仇恨永久转移。</td>
+</tr>
+<tr>
+<td>愤怒后仍然追主控</td>
+<td>愤怒改变技能池和数值压力，不改变“主目标=主控”的规则。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">它什么时候会打其他队员？<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>天鼓不是完全不会看其他队员，但这些分支更像“临时动作目标”：</p>
+<ul>
+<li><code>eny_0082_hsbear_dash_f</code> / <code>dash_b</code> / <code>dash_l</code> / <code>dash_r</code>：当分支把目标绑定成 <code>RandomMember</code> 时，位移会按随机队员调整方向。</li>
+<li><code>dash_f -&gt; eny_0082_hsbear_skill02</code>：近距离调位池里，若对应角度分支成立且 <code>skill02(RandomMember)</code> 可放，就会先冲向随机队员，再接三段近战连击。</li>
+<li><code>eny_0082_hsbear_dash_l_angry</code> / <code>dash_r_angry</code>：愤怒态随机队员 dash 分支被选中后，会按 <code>RandomMember</code> 角度决定左/右侧移，并且带伤害。</li>
+</ul>
+<p>这些动作结束后，下一轮行为树仍会把主要攻击目标刷回当前主控角色。</p>
+<h3 id="brain">和通用仇恨/brain 的关系<a class="headerlink" href="#brain" title="Permanent link">&para;</a></h3>
+<p>基础配置里天鼓的仇恨等级是 <code>Middle</code>，<code>attackRangeType=Melee</code>，且没有覆盖仇恨概率；通用配置里 <code>Middle</code> 对应的仇恨抽样参数是 <strong>12%</strong>，阵型目标立即刷新冷却是 <strong>2s</strong>，忽略主控相关冷却是 <strong>6s</strong>。这些底层通用系统会参与入战、站位、brain target 与阵型刷新。但本怪的 Battle 行为树会直接用 <code>GetMainCharacter</code> 覆盖攻击用 <code>Target</code>，因此：</p>
+<ul>
+<li>通用仇恨系统可以影响它是否进入战斗、怎样靠近、brain 里临时记录谁；</li>
+<li>但大多数 <code>EnemySwitchBehavior(... target=Target)</code> 最终读到的仍是主控角色；</li>
+<li><code>SubTarget</code> 不是主要出招目标；<code>RandomMember</code> 只解释少数随机队员分支。</li>
+</ul>
+<h2 id="_4">技能派生机制<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h3 id="_5">基础版整体循环<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<p>基础版 <code>eny_0082_hsbear</code> 可以理解成三套行为：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>平时盯主控角色
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  -&gt; 按距离、角度、冷却选择 skill01~skill09 或 dash/fightwalk
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  -&gt; 血量和计时条件满足时尝试 skill06
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  -&gt; skill06 按当前 HP 给自己叠 angry_fx
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  -&gt; 有 angry_fx 时进入愤怒技能池
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  -&gt; 愤怒技能池使用 angry 变体、长连段、多 projectile 和带伤害 dash
+</code></pre></div>
+<h3 id="_6">权重/概率读法<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<p>行为树里有两种不同的“随机”：</p>
+<ul>
+<li><strong>权重池</strong>：<code>ConditionalProbabilitySelector</code> / <code>ProbabilitySelector</code> 使用权重。表里写成 <code>权重；全可用归一化</code>，例如 <code>35；43.75%</code> 的意思是：如果同一个权重池里所有列出的分支都满足冷却、距离、角度等条件，就按 <code>35 / 权重总和</code> 抽取。实际战斗中如果某个分支 CD 没好、距离/角度不对，它会被排除，剩余分支重新按权重抽。</li>
+<li><strong>真实概率门</strong>：<code>Probability(0.7/1.0)</code> 就是 <strong>70%</strong> 通过；<code>Probability(0.6/1.0)</code> 就是 <strong>60%</strong> 通过。</li>
+<li><strong>普通 Selector</strong>：只按顺序尝试，不是随机。前面的分支成功后，后面的分支不会再执行。</li>
+</ul>
+<p>基础行为里还有几个固定数值会影响节奏：每轮会随机写入 <code>Time_StarfeMove = 1.2s ~ 1.8s</code>；随机队员调位/偷袭池有 <code>&gt;=8s</code> 的刷新门；周期 dash 调位有 <code>&gt;=6s</code> 的刷新门。</p>
+<h3 id="_7">基础版普通状态怎么选招？<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<p>基础版普通态先处理一个“随机队员调位/偷袭池”，然后再进按距离分段的主技能池。</p>
+<h4 id="_8">随机队员调位/偷袭池<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h4>
+<p>触发门槛：<code>RandomMember &lt;= 8m</code>、<code>Target &lt;= 8m</code>，并且 <code>NowTime_AdjustAttack &gt;= 8s</code>。通过后会按角度进入下面的顺序 Selector；这个池不是权重随机，而是按表内顺序依次尝试。</p>
+<table>
+<thead>
+<tr>
+<th>角度/距离门槛</th>
+<th>顺序尝试</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Target</code> 角度 <code>&gt;90°</code> 且 <code>&lt;270°</code></td>
+<td>先 <code>CanCast(skill04)</code> 则放 <code>eny_0082_hsbear_skill04</code>；否则如果 <code>CanCast(skill02, RandomMember)</code>，则 <code>dash_f(RandomMember) -&gt; eny_0082_hsbear_skill02(RandomMember)</code>。</td>
+</tr>
+<tr>
+<td><code>Target</code> 角度 <code>&gt;45°</code> 且 <code>&lt;135°</code></td>
+<td>先 <code>CanCast(skill01)</code>，再过 <strong>70%</strong> 概率门，成功则放 <code>skill01</code>；否则尝试 <code>CanCast(skill03)</code> + <strong>70%</strong> 概率门，成功则放 <code>skill03</code>；再否则尝试 <code>dash_l(RandomMember)</code>。</td>
+</tr>
+<tr>
+<td><code>Target</code> 角度 <code>&gt;225°</code> 且 <code>Target &gt;5m</code></td>
+<td>先 <code>CanCast(skill02)</code>，再过 <strong>70%</strong> 概率门，成功则放 <code>skill02</code>；否则尝试 <code>CanCast(skill03)</code> + <strong>70%</strong> 概率门，成功则放 <code>skill03</code>；再否则尝试 <code>dash_r(RandomMember)</code>。</td>
+</tr>
+</tbody>
+</table>
+<p>这个分支成功后会刷新 <code>SaveTime_AdjustAttack</code>，所以下一次至少要满足 <code>&gt;=8s</code> 的间隔才能重新进入。</p>
+<h4 id="_9">主技能距离池<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>距离/角度</th>
+<th>分支</th>
+<th>权重；全可用归一化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Target &lt;= 5m</code> 且 HP <code>&lt;=30%</code>，并且 <code>skill08</code> 可放</td>
+<td><code>eny_0082_hsbear_skill08</code></td>
+<td>优先 Selector，非权重；成功就直接放。</td>
+</tr>
+<tr>
+<td><code>Target &lt;= 5m</code>，上面的 <code>skill08</code> 分支没走</td>
+<td><code>skill01</code> / <code>skill02</code> / <code>SubTree#1 -&gt; skill03</code> / <code>dash_b(RandomMember) -&gt; skill09(Target)</code></td>
+<td><code>35 / 35 / 5 / 5</code>；全可用时 <strong>43.75% / 43.75% / 6.25% / 6.25%</strong>。</td>
+</tr>
+<tr>
+<td><code>5m &lt; Target &lt;= 10m</code>，角度 <code>&lt;90°</code> 或 <code>&gt;270°</code></td>
+<td><code>skill03</code> / <code>skill09</code> / <code>skill05</code></td>
+<td><code>35 / 15 / 10</code>；全可用时 <strong>58.33% / 25% / 16.67%</strong>。</td>
+</tr>
+<tr>
+<td><code>5m &lt; Target &lt;= 10m</code>，角度 <code>&gt;=90°</code> 且 <code>&lt;=270°</code></td>
+<td><code>skill04</code> / <code>dash_f(RandomMember) -&gt; skill09(Target)</code> / <code>dash_f(RandomMember) -&gt; skill05(Target)</code></td>
+<td><code>35 / 15 / 10</code>；全可用时 <strong>58.33% / 25% / 16.67%</strong>。</td>
+</tr>
+<tr>
+<td><code>10m &lt; Target &lt;= 15m</code>，角度 <code>&lt;90°</code> 或 <code>&gt;270°</code></td>
+<td><code>skill09</code> / <code>skill07</code> / <code>skill05</code></td>
+<td><code>1 / 1 / 1</code>；全可用时各 <strong>33.33%</strong>。</td>
+</tr>
+<tr>
+<td><code>10m &lt; Target &lt;= 15m</code>，角度 <code>&gt;=90°</code> 且 <code>&lt;=270°</code></td>
+<td><code>skill04</code> / <code>SubTree#1 -&gt; skill05</code></td>
+<td><code>50 / 50</code>；全可用时各 <strong>50%</strong>。</td>
+</tr>
+<tr>
+<td><code>15m &lt; Target &lt;= 20m</code>，角度 <code>&lt;90°</code> 或 <code>&gt;270°</code></td>
+<td>先尝试 <code>skill09</code>；若没走成功，再 <code>dash_f(RandomMember) -&gt; MoveToTarget(Target, stop=8m)</code></td>
+<td>普通 Selector，非权重；<code>stop=8m</code> 是明确停止距离。</td>
+</tr>
+<tr>
+<td><code>15m &lt; Target &lt;= 20m</code>，角度 <code>&gt;=90°</code> 且 <code>&lt;=270°</code>，HP <code>&lt;=70%</code>，且 <code>skill08</code> 可放</td>
+<td><code>skill08</code></td>
+<td>优先 Selector，非权重；成功就直接放。</td>
+</tr>
+<tr>
+<td><code>15m &lt; Target &lt;= 20m</code>，角度 <code>&gt;=90°</code> 且 <code>&lt;=270°</code>，上面的 <code>skill08</code> 分支没走</td>
+<td><code>skill07</code> / <code>SubTree#1 -&gt; skill05</code> / <code>SubTree#2</code> 走位</td>
+<td><code>2 / 1 / 1</code>；全可用时 <strong>50% / 25% / 25%</strong>。</td>
+</tr>
+<tr>
+<td><code>Target &gt;20m</code>，角度 <code>&lt;90°</code> 或 <code>&gt;270°</code>，且 <code>skill07</code> 可放</td>
+<td><code>skill07 -&gt; skill01</code> / <code>skill07 -&gt; skill05</code></td>
+<td><code>1 / 1</code>；全可用时各 <strong>50%</strong>。</td>
+</tr>
+<tr>
+<td><code>Target &gt;20m</code>，角度 <code>&lt;90°</code> 或 <code>&gt;270°</code>，<code>skill07</code> 没走但 <code>taunt01</code> 可放</td>
+<td><code>SubTree#3(taunt01) -&gt; skill05</code></td>
+<td>普通 Selector，非权重；<code>SubTree#3</code> 内部有 <code>30 / 30</code> 权重，见下表。</td>
+</tr>
+<tr>
+<td><code>Target &gt;20m</code>，角度 <code>&gt;=90°</code> 且 <code>&lt;=270°</code></td>
+<td><code>skill07 -&gt; skill01</code> / <code>SubTree#2 -&gt; skill03</code></td>
+<td><code>3 / 1</code>；全可用时 <strong>75% / 25%</strong>。</td>
+</tr>
+<tr>
+<td>fallback，<code>Target &lt;=12m</code></td>
+<td><code>SubTree#1</code> 调位，并刷新 <code>NowTime_Dash/SaveTime_Dash</code></td>
+<td>普通 Selector，非权重。</td>
+</tr>
+<tr>
+<td>fallback，<code>Target &gt;12m</code> 且角度 <code>&lt;90°</code> 或 <code>&gt;270°</code></td>
+<td><code>Timeout(SubTree#2, 1.2s~1.8s) -&gt; skill01/skill02</code> / <code>SubTree#3(taunt01) -&gt; skill01</code></td>
+<td>外层 <code>2 / 1</code>，全可用时 <strong>66.67% / 33.33%</strong>；第一条内部 <code>skill01/skill02</code> 为 <code>1 / 1</code>，全可用时各 <strong>50%</strong>。</td>
+</tr>
+<tr>
+<td>fallback，<code>Target &gt;12m</code> 且角度 <code>&gt;=90°</code> 且 <code>&lt;=270°</code></td>
+<td><code>dash_f(RandomMember) -&gt; Timeout(SubTree#2, 1.2s~1.8s)</code></td>
+<td>普通 Selector，非权重。</td>
+</tr>
+<tr>
+<td>fallback 近中距补招</td>
+<td><code>skill01</code> / <code>skill02</code></td>
+<td><code>1 / 1</code>；全可用时各 <strong>50%</strong>。</td>
+</tr>
+</tbody>
+</table>
+<p>普通态的周期走位还有一个明确概率门：当 <code>NowTime_Dash &gt;= 6s</code>，且 <code>5m &lt; Target &lt;= 9m</code> 时，有 <strong>60%</strong> 概率先进 <code>SubTree#1</code> 做 dash 调位；如果这个 <strong>60%</strong> 门没过，这条概率门分支失败，行为树继续尝试后续走位或补招分支。</p>
+<h4 id="s">调位/移动子树内部权重（基础版和 S 版通用）<a class="headerlink" href="#s" title="Permanent link">&para;</a></h4>
+<p>上面表里的 <code>SubTree#1/#2/#3</code> 不是黑盒；它们内部也有明确角度、距离、权重。下表的百分比同样只表示“同一权重池内全可用时归一化”。</p>
+<table>
+<thead>
+<tr>
+<th>子树</th>
+<th>进入条件/参数</th>
+<th>内部动作</th>
+<th>权重；全可用归一化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SubTree#1</code> dash 调位</td>
+<td>背向角度：<code>Angle &gt;=270°</code> 或 <code>Angle &lt;=90°</code>，且调用点允许走这条背向分支</td>
+<td><code>dash_b(Target)</code> / 侧向 dash（<code>Angle &lt;=90°</code> 走 <code>dash_l</code>，<code>Angle &gt;=270°</code> 走 <code>dash_r</code>）</td>
+<td><code>1 / 1</code>；全可用时各 <strong>50%</strong>。</td>
+</tr>
+<tr>
+<td><code>SubTree#1</code> dash 调位</td>
+<td><code>90° &lt; Angle &lt; 120°</code></td>
+<td><code>dash_f(Target)</code> / <code>dash_l(Target)</code></td>
+<td><code>1 / 3</code>；全可用时 <strong>25% / 75%</strong>。</td>
+</tr>
+<tr>
+<td><code>SubTree#1</code> dash 调位</td>
+<td><code>120° &lt;= Angle &lt;=240°</code></td>
+<td><code>dash_f(Target)</code></td>
+<td>普通 Selector，非权重。</td>
+</tr>
+<tr>
+<td><code>SubTree#1</code> dash 调位</td>
+<td><code>240° &lt; Angle &lt; 270°</code></td>
+<td><code>dash_f(Target)</code> / <code>dash_r(Target)</code></td>
+<td><code>1 / 3</code>；全可用时 <strong>25% / 75%</strong>。</td>
+</tr>
+<tr>
+<td><code>SubTree#2</code> 移动调位</td>
+<td>背向角度且 <code>Target &gt;20m</code></td>
+<td><code>fightwalk(Target)</code></td>
+<td>普通 Selector，非权重。</td>
+</tr>
+<tr>
+<td><code>SubTree#2</code> 移动调位</td>
+<td>背向角度且 <code>Target &lt;=8m</code></td>
+<td><code>dash_b(Target)</code> 后按角度接 <code>fightwalk_l</code> 或 <code>fightwalk_r</code></td>
+<td>普通 Selector，非权重；距离阈值是 <strong>8m</strong>。</td>
+</tr>
+<tr>
+<td><code>SubTree#2</code> 移动调位</td>
+<td>背向角度且 <code>Target &gt;8m</code></td>
+<td>按角度接 <code>fightwalk_l</code> 或 <code>fightwalk_r</code></td>
+<td>普通 Selector，非权重；距离阈值是 <strong>8m</strong>。</td>
+</tr>
+<tr>
+<td><code>SubTree#2</code> 移动调位</td>
+<td><code>90° &lt; Angle &lt;270°</code> 且 <code>Target &gt;15m</code></td>
+<td><code>dash_f(Target) -&gt; fightwalk(Target)</code></td>
+<td>普通 Selector，非权重；距离阈值是 <strong>15m</strong>。</td>
+</tr>
+<tr>
+<td><code>SubTree#2</code> 移动调位</td>
+<td><code>90° &lt; Angle &lt;180°</code></td>
+<td><code>dash_f(Target)</code> 后在 <code>fightwalk_l</code> / <code>fightwalk_r</code> 中抽</td>
+<td><code>2 / 1</code>；全可用时 <strong>66.67% / 33.33%</strong>。</td>
+</tr>
+<tr>
+<td><code>SubTree#2</code> 移动调位</td>
+<td><code>180° &lt;= Angle &lt;270°</code></td>
+<td><code>dash_f(Target)</code> 后在 <code>fightwalk_l</code> / <code>fightwalk_r</code> 中抽</td>
+<td><code>1 / 2</code>；全可用时 <strong>33.33% / 66.67%</strong>。</td>
+</tr>
+<tr>
+<td><code>SubTree#3</code> 阵型/嘲讽动作</td>
+<td>传入 <code>Battleact1=taunt01</code></td>
+<td>先执行一次 <code>FormationMove</code>，随后在 <code>FormationMove</code> / <code>taunt01</code> 中抽</td>
+<td><code>30 / 30</code>；全可用时各 <strong>50%</strong>。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">基础版普通技能机制<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>技能 ID</th>
+<th>CD / 持续</th>
+<th>机制说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eny_0082_hsbear_skill01</code></td>
+<td>CD <code>7s</code>，<code>230</code> 帧</td>
+<td>两段近战拍击。第 <code>48-52</code> 帧、第 <code>132-136</code> 帧各做一次近身球形判定，都是物理 HP 伤害，每段为 <strong>50% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill02</code></td>
+<td>CD <code>15s</code>，<code>206</code> 帧</td>
+<td>三段近战连击。第 <code>34-39</code> 帧物理 HP <strong>60% 攻击倍率</strong>，第 <code>61-73</code> 帧物理 HP <strong>30% 攻击倍率</strong>，第 <code>111-115</code> 帧物理 HP <strong>100% 攻击倍率</strong>；最后一段最重，部分段带受击/击飞表现。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill03</code></td>
+<td>CD <code>12s</code>，<code>178</code> 帧</td>
+<td>前方大范围牵引后发弹。第 <code>40-90</code> 帧用大范围胶囊判定拉拽前方目标；第 <code>99-102</code>、<code>104-105</code>、<code>109-110</code> 帧发射三枚 <code>attack03</code> projectile，命中分别进入 <code>skill03_01/02/03_projhit</code>，每枚是自然 HP <strong>80% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill04</code></td>
+<td>CD <code>12s</code>，<code>259</code> 帧</td>
+<td>两段砸击。第 <code>53-57</code> 帧物理 HP <strong>25% 攻击倍率</strong>；第 <code>116-128</code> 帧物理 HP <strong>75% 攻击倍率</strong>，第二段更重。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill05</code></td>
+<td>CD <code>15s</code>，<code>486</code> 帧</td>
+<td>长动作破绽技。第 <code>0-73</code> 帧有弱点/破绽窗口，被触发时会对天鼓自身造成真实削韧伤害并跳转；随后第 <code>73-87</code> 帧物理 HP <strong>130% 攻击倍率</strong>，第 <code>87-97</code> 帧物理 HP <strong>30% 攻击倍率</strong>；第 <code>239-240</code> 帧会中断当前技能段。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill06</code></td>
+<td>CD <code>16s</code>，<code>187</code> 帧</td>
+<td>转愤怒核心技。第 <code>15-104</code> 帧会驱散/推开角色；第 <code>73-104</code> 帧有大范围自然 HP 伤害，每次 <strong>25% 攻击倍率</strong>，单目标最多 2 次，每 <code>0.35s</code> 触发一次；第 <code>73-74</code> 帧按当前 HP 给自己叠 <code>angry_fx</code>；第 <code>109-138</code> 帧发射 <code>attack06_01</code>，命中链路 <code>skill06_01_projhit</code> 还能造成自然 HP <strong>75% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill07</code></td>
+<td>CD <code>12s</code>，<code>304</code> 帧</td>
+<td>远程弹幕。第 <code>48/56/63</code> 帧发射三枚小弹，命中 <code>skill07_03_projhit</code>，每枚自然 HP <strong>55% 攻击倍率</strong>；第 <code>164</code> 帧发射一枚大弹，命中 <code>skill07_projhit</code>，自然 HP <strong>110% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill08</code></td>
+<td>CD <code>20s</code>，<code>420</code> 帧</td>
+<td>近身打击、发弹、长条范围拉拽三合一。第 <code>48-55</code> 帧近身物理 HP <strong>50% 攻击倍率</strong>；第 <code>98</code> 帧发射 <code>attack08</code>，常规命中可走 <code>skill07_projhit</code>（自然 HP <strong>110%</strong>），block 命中可走 <code>skill08_projhit</code>（自然 HP <strong>85%</strong>）；第 <code>120-206</code> 帧有弱点窗口，可消耗 <code>angry_fx</code>；第 <code>211-301</code> 帧是长条范围持续自然 HP 伤害，每次 <strong>25% 攻击倍率</strong>，单目标最多 10 次，每 <code>0.25s</code> 触发一次，并带拉拽。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill09</code></td>
+<td>CD <code>15s</code>，<code>177</code> 帧</td>
+<td>中距离自然攻击加双 projectile。第 <code>52-65</code> 帧盒形自然 HP <strong>60% 攻击倍率</strong>；第 <code>94</code> 帧发射 <code>attack08</code>；第 <code>125-142</code> 帧球形自然 HP <strong>15% 攻击倍率</strong>，单目标最多 3 次；第 <code>125</code> 帧额外发射 <code>attack09</code>，后续进入 <code>skill09_projhit</code>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_taunt01</code></td>
+<td>CD <code>35s</code>，<code>165</code> 帧</td>
+<td>嘲讽/动作技能，主要在远距离分支里作为站位或节奏动作使用；当前没有确认直接伤害 action。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_11">基础版愤怒怎么触发？<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<p>AI 会在若干 HP 与计时门满足时尝试 <code>eny_0082_hsbear_skill06</code>。这些是“是否尝试转愤怒”的门槛，不是随机概率：</p>
+<table>
+<thead>
+<tr>
+<th>AI 尝试门槛</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一轮 HP 门</td>
+<td>HP <code>&lt;=90%</code> 且 <code>Hpcheck01 &lt; 1</code>。</td>
+</tr>
+<tr>
+<td>中血重复门</td>
+<td>HP <code>&lt;=85%</code> 且 HP <code>&gt;30%</code>，并且愤怒计时门 <code>&gt;=10s</code>，<code>Hpcheck02 &lt; 3</code>。</td>
+</tr>
+<tr>
+<td>低血重复门</td>
+<td>HP <code>&lt;=30%</code> 且 <code>Hpcheck03 &lt; 3</code>。</td>
+</tr>
+<tr>
+<td><code>skill06</code> 自身 CD</td>
+<td><code>16s</code>。</td>
+</tr>
+</tbody>
+</table>
+<p><code>skill06</code> 真正决定 <code>angry_fx</code> 层数的是技能内 HP 检查：</p>
+<table>
+<thead>
+<tr>
+<th>当前 HP</th>
+<th><code>buff_eny_0082_hsbear_angry_fx</code> 层数</th>
+<th>玩家能看到的压力</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HP <code>&lt; 25%</code></td>
+<td><code>3</code> 层</td>
+<td>进入最高压愤怒；最多提供 <strong>+30% 攻击</strong>。</td>
+</tr>
+<tr>
+<td><code>25% &lt;= HP &lt; 55%</code></td>
+<td><code>2</code> 层</td>
+<td>中等愤怒；最多提供 <strong>+20% 攻击</strong>。</td>
+</tr>
+<tr>
+<td>HP <code>&gt;= 55%</code></td>
+<td><code>1</code> 层</td>
+<td>低层愤怒；提供 <strong>+10% 攻击</strong>。</td>
+</tr>
+</tbody>
+</table>
+<p>只要 <code>angry_fx</code> 至少 1 层，行为树就会切入愤怒技能池。<code>angry_fx</code> 每层提供 <strong>+10% 攻击</strong>，最大 3 层；多个弱点窗口被触发时会消掉 <code>angry_fx</code> 层数。愤怒不改变索敌规则，仍主要盯主控。</p>
+<h3 id="_12">基础版愤怒出招权重/顺序<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<p>基础版愤怒池里大部分是普通 Selector 顺序尝试，只有少数地方是权重池。下面把能确认的数值列出来。</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>分支</th>
+<th>权重/概率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Target &lt;=10m</code>，角度 <code>&lt;90°</code> 或 <code>&gt;270°</code></td>
+<td>顺序尝试：<code>skill01_angry -&gt; SubTree#1 -&gt; skill02_angry_02</code>；若不走，再尝试 <code>skill05_angry_01 -&gt; skill04_angry</code>；再后面是 <code>skill09(RandomMember)</code>，并按 <code>RandomMember</code> 角度接 <code>dash_r_angry</code> 或 <code>dash_l_angry</code>。</td>
+<td>普通 Selector，非权重；按顺序抢先成功。</td>
+</tr>
+<tr>
+<td><code>Target &lt;=10m</code>，角度 <code>&gt;=90°</code> 且 <code>&lt;=270°</code></td>
+<td>先尝试 <code>skill04_angry -&gt; skill02_angry_02</code>；否则进入 <code>SubTree#1</code> 后的二选一。</td>
+<td>前半是顺序 Selector；二选一见下一行。</td>
+</tr>
+<tr>
+<td>上一行的 <code>SubTree#1</code> 后二选一</td>
+<td><code>skill01_angry</code> / <code>skill03</code></td>
+<td><code>1 / 1</code>；全可用时各 <strong>50%</strong>。</td>
+</tr>
+<tr>
+<td><code>Target &gt;10m</code></td>
+<td>顺序尝试：<code>SubTree#1 -&gt; skill07_angry -&gt; skill05_angry_01</code>；否则 <code>skill05_angry_01 -&gt; skill02_angry</code>。</td>
+<td>普通 Selector，非权重；按顺序抢先成功。</td>
+</tr>
+<tr>
+<td>HP 触发 <code>skill06</code> 后、近距离且角度 <code>&lt;90°</code> 或 <code>&gt;270°</code>，并已获得 <code>angry_fx</code></td>
+<td><code>dash_r_angry</code> / <code>dash_l_angry</code></td>
+<td><code>1 / 1</code>；全可用时各 <strong>50%</strong>。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_13">基础版愤怒技能机制<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>技能 ID</th>
+<th>CD / 持续</th>
+<th>机制说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eny_0082_hsbear_skill01_angry</code></td>
+<td>CD <code>5s</code>，<code>195</code> 帧</td>
+<td><code>skill01</code> 加速强化版。第 <code>40-44</code>、<code>110-114</code> 帧各造成物理 HP <strong>80% 攻击倍率</strong>；第 <code>39-42</code>、<code>110-113</code> 帧发射 <code>attack01_power</code>，命中链路可进入 <code>skill02_projhit</code>，造成自然 HP <strong>35% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill02_angry</code></td>
+<td>CD <code>8s</code>，<code>575</code> 帧</td>
+<td><code>skill02</code> 强化长版。前 3 段为第 <code>34-39</code> 帧 <strong>60%</strong>、第 <code>61-73</code> 帧 <strong>60%</strong>、第 <code>111-115</code> 帧 <strong>100%</strong> 物理 HP；第 <code>231-243</code> 帧追加一段 <strong>100%</strong> 物理 HP；第 <code>122-123</code> 帧发射 <code>attack01_power</code>；第 <code>141-231</code> 帧有弱点窗口，触发后对天鼓自身造成真实削韧并消耗 <code>angry_fx</code>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill02_angry_02</code></td>
+<td>CD <code>8s</code>，<code>978</code> 帧</td>
+<td>超长连段版。物理 HP 段依次为第 <code>34-39</code> 帧 <strong>60%</strong>、<code>61-73</code> 帧 <strong>60%</strong>、<code>111-115</code> 帧 <strong>100%</strong>、<code>216-228</code> 帧 <strong>100%</strong>、<code>337-349</code> 帧 <strong>100%</strong>、<code>468-480</code> 帧 <strong>100%</strong>、<code>670-682</code> 帧 <strong>100%</strong>；中途多段弱点窗口可造成真实削韧并消 <code>angry_fx</code>，第 <code>538-539</code>、<code>739-740</code> 帧会中断当前技能段。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill03</code></td>
+<td>CD <code>12s</code>，<code>178</code> 帧</td>
+<td>第 <code>40-90</code> 帧用前方大范围胶囊判定持续拉拽目标；第 <code>99-102</code>、<code>104-105</code>、<code>109-110</code> 帧发射三枚 <code>attack03</code> projectile，命中分别进入 <code>skill03_01/02/03_projhit</code>，每枚造成自然 HP <strong>80% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill04_angry</code></td>
+<td>CD <code>8s</code>，<code>259</code> 帧</td>
+<td><code>skill04</code> 强化版。第 <code>53-57</code> 帧物理 HP <strong>30% 攻击倍率</strong>；第 <code>116-120</code> 帧物理 HP <strong>80% 攻击倍率</strong>；第 <code>58</code> 帧同帧发射 5 枚 <code>attack04_02</code> 小弹，小弹命中 <code>skill07_02_projhit</code> 为自然 HP <strong>75% 攻击倍率</strong>，block 可走 <code>skill04_projhit</code> 为自然 HP <strong>55% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill05_angry_01</code></td>
+<td>CD <code>10s</code>，<code>481</code> 帧</td>
+<td><code>skill05</code> 愤怒版。开头仍有弱点/破绽窗口，触发时会对天鼓自身造成真实削韧并消耗 <code>angry_fx</code>；随后打出物理 HP <strong>130%</strong> 与 <strong>30%</strong> 两段伤害；第 <code>234-235</code> 帧中断当前技能段，整体比普通版略短。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill07_angry</code></td>
+<td>CD <code>7s</code>，<code>304</code> 帧</td>
+<td><code>skill07</code> 愤怒版。前面仍是三枚小弹，每枚自然 HP <strong>55% 攻击倍率</strong>；第 <code>164</code> 帧从 1 枚大弹变成 3 枚大弹，每枚命中为自然 HP <strong>110% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_dash_l_angry</code></td>
+<td>CD <code>0s</code>，<code>99</code> 帧</td>
+<td>愤怒左侧移。第 <code>59-77</code> 帧带物理 HP 伤害，每次 <strong>20% 攻击倍率</strong>，单目标最多 3 次。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_dash_r_angry</code></td>
+<td>CD <code>0s</code>，<code>99</code> 帧</td>
+<td>愤怒右侧移。第 <code>58-76</code> 帧带物理 HP 伤害，每次 <strong>20% 攻击倍率</strong>，单目标最多 3 次。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_14">基础版位移和派生命中链<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<p>位移技能本身主要负责站位：</p>
+<table>
+<thead>
+<tr>
+<th>技能 ID</th>
+<th>机制说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eny_0082_hsbear_dash_b</code></td>
+<td>后撤/背向调位，当前没有确认直接伤害 action。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_dash_f</code></td>
+<td>前冲接近目标或冲向 <code>RandomMember</code>，当前没有确认直接伤害 action。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_dash_l</code> / <code>dash_r</code></td>
+<td>左右侧移调角度，当前没有确认直接伤害 action。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_fightwalk</code></td>
+<td>正常走位接近或调整距离。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_fightwalk_l</code> / <code>fightwalk_r</code></td>
+<td>左右走位保持角度。</td>
+</tr>
+</tbody>
+</table>
+<p>派生命中技能不是 AI 直接选择，而是 projectile 命中、block 或 reach 后触发：</p>
+<table>
+<thead>
+<tr>
+<th>派生 ID</th>
+<th>来自哪里</th>
+<th>命中机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eny_0082_hsbear_skill02_projhit</code></td>
+<td><code>skill01_angry</code> 的 <code>attack01_power</code> 等</td>
+<td>第 <code>2-8</code> 帧球形自然 HP <strong>35% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill03_01_projhit</code> / <code>02</code> / <code>03</code></td>
+<td><code>skill03</code> 的三枚 projectile</td>
+<td>直接造成自然 HP <strong>80% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill04_projhit</code></td>
+<td><code>skill04_angry</code>、<code>skill09_projhit</code> 的部分 projectile block/reach</td>
+<td>第 <code>0-5</code> 帧球形自然 HP <strong>55% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill06_01_projhit</code></td>
+<td><code>skill06</code> 的 <code>attack06_01</code></td>
+<td>第 <code>33-40</code> 帧球形自然 HP <strong>75% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill07_projhit</code></td>
+<td><code>skill07</code> 大弹、<code>skill08</code>/<code>skill09</code> 的部分 projectile</td>
+<td>直接造成自然 HP <strong>110% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill07_02_projhit</code></td>
+<td><code>skill04_angry</code>、<code>skill09_projhit</code> 的部分 projectile</td>
+<td>直接造成自然 HP <strong>75% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill07_03_projhit</code></td>
+<td><code>skill07</code> 前三枚小弹</td>
+<td>直接造成自然 HP <strong>55% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill08_projhit</code></td>
+<td><code>skill08</code> / <code>skill09</code> 的 <code>attack08</code> block</td>
+<td>第 <code>0-5</code> 帧球形自然 HP <strong>85% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill09_projhit</code></td>
+<td><code>skill09</code> 的 <code>attack09</code> finish</td>
+<td>第 <code>0</code> 帧继续发射 5 枚 <code>attack09_01</code>；普通命中链路走 <code>skill07_02_projhit</code>（自然 HP <strong>75%</strong>），block/reach 命中结果会分流到 <code>skill04_projhit</code>（<strong>55%</strong>）或 <code>skill07_projhit</code>（<strong>110%</strong>）。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="s-indie_hard018_s">高难 S 版 <code>indie_hard018_s</code> 的额外机制<a class="headerlink" href="#s-indie_hard018_s" title="Permanent link">&para;</a></h3>
+<p>高难 S 版仍是天鼓，但关卡把它改成“平静态气旋 -&gt; 愤怒护盾 -&gt; 异常消盾”的循环。</p>
+<p><code>indie_hard018_s</code> 只刷一只 90 级 <code>eny_0082_hsbear_hdg018</code>：出生 <code>3s</code> 后出现，面向主控干员。出生自带：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>数值/机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>最大生命</td>
+<td><code>buff_common_maxhpup</code> 让最大生命变为 <strong>150%</strong>。</td>
+</tr>
+<tr>
+<td>平静态护盾</td>
+<td>五种承伤倍率都是 <strong>50%</strong>，也就是平静态硬打只吃一半伤害。</td>
+</tr>
+<tr>
+<td>平静态气旋</td>
+<td>天鼓对主控干员造成伤害后，若内置 <code>1s</code> 冷却结束，会生成 1 个气旋。</td>
+</tr>
+<tr>
+<td>S 版开关</td>
+<td>S 版没有 <code>normaltag</code>，所以气旋生成条件可以通过；非 S 版带 <code>normaltag</code>，不按同样方式触发。</td>
+</tr>
+</tbody>
+</table>
+<p>核心循环：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>平静态盯主控出招
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  -&gt; 打到主控后留下气旋（1 秒最多 1 个）
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  -&gt; 开战计时至少 20 秒且 skill06_hdg018 可放时，尝试转愤怒
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  -&gt; skill06_hdg018 吸收自己生成的气旋
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  -&gt; 护盾层数 = 气旋数量 + 固定 5 层 + phase 层
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  -&gt; 每层护盾同时给天鼓 +10% 攻击
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  -&gt; 我方每造成 1 次法术异常或物理异常，消 1 层护盾并移除 1 层 +10% 攻击
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  -&gt; 护盾消完后回到平静态，并给后续循环追加 phase（最多 2 层）
+</code></pre></div>
+<h4 id="_15">气旋本身干什么？<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>触发条件</td>
+<td>天鼓在平静态对主控干员造成伤害。</td>
+</tr>
+<tr>
+<td>内置冷却</td>
+<td><code>1s</code> 最多生成 1 个。</td>
+</tr>
+<tr>
+<td>生成物</td>
+<td><code>abilityentity_eny_0082_hsbear_hdg018</code>。</td>
+</tr>
+<tr>
+<td>气旋技能</td>
+<td><code>eny_0082_hsbear_ball_hdg018</code>。</td>
+</tr>
+<tr>
+<td>持续</td>
+<td><code>9000</code> 帧。</td>
+</tr>
+<tr>
+<td>直接伤害</td>
+<td>当前确认到的 <code>ball_hdg018</code> 只有特效和音效，没有确认直接伤害 action；它主要用于之后被 <code>skill06_hdg018</code> 吸收计数。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="skill06_hdg018"><code>skill06_hdg018</code> 怎么把气旋变成护盾？<a class="headerlink" href="#skill06_hdg018" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>帧段</th>
+<th>发生的事</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>6-9</code></td>
+<td>关闭平静态气旋生成 buff，避免转愤怒过程中继续生成。</td>
+</tr>
+<tr>
+<td><code>15-73</code></td>
+<td>创建转阶段保护 buff：恢复削韧，并让承伤降低 <strong>90%</strong> 左右。</td>
+</tr>
+<tr>
+<td><code>68-69</code></td>
+<td>寻找 owner 自己生成过的气旋实体，把数量存进 <code>counts</code>，并让气旋向天鼓发射吸收 projectile。</td>
+</tr>
+<tr>
+<td><code>70-73</code></td>
+<td>清掉被吸收的气旋实体。</td>
+</tr>
+<tr>
+<td><code>73-104</code></td>
+<td>转阶段本体伤害：物理 HP <strong>25% 攻击倍率</strong>，单目标最多 2 次，每 <code>0.35s</code> 触发一次。</td>
+</tr>
+<tr>
+<td><code>112-115</code></td>
+<td>移除平静态 <strong>50% 承伤</strong>护盾，创建愤怒护盾。</td>
+</tr>
+</tbody>
+</table>
+<p>进入愤怒护盾时：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>护盾层数 = 吸收的气旋数 + 5 + phase
+</code></pre></div>
+<p><code>phase</code> 是上一次愤怒结束后叠的额外层数，最多 2 层。所以没有气旋时也至少有 5 层；气旋越多，下一轮护盾和攻击提升越高。</p>
+<h4 id="_16">愤怒护盾期间发生什么？<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>承伤倍率</td>
+<td>物理、晶格、火、脉冲、自然五种承伤倍率都变为 <strong>20%</strong>，也就是 <strong>80% 减伤</strong>。</td>
+</tr>
+<tr>
+<td>攻击提升</td>
+<td>每层护盾对应 1 层 <code>count_atkup</code>，每层 <strong>+10% 攻击</strong>。例如 8 层就是 <strong>+80% 攻击</strong>。</td>
+</tr>
+<tr>
+<td>周期追击</td>
+<td>每 <code>2s</code> 创建一段 <code>3s</code> timeline，在第 <code>15/25/33/38/41/43</code> 帧连续发射 <code>attack06_01</code>。</td>
+</tr>
+<tr>
+<td>追击命中</td>
+<td><code>skill06_01_projhit_hdg018</code> 第 <code>33-40</code> 帧造成自然 HP <strong>75% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td>消盾方式</td>
+<td>我方每施加 1 次法术异常或物理异常，消 1 层护盾，并同时消 1 层 <strong>+10% 攻击</strong>。</td>
+</tr>
+<tr>
+<td>护盾结束</td>
+<td>最后一层被移除后，愤怒护盾结束，恢复平静态气旋机制，并让后续 <code>phase</code> 增加 1 层，最多累计 2 层。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="s_1">高难 S 版平静态出招<a class="headerlink" href="#s_1" title="Permanent link">&para;</a></h3>
+<p>S 版平静态按距离、角度和冷却选招。它仍主要盯主控；只是打到主控会留下气旋。S 版的权重结构和基础版很接近，但近距离分界改成 <code>3m/7m/15m/20m</code>，并且 <code>skill06_hdg018</code> 有独立的 <code>20s</code> 开战计时门。</p>
+<h4 id="s-skill06">S 版 skill06 触发门槛<a class="headerlink" href="#s-skill06" title="Permanent link">&para;</a></h4>
+<p><code>skill06_hdg018</code> 不是随机抽取，而是优先 Selector + HP 计数门：</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基本门槛</td>
+<td><code>CanCast(eny_0082_hsbear_skill06_hdg018)</code> 且开战计时 <code>start &gt;= 20s</code>。</td>
+</tr>
+<tr>
+<td>第一次触发门</td>
+<td><code>Hpcheck01 &lt; 1</code> 且 HP <code>&lt;=100%</code>，也就是只要 20 秒门和 CD 满足，第一轮就可以尝试。</td>
+</tr>
+<tr>
+<td>中血触发门</td>
+<td><code>Hpcheck02 &lt; 3</code> 且 HP <code>&lt;=75%</code>，最多 3 次。</td>
+</tr>
+<tr>
+<td>低血触发门</td>
+<td><code>Hpcheck03 &lt; 1</code> 且 HP <code>&lt;=30%</code>，最多 1 次。</td>
+</tr>
+<tr>
+<td><code>skill06_hdg018</code> 自身 CD</td>
+<td><code>30s</code>。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="s_2">S 版随机队员调位/偷袭池<a class="headerlink" href="#s_2" title="Permanent link">&para;</a></h4>
+<p>触发门槛同样是 <code>RandomMember &lt;=8m</code>、<code>Target &lt;=8m</code>，并且 <code>NowTime_AdjustAttack &gt;=8s</code>；成功后刷新 <code>SaveTime_AdjustAttack</code>。</p>
+<table>
+<thead>
+<tr>
+<th>角度/距离门槛</th>
+<th>顺序尝试</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Target</code> 角度 <code>&gt;90°</code> 且 <code>&lt;270°</code></td>
+<td>先 <code>skill04_hdg018</code>；否则 <code>dash_f(RandomMember) -&gt; skill02_hdg018(RandomMember)</code>。</td>
+</tr>
+<tr>
+<td><code>Target</code> 角度 <code>&gt;45°</code> 且 <code>&lt;135°</code></td>
+<td><code>skill01_hdg018</code> + <strong>70%</strong> 概率门；否则 <code>skill03_hdg018</code> + <strong>70%</strong> 概率门；否则 <code>dash_l(RandomMember)</code>。</td>
+</tr>
+<tr>
+<td><code>Target</code> 角度 <code>&gt;225°</code> 且 <code>Target &gt;5m</code></td>
+<td><code>skill02_hdg018</code> + <strong>70%</strong> 概率门；否则 <code>skill03_hdg018</code> + <strong>70%</strong> 概率门；否则 <code>dash_r(RandomMember)</code>。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="s_3">S 版主技能距离池<a class="headerlink" href="#s_3" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>距离/角度</th>
+<th>分支</th>
+<th>权重；全可用归一化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Target &lt;=3m</code> 且 <code>skill08_hdg018</code> 可放</td>
+<td><code>eny_0082_hsbear_skill08_hdg018</code></td>
+<td>优先 Selector，非权重；成功就直接放。</td>
+</tr>
+<tr>
+<td><code>Target &lt;=3m</code>，上面的 <code>skill08_hdg018</code> 分支没走</td>
+<td><code>skill01_hdg018</code> / <code>skill02_hdg018</code> / <code>SubTree#1 -&gt; skill03_hdg018</code> / <code>dash_b(RandomMember) -&gt; skill09(Target)</code></td>
+<td><code>35 / 35 / 5 / 5</code>；全可用时 <strong>43.75% / 43.75% / 6.25% / 6.25%</strong>。</td>
+</tr>
+<tr>
+<td><code>3m &lt; Target &lt;=7m</code>，角度 <code>&lt;90°</code> 或 <code>&gt;270°</code></td>
+<td><code>skill03_hdg018</code> / <code>skill09</code> / <code>skill05_hdg018</code></td>
+<td><code>35 / 15 / 10</code>；全可用时 <strong>58.33% / 25% / 16.67%</strong>。</td>
+</tr>
+<tr>
+<td><code>3m &lt; Target &lt;=7m</code>，角度 <code>&gt;=90°</code> 且 <code>&lt;=270°</code></td>
+<td><code>skill04_hdg018</code> / <code>dash_f(RandomMember) -&gt; skill09(Target)</code> / <code>dash_f(RandomMember) -&gt; skill05_hdg018(Target)</code></td>
+<td><code>35 / 15 / 10</code>；全可用时 <strong>58.33% / 25% / 16.67%</strong>。</td>
+</tr>
+<tr>
+<td><code>7m &lt; Target &lt;=15m</code>，角度 <code>&lt;90°</code> 或 <code>&gt;270°</code></td>
+<td><code>skill09</code> / <code>skill07_hdg018</code> / <code>skill05_hdg018</code></td>
+<td><code>1 / 1 / 1</code>；全可用时各 <strong>33.33%</strong>。</td>
+</tr>
+<tr>
+<td><code>7m &lt; Target &lt;=15m</code>，角度 <code>&gt;=90°</code> 且 <code>&lt;=270°</code></td>
+<td><code>skill04_hdg018</code> / <code>SubTree#1 -&gt; skill05_hdg018</code></td>
+<td><code>50 / 50</code>；全可用时各 <strong>50%</strong>。</td>
+</tr>
+<tr>
+<td><code>15m &lt; Target &lt;=20m</code>，且 <code>skill08_hdg018</code> 可放</td>
+<td><code>skill08_hdg018</code></td>
+<td>优先 Selector，非权重；成功就直接放。</td>
+</tr>
+<tr>
+<td><code>15m &lt; Target &lt;=20m</code>，上面的 <code>skill08_hdg018</code> 分支没走</td>
+<td><code>skill07_hdg018</code> / <code>skill05_hdg018</code> 或 <code>SubTree#1 -&gt; skill05_hdg018</code> / <code>SubTree#2</code> 走位</td>
+<td><code>2 / 1 / 1</code>；全可用时 <strong>50% / 25% / 25%</strong>。</td>
+</tr>
+<tr>
+<td><code>Target &gt;20m</code>，角度 <code>&lt;90°</code> 或 <code>&gt;270°</code>，且 <code>skill07_hdg018</code> 可放</td>
+<td><code>skill07_hdg018 -&gt; skill01_hdg018</code> / <code>skill07_hdg018 -&gt; skill05_hdg018</code></td>
+<td><code>1 / 1</code>；全可用时各 <strong>50%</strong>。</td>
+</tr>
+<tr>
+<td><code>Target &gt;20m</code>，角度 <code>&lt;90°</code> 或 <code>&gt;270°</code>，<code>skill07_hdg018</code> 没走但 <code>taunt01</code> 可放</td>
+<td><code>SubTree#3(taunt01) -&gt; skill05_hdg018</code></td>
+<td>普通 Selector，非权重；<code>SubTree#3</code> 内部 <code>30 / 30</code>，全可用时各 <strong>50%</strong>。</td>
+</tr>
+<tr>
+<td><code>Target &gt;20m</code>，角度 <code>&gt;=90°</code> 且 <code>&lt;=270°</code></td>
+<td><code>skill07_hdg018 -&gt; skill01_hdg018</code> / <code>SubTree#2 -&gt; skill03_hdg018</code></td>
+<td><code>3 / 1</code>；全可用时 <strong>75% / 25%</strong>。</td>
+</tr>
+<tr>
+<td>fallback，<code>Target &lt;=12m</code></td>
+<td><code>SubTree#1</code> 调位，并刷新 <code>NowTime_Dash/SaveTime_Dash</code></td>
+<td>普通 Selector，非权重。</td>
+</tr>
+<tr>
+<td>fallback，<code>Target &gt;12m</code> 且角度 <code>&lt;90°</code> 或 <code>&gt;270°</code></td>
+<td><code>Timeout(SubTree#2, 1.2s~1.8s) -&gt; skill01_hdg018/skill02_hdg018</code> / <code>SubTree#3(taunt01) -&gt; skill01_hdg018</code></td>
+<td>外层 <code>2 / 1</code>，全可用时 <strong>66.67% / 33.33%</strong>；第一条内部 <code>skill01_hdg018/skill02_hdg018</code> 为 <code>1 / 1</code>，全可用时各 <strong>50%</strong>。</td>
+</tr>
+<tr>
+<td>fallback，<code>Target &gt;12m</code> 且角度 <code>&gt;=90°</code> 且 <code>&lt;=270°</code></td>
+<td><code>dash_f(RandomMember) -&gt; Timeout(SubTree#2, 1.2s~1.8s)</code></td>
+<td>普通 Selector，非权重。</td>
+</tr>
+<tr>
+<td>fallback 近中距补招</td>
+<td><code>skill01_hdg018</code> / <code>skill02_hdg018</code></td>
+<td><code>1 / 1</code>；全可用时各 <strong>50%</strong>。</td>
+</tr>
+</tbody>
+</table>
+<p>S 版周期走位也有同样的明确概率门：当 <code>NowTime_Dash &gt;=6s</code>，且 <code>5m &lt; Target &lt;=9m</code> 时，有 <strong>60%</strong> 概率先进 <code>SubTree#1</code> 做 dash 调位；如果这个 <strong>60%</strong> 门没过，这条概率门分支失败，行为树继续尝试后续走位或补招分支。</p>
+<h3 id="s_4">高难 S 版平静态技能机制<a class="headerlink" href="#s_4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>技能 ID</th>
+<th>CD / 持续</th>
+<th>机制说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eny_0082_hsbear_skill01_hdg018</code></td>
+<td>CD <code>7s</code>，<code>230</code> 帧</td>
+<td>两段近战拍击。第 <code>48-52</code>、<code>132-136</code> 帧各造成一次物理 HP <strong>50% 攻击倍率</strong>，每目标每段 1 次，带击飞/受击表现。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill02_hdg018</code></td>
+<td>CD <code>15s</code>，<code>206</code> 帧</td>
+<td>三段物理连击：第 <code>34-39</code> 帧 <strong>60%</strong>，第 <code>61-73</code> 帧 <strong>30%</strong>，第 <code>111-115</code> 帧 <strong>100%</strong>；后两段更容易把玩家打出受击/击飞节奏。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill03_hdg018</code></td>
+<td>CD <code>12s</code>，<code>178</code> 帧</td>
+<td>第 <code>40-90</code> 帧前方拉拽；第 <code>99-102</code>、<code>104-105</code>、<code>109-110</code> 帧发射三枚 <code>attack03</code> projectile，命中为自然 HP <strong>80% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill04_hdg018</code></td>
+<td>CD <code>12s</code>，<code>259</code> 帧</td>
+<td>两段物理砸击。第 <code>53-57</code> 帧 <strong>25%</strong>；第 <code>116-128</code> 帧 <strong>75%</strong>，后段带击飞。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill05_hdg018</code></td>
+<td>CD <code>15s</code>，<code>486</code> 帧</td>
+<td>长动作弱点技。第 <code>0-73</code> 帧可触发弱点，触发时对天鼓自身造成真实削韧 <code>30</code> 并跳转；第 <code>73-87</code> 帧物理 HP <strong>130%</strong>，第 <code>87-97</code> 帧物理 HP <strong>30%</strong>；第 <code>239-240</code> 帧中断当前技能段。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill06_hdg018</code></td>
+<td>CD <code>30s</code>，<code>189</code> 帧</td>
+<td>高难核心转阶段技：吸收气旋、关闭平静护盾、创建愤怒护盾；第 <code>73-104</code> 帧物理 HP <strong>25% 攻击倍率</strong>，单目标最多 2 次。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill07_hdg018</code></td>
+<td>CD <code>12s</code>，<code>304</code> 帧</td>
+<td>远程弹幕。第 <code>48/56/63</code> 帧发三枚小弹，每枚命中自然 HP <strong>55%</strong>；第 <code>164</code> 帧发一枚大弹，命中自然 HP <strong>110%</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill08_hdg018</code></td>
+<td>CD <code>20s</code>，<code>420</code> 帧</td>
+<td>近身打击、发弹、长条拉拽。第 <code>48-55</code> 帧物理 HP <strong>25%</strong>；第 <code>98</code> 帧发射 <code>attack08</code>，常规命中自然 HP <strong>110%</strong>、block 命中自然 HP <strong>85%</strong>；第 <code>123-205</code> 帧有弱点窗口，触发可消 <code>angry_fx</code>；第 <code>211-301</code> 帧长条物理 HP <strong>80%</strong>，单目标最多 10 次，每 <code>0.25s</code> 触发一次，并带拉拽。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill09</code></td>
+<td>CD <code>15s</code>，<code>177</code> 帧</td>
+<td>中距离自然攻击。第 <code>52-65</code> 帧自然 HP <strong>60%</strong>；第 <code>94</code> 帧发射 <code>attack08</code>；第 <code>125-142</code> 帧自然 HP <strong>15%</strong>，单目标最多 3 次；第 <code>125</code> 帧额外发射 <code>attack09</code> 并进入 <code>skill09_projhit</code> 派生。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="s_5">高难 S 版愤怒态出招权重<a class="headerlink" href="#s_5" title="Permanent link">&para;</a></h3>
+<p>S 版进入 <code>buff_eny_0082_hsbear_skill06_hdg018 &gt;= 1</code> 后，使用下面的愤怒权重池。这里的 <code>RandomMember</code> 分支仍然只是临时攻击/位移目标，不改变主目标规则。</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>分支</th>
+<th>权重；全可用归一化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Target &lt;=10m</code>，角度 <code>&lt;90°</code> 或 <code>&gt;270°</code></td>
+<td><code>skill01_angry -&gt; SubTree#1 -&gt; skill02_angry_02</code> / <code>skill04_angry -&gt; skill05_angry_01</code> / 按 <code>RandomMember</code> 角度选 <code>dash_r_angry</code> 或 <code>dash_l_angry</code> / <code>skill09(RandomMember)</code></td>
+<td><code>2 / 2 / 1 / 2</code>；全可用时 <strong>28.57% / 28.57% / 14.29% / 28.57%</strong>。</td>
+</tr>
+<tr>
+<td>上一行的随机 dash 分支内部</td>
+<td><code>RandomMember</code> 角度 <code>&gt;180°</code> 放 <code>dash_r_angry</code>；<code>&lt;=180°</code> 放 <code>dash_l_angry</code></td>
+<td>角度判断，非随机权重。</td>
+</tr>
+<tr>
+<td><code>Target &lt;=10m</code>，角度 <code>&gt;=90°</code> 且 <code>&lt;=270°</code></td>
+<td><code>skill04_angry -&gt; skill02_angry_02</code> / <code>SubTree#1</code> 后进入 <code>skill01_angry</code> 或 <code>skill03</code></td>
+<td><code>1 / 1</code>；全可用时各 <strong>50%</strong>。</td>
+</tr>
+<tr>
+<td>上一行的 <code>SubTree#1</code> 后二选一</td>
+<td><code>skill01_angry</code> / <code>skill03</code></td>
+<td><code>1 / 1</code>；全可用时各 <strong>50%</strong>。</td>
+</tr>
+<tr>
+<td><code>Target &gt;10m</code></td>
+<td><code>SubTree#1</code> 后进入 <code>skill07_angry</code> 或 <code>skill05_angry_01</code> / <code>skill05</code> / <code>skill02_angry</code></td>
+<td><code>2 / 1 / 1</code>；全可用时 <strong>50% / 25% / 25%</strong>。</td>
+</tr>
+<tr>
+<td>上一行的 <code>SubTree#1</code> 后二选一</td>
+<td><code>skill07_angry</code> / <code>skill05_angry_01</code></td>
+<td><code>1 / 1</code>；全可用时各 <strong>50%</strong>。</td>
+</tr>
+<tr>
+<td><code>skill06_hdg018</code> 转愤怒后的近距侧向补招</td>
+<td><code>dash_r_angry</code> / <code>dash_l_angry</code></td>
+<td><code>1 / 1</code>；全可用时各 <strong>50%</strong>。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="s_6">高难 S 版愤怒态技能机制<a class="headerlink" href="#s_6" title="Permanent link">&para;</a></h3>
+<p>高难 S 版愤怒时，除了技能池更强，还叠加“护盾层数越多，攻击越高”的压力。</p>
+<table>
+<thead>
+<tr>
+<th>技能 ID</th>
+<th>CD / 持续</th>
+<th>机制说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eny_0082_hsbear_skill01_angry</code></td>
+<td>CD <code>5s</code>，<code>195</code> 帧</td>
+<td>两段强化拍击：第 <code>40-44</code>、<code>110-114</code> 帧各造成物理 HP <strong>80%</strong>；第 <code>39-42</code>、<code>110-113</code> 帧各发射 <code>attack01_power</code>，命中可造成自然 HP <strong>35%</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill02_angry</code></td>
+<td>CD <code>8s</code>，<code>575</code> 帧</td>
+<td>长连击：第 <code>34-39</code> 帧物理 <strong>60%</strong>，第 <code>61-73</code> 帧 <strong>60%</strong>，第 <code>111-115</code> 帧 <strong>100%</strong>，第 <code>231-243</code> 帧 <strong>100%</strong>；第 <code>122-123</code> 帧发射 <code>attack01_power</code>；第 <code>141-231</code> 帧弱点窗口触发时造成真实削韧 <code>30</code> 并消 <code>angry_fx</code>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill02_angry_02</code></td>
+<td>CD <code>8s</code>，<code>978</code> 帧</td>
+<td>超长七段连击：第 <code>34-39</code> 帧 <strong>60%</strong>、<code>61-73</code> 帧 <strong>60%</strong>、<code>111-115</code> 帧 <strong>100%</strong>、<code>216-228</code> 帧 <strong>100%</strong>、<code>337-349</code> 帧 <strong>100%</strong>、<code>468-480</code> 帧 <strong>100%</strong>、<code>670-682</code> 帧 <strong>100%</strong>；第 <code>126-216</code>、<code>240-330</code>、<code>377-467</code>、<code>580-670</code> 帧有多段弱点窗口，触发可造成真实削韧 <code>50/100</code> 并消 <code>angry_fx</code>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill03</code></td>
+<td>CD <code>12s</code>，<code>178</code> 帧</td>
+<td>前方拉拽后发三枚 <code>attack03</code> projectile，每枚命中自然 HP <strong>80%</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill04_angry</code></td>
+<td>CD <code>8s</code>，<code>259</code> 帧</td>
+<td>强化双砸。第 <code>53-57</code> 帧物理 HP <strong>30%</strong>；第 <code>116-120</code> 帧物理 HP <strong>80%</strong>；第 <code>58</code> 帧同帧发 5 枚 <code>attack04_02</code> 小弹，命中自然 HP <strong>75%</strong>，block 伤害自然 HP <strong>55%</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill05</code></td>
+<td>CD <code>15s</code>，<code>486</code> 帧</td>
+<td>长动作弱点技：开头弱点窗口可让天鼓吃真实削韧 <code>30</code>；之后打出物理 HP <strong>130%</strong> 与 <strong>30%</strong> 两段。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill05_angry_01</code></td>
+<td>CD <code>10s</code>，<code>481</code> 帧</td>
+<td>愤怒版 <code>skill05</code>：开头弱点窗口触发时会消 <code>angry_fx</code>；后续仍是物理 HP <strong>130%</strong> 与 <strong>30%</strong> 两段；第 <code>234-235</code> 帧中断当前技能段。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill07</code></td>
+<td>CD <code>12s</code>，<code>304</code> 帧</td>
+<td>普通远程弹幕：三枚小弹自然 HP <strong>55%</strong>，一枚大弹自然 HP <strong>110%</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill07_angry</code></td>
+<td>CD <code>7s</code>，<code>304</code> 帧</td>
+<td>愤怒远程弹幕：三枚小弹自然 HP <strong>55%</strong>；第 <code>164</code> 帧一次发三枚大弹，每枚自然 HP <strong>110%</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill08</code></td>
+<td>CD <code>20s</code>，<code>420</code> 帧</td>
+<td>第 <code>48-55</code> 帧先做近身物理 HP <strong>25% 攻击倍率</strong>判定；第 <code>98</code> 帧发射 <code>attack08</code>，常规命中走 <code>skill07_projhit</code>（自然 HP <strong>110%</strong>），block 命中走 <code>skill08_projhit</code>（自然 HP <strong>85%</strong>）；第 <code>120-206</code> 帧是弱点窗口，触发时会消 <code>angry_fx</code> 并让攻击者方向相关 buff 生效；第 <code>211-301</code> 帧打出长条物理 HP <strong>80%</strong> 持续伤害，单目标最多 10 次，每 <code>0.25s</code> 触发一次，并带拉拽。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill09</code></td>
+<td>CD <code>15s</code>，<code>177</code> 帧</td>
+<td>第 <code>52-65</code> 帧自然 HP <strong>60%</strong>；第 <code>94</code> 帧发射 <code>attack08</code>；第 <code>125-142</code> 帧自然 HP <strong>15%</strong>，单目标最多 3 次；第 <code>125</code> 帧发射 <code>attack09</code>，再派生出 5 枚 <code>attack09_01</code>。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="s_7">高难 S 版位移和派生命中链<a class="headerlink" href="#s_7" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>技能 ID</th>
+<th>CD / 持续</th>
+<th>机制说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eny_0082_hsbear_dash_f</code></td>
+<td>CD <code>0s</code>，<code>63</code> 帧</td>
+<td>前冲接近或调位；数据里有 <strong>20%</strong> 攻击倍率字段，但当前没有确认直接伤害 action。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_dash_b</code></td>
+<td>CD <code>0s</code>，<code>60</code> 帧</td>
+<td>后撤调位，没有确认直接伤害 action。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_dash_l</code> / <code>dash_r</code></td>
+<td>CD <code>0s</code>，<code>99</code> 帧</td>
+<td>左右位移调角度，没有确认直接伤害 action。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_dash_l_angry</code></td>
+<td>CD <code>0s</code>，<code>99</code> 帧</td>
+<td>第 <code>59-77</code> 帧物理 HP <strong>20% 攻击倍率</strong>，单目标最多 3 次。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_dash_r_angry</code></td>
+<td>CD <code>0s</code>，<code>99</code> 帧</td>
+<td>第 <code>58-76</code> 帧物理 HP <strong>20% 攻击倍率</strong>，单目标最多 3 次。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_fightwalk</code></td>
+<td>CD <code>0s</code>，<code>75</code> 帧</td>
+<td>正常走位，持续旋转/MoveTo 来接近目标。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_fightwalk_l</code> / <code>fightwalk_r</code></td>
+<td>CD <code>0s</code>，<code>100</code> 帧</td>
+<td>左右走位，持续旋转/MoveTo 来调整侧向角度。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_taunt01</code></td>
+<td>CD <code>35s</code>，<code>165</code> 帧</td>
+<td>嘲讽/动作技能，当前没有确认直接伤害 action。</td>
+</tr>
+</tbody>
+</table>
+<p>高难 S 版派生命中技能多数沿用基础版 projectile 链路，但这里仍单独列清楚：</p>
+<table>
+<thead>
+<tr>
+<th>派生 ID</th>
+<th>来自哪里</th>
+<th>命中机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eny_0082_hsbear_skill02_projhit</code></td>
+<td><code>skill01_angry</code> / <code>skill02_angry</code> 发出的 <code>attack01_power</code></td>
+<td>第 <code>2-8</code> 帧球形自然 HP <strong>35% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill03_01_projhit</code> / <code>02</code> / <code>03</code></td>
+<td><code>skill03_hdg018</code> 或愤怒 <code>skill03</code> 的三枚 <code>attack03</code> projectile</td>
+<td>直接造成自然 HP <strong>80% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill04_projhit</code></td>
+<td><code>skill04_angry</code>、<code>skill09_projhit</code> 的部分 projectile block/reach</td>
+<td>第 <code>0-5</code> 帧球形自然 HP <strong>55% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill06_01_projhit_hdg018</code></td>
+<td>愤怒护盾期间周期发射的 <code>attack06_01</code></td>
+<td>第 <code>33-40</code> 帧自然 HP <strong>75% 攻击倍率</strong>，单目标最多 1 次。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill07_projhit</code></td>
+<td><code>skill07_hdg018</code> 大弹、<code>skill07_angry</code> 大弹、<code>skill08</code> / <code>skill09</code> 的部分 projectile</td>
+<td>直接造成自然 HP <strong>110% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill07_02_projhit</code></td>
+<td><code>skill04_angry</code> 小弹、<code>skill09_projhit</code> 后续 <code>attack09_01</code></td>
+<td>直接造成自然 HP <strong>75% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill07_03_projhit</code></td>
+<td><code>skill07_hdg018</code> 或 <code>skill07_angry</code> 前三枚小弹</td>
+<td>直接造成自然 HP <strong>55% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill08_projhit</code></td>
+<td><code>skill08_hdg018</code> / <code>skill08</code> / <code>skill09</code> 的 <code>attack08</code> block</td>
+<td>第 <code>0-5</code> 帧球形自然 HP <strong>85% 攻击倍率</strong>。</td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill09_projhit</code></td>
+<td><code>skill09</code> 的 <code>attack09</code> finish</td>
+<td>第 <code>0</code> 帧继续发射 5 枚 <code>attack09_01</code>；普通命中链路走 <code>skill07_02_projhit</code>（自然 HP <strong>75%</strong>），block/reach 命中结果会分流到 <code>skill04_projhit</code>（<strong>55%</strong>）或 <code>skill07_projhit</code>（<strong>110%</strong>）。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_17">玩家应对重点<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<ol>
+<li>它主要盯主控：换主控会明显改变主要压制目标，但不会让随机队员分支消失。</li>
+<li>看到它冲向其他干员，多数是 <code>RandomMember</code> 位移/派生，不等于永久换仇恨。</li>
+<li>基础版重点看 <code>skill06</code>：HP 越低，<code>angry_fx</code> 层数越高；每层 <strong>+10% 攻击</strong>，最多 <strong>+30% 攻击</strong>。</li>
+<li>基础版愤怒后特别注意 <code>skill02_angry_02</code> 的超长连段、<code>skill04_angry</code> 的五枚小弹、<code>skill07_angry</code> 的三枚大弹。</li>
+<li>高难 S 版不要只看气旋数量：愤怒护盾层数是“气旋数 + 固定 5 层 + phase 层”，每层还给 <strong>+10% 攻击</strong>。</li>
+<li>高难 S 版愤怒护盾期间硬打效率很低，因为五种承伤只有 <strong>20%</strong>；稳定施加法术异常或物理异常可以逐层拆盾，并同步移除攻击提升。</li>
+</ol>
+<h2 id="_18">动画视频对照<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>视频</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eny_0082_hsbear_dash_b</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_dash_b.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_dash_b.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_dash_f</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_dash_f.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_dash_f.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_dash_l</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_dash_l.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_dash_l.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_dash_l_angry</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_dash_l_angry.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_dash_l_angry.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_dash_r</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_dash_r.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_dash_r.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_dash_r_angry</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_dash_r_angry.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_dash_r_angry.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_fightwalk</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_fightwalk.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_fightwalk.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_fightwalk_l</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_fightwalk_l.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_fightwalk_l.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_fightwalk_r</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_fightwalk_r.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_fightwalk_r.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill01</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill01.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill01.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill01_angry</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill01_angry.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill01_angry.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill01_hdg018</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill01_hdg018.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill01_hdg018.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill02</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill02.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill02.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill02_angry</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill02_angry.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill02_angry.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill02_angry_02</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill02_angry_02.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill02_angry_02.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill02_hdg018</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill02_hdg018.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill02_hdg018.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill03</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill03.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill03.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill03_hdg018</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill03_hdg018.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill03_hdg018.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill04</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill04.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill04.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill04_angry</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill04_angry.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill04_angry.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill04_hdg018</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill04_hdg018.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill04_hdg018.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill05</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill05.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill05.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill05_angry_01</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill05_angry_01.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill05_angry_01.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill05_angry_02</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill05_angry_02.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill05_angry_02.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill05_hdg018</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill05_hdg018.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill05_hdg018.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill06</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill06.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill06.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill06_hdg018</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill06_hdg018.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill06_hdg018.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill07</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill07.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill07.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill07_angry</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill07_angry.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill07_angry.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill07_hdg018</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill07_hdg018.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill07_hdg018.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill08</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill08.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill08.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill08_hdg018</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill08_hdg018.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill08_hdg018.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill08_l</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill08_l.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill08_l.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill08_r</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill08_r.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill08_r.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill08_simple</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill08_simple.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill08_simple.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_skill09</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_skill09.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_skill09.mp4">打开视频</a></td>
+</tr>
+<tr>
+<td><code>eny_0082_hsbear_taunt01</code></td>
+<td><video controls preload="metadata" width="320" src="media/eny_0082_hsbear/eny_0082_hsbear_taunt01.mp4"></video><br><a href="media/eny_0082_hsbear/eny_0082_hsbear_taunt01.mp4">打开视频</a></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      本文档采用 CC BY-NC-SA 4.0 许可协议发布。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
